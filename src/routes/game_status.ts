@@ -1,0 +1,53 @@
+
+import { FastifyInstance } from "fastify";
+import { pool } from "../db/index.js";
+import { z } from "zod";
+
+export async function gameStatusRoutes(app: FastifyInstance) {
+    app.get("/v1/game/bet/:betId/status", async (req, reply) => {
+        const { betId } = req.params as { betId: string };
+
+        try {
+            const res = await pool.query(
+                `SELECT b.status, b.final_result, b.payout_sat, b.server_seed_reveal, b.bet_details,
+                        wt.k1 
+                 FROM bets b
+                 LEFT JOIN withdrawal_tokens wt ON b.withdrawal_token_id = wt.id
+                 WHERE b.id = $1`,
+                [betId]
+            );
+
+            if (res.rowCount === 0) {
+                return reply.status(404).send({ error: "Bet not found" });
+            }
+
+            const bet = res.rows[0];
+
+            // If still waiting, valid response, just status is WAITING
+            if (bet.status === 'WAITING_PAYMENT') {
+                return { status: 'WAITING_PAYMENT' };
+            }
+
+            // If finished
+            let lnurlWithdraw = null;
+            if (bet.status === 'WON' && bet.k1) {
+                // Construct LNURL
+                // Actually return the k1/url directly so frontend renders QR
+                lnurlWithdraw = `https://api.quantumbtc.io/api/v1/lnurl/withdraw?k1=${bet.k1}`;
+            }
+
+            return {
+                status: bet.status,
+                outcome: bet.final_result,
+                payoutSat: Number(bet.payout_sat),
+                serverSeedReveal: bet.server_seed_reveal,
+                lnurlWithdraw,
+                k1: bet.k1
+            };
+
+        } catch (err) {
+            req.log.error(err);
+            return reply.status(500).send({ error: "Error checking status" });
+        }
+    });
+}

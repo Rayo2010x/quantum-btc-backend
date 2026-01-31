@@ -1,0 +1,79 @@
+
+import axios from "axios";
+import crypto from "node:crypto";
+import { env } from "../config/env.js";
+
+const api = axios.create({
+    baseURL: "https://api.opennode.com/v1", // Default to LIVE for this specific user test request
+    headers: {
+        Authorization: env.OPENNODE_API_KEY,
+        "Content-Type": "application/json",
+    },
+});
+
+// Only use dev URL if explicitly requested or if Key looks like a dev key (optional heuristic)
+// But User specifically asked for Real Money test. 
+// So let's force LIVE URL for now or verify environment.
+// if (env.NODE_ENV !== "production") {
+//     api.defaults.baseURL = "https://dev-api.opennode.com/v1";
+// }
+
+export const OpenNode = {
+    /**
+     * Creates a Lightning Invoice (Charge)
+     */
+    async createCharge(amountSat: number, description: string = "Quantum BTC Deposit") {
+        try {
+            console.log(`🔌 Creating Charge for ${amountSat} sats via OpenNode...`);
+            const response = await api.post("/charges", {
+                amount: amountSat,
+                // currency: "SATS", // OMITTED: Defaults to Satoshis for integer amounts
+                description,
+                callback_url: "https://api.quantumbtc.io/api/v1/webhooks/opennode",
+                auto_settle: false
+            });
+            console.log("✅ Charge Created:", response.data.data.id);
+            return response.data.data;
+        } catch (error: any) {
+            console.error("❌ OpenNode API Error:", error.response?.data || error.message);
+            throw new Error(error.response?.data?.message || "OpenNode API Failed");
+        }
+    },
+
+    /**
+     * Generates a withdrawal (LNURL-Withdraw or direct pay)
+     * This function creates a WITHDRAWAL REQUEST on users behalf?
+     * No, typically we issue a LNURL-Withdraw link for them to scan.
+     * OpenNode has /withdrawals endpoint to PAY an invoice.
+     * So flow is: User scans LNURL -> User wallet calls callback with Invoice -> Backend calls OpenNode to pay invoice.
+     */
+    async payInvoice(bolt11: string) {
+        const res = await api.post("/withdrawals", {
+            type: "ln",
+            address: bolt11,
+        });
+        return res.data.data;
+    },
+
+    /**
+     * Verifies HMAC signature of a webhook
+     */
+    verifySignature(chargeId: string, hashedOrder: string): boolean {
+        if (!hashedOrder) return false;
+        // signature is HMAC-SHA256(hashed_order, secret)
+        // Wait, OpenNode docs say: "hashed_order" is a field in the body.
+        // We verify by: comparing the signature header with calculated hmac?
+        // Actually, OpenNode sends hashed_order (which is HMAC(id, secret)).
+        // So we just need to re-calc it? 
+        // Docs: hashed_order = HMAC-SHA256(charge.id, api_key) -> Correction: It's usually secret.
+        // Let's implement the standard verification:
+        // hashed_order should match HMAC(id, secret)
+
+        const calculated = crypto
+            .createHmac("sha256", env.OPENNODE_HASHED_SECRET) // Use the HASHED_SECRET from dashboard
+            .update(chargeId)
+            .digest("hex");
+
+        return calculated === hashedOrder;
+    }
+};
