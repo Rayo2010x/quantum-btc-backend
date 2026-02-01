@@ -21,7 +21,7 @@ if (env.FRONTEND_URL) allowedOrigins.push(env.FRONTEND_URL);
 
 // CORS
 await app.register(cors, {
-  origin: allowedOrigins,
+  origin: "*",
   methods: ["GET", "POST", "PUT", "DELETE"],
 });
 
