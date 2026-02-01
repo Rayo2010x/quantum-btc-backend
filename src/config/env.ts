@@ -11,7 +11,8 @@ const envSchema = z.object({
     DATABASE_URL: z.string().startsWith("postgres"),
 
     // OpenNode (CRITICAL for payments)
-    OPENNODE_API_KEY: z.string().min(10, "OpenNode Key missing"),
+    OPENNODE_INVOICE_KEY: z.string().min(10, "OpenNode Invoice Key missing"),
+    OPENNODE_WITHDRAWAL_KEY: z.string().min(10, "OpenNode Withdrawal Key missing"),
     OPENNODE_HASHED_SECRET: z.string().min(10, "Webhook Secret missing"),
 
     // ANU Quantum RNG (Low risk, optional for local dev maybe, but required by manual)

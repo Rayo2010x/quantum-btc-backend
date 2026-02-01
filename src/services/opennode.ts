@@ -4,9 +4,8 @@ import crypto from "node:crypto";
 import { env } from "../config/env.js";
 
 const api = axios.create({
-    baseURL: "https://api.opennode.com/v1", // Default to LIVE for this specific user test request
+    baseURL: "https://api.opennode.com/v1",
     headers: {
-        Authorization: env.OPENNODE_API_KEY,
         "Content-Type": "application/json",
     },
 });
@@ -27,10 +26,11 @@ export const OpenNode = {
             console.log(`🔌 Creating Charge for ${amountSat} sats via OpenNode...`);
             const response = await api.post("/charges", {
                 amount: amountSat,
-                // currency: "SATS", // OMITTED: Defaults to Satoshis for integer amounts
                 description,
                 callback_url: "https://api.quantumbtc.io/api/v1/webhooks/opennode",
                 auto_settle: false
+            }, {
+                headers: { Authorization: env.OPENNODE_INVOICE_KEY }
             });
             console.log("✅ Charge Created:", response.data.data.id);
             return response.data.data;
@@ -51,6 +51,8 @@ export const OpenNode = {
         const res = await api.post("/withdrawals", {
             type: "ln",
             address: bolt11,
+        }, {
+            headers: { Authorization: env.OPENNODE_WITHDRAWAL_KEY }
         });
         return res.data.data;
     },
