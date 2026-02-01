@@ -27,7 +27,7 @@ export const OpenNode = {
             const response = await api.post("/charges", {
                 amount: amountSat,
                 description,
-                callback_url: "https://api.quantumbtc.io/api/v1/webhooks/opennode",
+                callback_url: `${env.PUBLIC_URL}/webhooks/opennode`,
                 auto_settle: false
             }, {
                 headers: { Authorization: env.OPENNODE_INVOICE_KEY }

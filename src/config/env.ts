@@ -5,6 +5,7 @@ import { z } from "zod";
 const envSchema = z.object({
     // Server Config
     PORT: z.coerce.number().default(3000),
+    PUBLIC_URL: z.string().url("Must be a valid URL"), // Backend public URL
     NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
 
     // Database (CRITICAL)
