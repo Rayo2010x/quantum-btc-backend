@@ -62,6 +62,10 @@ export async function fetchQuantumEntropy(batchSize: number = 10): Promise<strin
         if (!response.ok) {
             const text = await response.text();
             const status = response.status;
+            if (status === 403) {
+                 console.warn("⚠️ ANU API Key Invalid (403). Disabling Quantum Entropy for this session (Fallback to Crypto).");
+                 return []; // Triggers fallback in consumer
+            }
             if (text.includes("limit") || status === 429) {
                 console.warn(`⚠️ ANU API Rate Limit Hit: ${text.substring(0, 100)}...`);
                 throw new Error("RATE_LIMIT");
