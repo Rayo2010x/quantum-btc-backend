@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quantum BTC - System Integration Flowchart</title>
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({ startOnLoad: true, theme: 'dark' });
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a;
+            color: #e2e8f0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem;
+            margin: 0;
+        }
+        h1 {
+            margin-bottom: 2rem;
+            color: #38bdf8;
+        }
+        .diagram-container {
+            background-color: #1e293b;
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            width: 100%;
+            max-width: 1200px;
+            overflow-x: auto;
+        }
+        .legend {
+            margin-top: 2rem;
+            display: flex;
+            gap: 2rem;
+            justify-content: center;
+            font-size: 0.9rem;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+    </style>
+</head>
+<body>
+    <h1>Quantum BTC Architecture Integration</h1>
+    
+    <div class="diagram-container">
+        <pre class="mermaid">
+        flowchart TD
+            %% Nodes
+            User([User / Browser])
+            
+            subgraph Vercel_Cloud [Vercel Cloud]
+                Frontend[React Frontend App]
+            end
+            
+            subgraph Railway_Cloud [Railway Cloud]
+                Backend[Fastify API Server]
+                Worker[Entropy Worker]
+            end
+            
+            subgraph Supabase_Cloud [Supabase Cloud]
+                DB[(PostgreSQL Database)]
+            end
+            
+            subgraph External_Services [External Services]
+                ANU[ANU Quantum RNG]
+                OpenNode[OpenNode Payments]
+            end
+            
+            %% Relationships
+            User <-->|HTTPS / WSS| Frontend
+            Frontend <-->|HTTPS API Calls| Backend
+            
+            Backend <-->|Read/Write Data| DB
+            Worker -->|Buffer Entropy| DB
+            
+            Worker <-->|Fetch Randomness| ANU
+            
+            Backend <-->|Create Charge / Webhooks| OpenNode
+            User <-->|Pay Invoice / Withdraw| OpenNode
+            
+            %% Styling
+            classDef vercel fill:#000000,stroke:#fff,stroke-width:2px,color:#fff;
+            classDef railway fill:#0b0d0e,stroke:#a855f7,stroke-width:2px,color:#fff;
+            classDef supabase fill:#3ecf8e,stroke:#3ecf8e,stroke-width:2px,color:#000;
+            classDef external fill:#f59e0b,stroke:#f59e0b,stroke-width:2px,color:#000;
+            classDef user fill:#3b82f6,stroke:#3b82f6,stroke-width:2px,color:#fff;
+            
+            class Frontend vercel;
+            class Backend,Worker railway;
+            class DB supabase;
+            class ANU,OpenNode external;
+            class User user;
+        </pre>
+    </div>
+
+    <div class="legend">
+        <div class="legend-item"><div class="dot" style="background: #000; border: 1px solid #fff;"></div> Vercel (Frontend)</div>
+        <div class="legend-item"><div class="dot" style="background: #0b0d0e; border: 1px solid #a855f7;"></div> Railway (Backend)</div>
+        <div class="legend-item"><div class="dot" style="background: #3ecf8e;"></div> Supabase (DB)</div>
+        <div class="legend-item"><div class="dot" style="background: #f59e0b;"></div> External APIs</div>
+    </div>
+</body>
+</html>

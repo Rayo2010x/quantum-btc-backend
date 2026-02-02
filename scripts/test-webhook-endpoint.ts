@@ -12,29 +12,43 @@ if (!SECRET) {
 }
 
 async function testWebhook() {
-    console.log("🔗 Starting Webhook Endpoint Test...");
+    console.log("🔗 Starting Webhook Endpoint Test (Bet Flow)...");
     const client = await pool.connect();
 
     try {
-        // 1. Create a mock Pending Transaction
-        // We need a session first or use existing? Let's create one.
+        // 1. Create a mock Session
         const resSession = await client.query(`
-            INSERT INTO sessions (current_balance_sat) VALUES (0) RETURNING id
+            INSERT INTO sessions DEFAULT VALUES RETURNING id
         `);
         const sessionId = resSession.rows[0].id;
         console.log(`    ✅ Created Mock Session: ${sessionId}`);
 
         const mockChargeId = `test_charge_${crypto.randomBytes(4).toString("hex")}`;
-        const amountSat = 1000;
+        const amountSat = 100;
 
+        // Mock Client Seed
+        const clientSeed = "test-client-seed";
+        const serverSeedHash = crypto.createHash('sha256').update("test-entropy").digest('hex');
+
+        // 2. Insert Mock BET (WAITING_PAYMENT)
         await client.query(`
-            INSERT INTO transactions (session_id, type, amount_sat, provider_id, status)
-            VALUES ($1, 'DEPOSIT', $2, $3, 'PENDING')
-        `, [sessionId, amountSat, mockChargeId]);
-        console.log(`    ✅ Created Mock Transaction (PENDING): ${mockChargeId}`);
+            INSERT INTO bets (
+                session_id, amount_sat, payout_sat, selected_numbers, 
+                client_seed, server_seed_hash, final_result, status, bet_details, invoice_id
+            ) VALUES ($1, $2, 0, $3, $4, $5, NULL, 'WAITING_PAYMENT', $6, $7)
+        `, [
+            sessionId,
+            amountSat,
+            [1], // Selected numbers (Array literal for PG)
+            clientSeed,
+            serverSeedHash,
+            JSON.stringify([{ number: 1, amount: 100 }]), // bet_details
+            mockChargeId
+        ]);
 
-        // 2. Generate Signature
-        // Signature = HMAC-SHA256(id, secret)
+        console.log(`    ✅ Created Mock Bet (WAITING_PAYMENT): ${mockChargeId}`);
+
+        // 3. Generate Signature
         const hashedOrder = crypto
             .createHmac("sha256", SECRET!)
             .update(mockChargeId)
@@ -42,11 +56,12 @@ async function testWebhook() {
 
         console.log(`    🔑 Generated Signature (hashed_order): ${hashedOrder}`);
 
-        // 3. Send Webhook Request
-        console.log("    🚀 Sending Webhook Request to localhost:3000...");
+        // 4. Send Webhook Request
+        const targetUrl = process.argv[2] || "http://localhost:3000";
+        console.log(`    🚀 Sending Webhook Request to ${targetUrl}/v1/webhooks/opennode...`);
 
         try {
-            const response = await axios.post("http://localhost:3000/v1/webhooks/opennode", {
+            const response = await axios.post(`${targetUrl}/v1/webhooks/opennode`, {
                 id: mockChargeId,
                 status: "paid",
                 hashed_order: hashedOrder
@@ -56,44 +71,40 @@ async function testWebhook() {
 
             if (response.status === 200) {
                 console.log("    ✅ Server responded with 200 OK");
+                if (response.data.ignored) {
+                    console.warn("    ⚠️  Server IGNORED the webhook (check logic).");
+                }
             } else {
                 console.error(`    ❌ Server responded with ${response.status}:`, response.data);
             }
 
         } catch (err: any) {
-            console.error("    ❌ Failed to assert webhook request. Is the server running?");
-            console.error("       Error:", err.message);
-            if (err.code === "ECONNREFUSED") {
-                console.log("       ⚠️  HINT: Run 'npm run dev' in a separate terminal.");
+            console.error("    ❌ Webhook POST Failed:", err.message);
+            if (err.response) {
+                console.error("       Data:", err.response.data);
             }
             throw err;
         }
 
-        // 4. Verify DB Update
-        const resTx = await client.query(`
-            SELECT status FROM transactions WHERE provider_id = $1
+        // 5. Verify DB Update
+        // Wait a bit? Webhook processing might be sync though.
+        const resBet = await client.query(`
+            SELECT status, final_result FROM bets WHERE invoice_id = $1
         `, [mockChargeId]);
 
-        const txStatus = resTx.rows[0]?.status;
-        console.log(`    🔍 DB Transaction Status: ${txStatus}`);
+        const bet = resBet.rows[0];
+        console.log(`    🔍 DB Bet Status: ${bet?.status}, Result: ${bet?.final_result}`);
 
-        if (txStatus === "PAID") {
-            const resBal = await client.query(`SELECT current_balance_sat FROM sessions WHERE id = $1`, [sessionId]);
-            const balance = resBal.rows[0].current_balance_sat;
-            if (Number(balance) === 1000) {
-                console.log(`    ✅ Balance Credited: ${balance}`);
-                console.log("\n✅ WEBHOOK TEST PASSED");
-            } else {
-                console.error(`    ❌ Balance Mismatch: Expected 1000, got ${balance}`);
-            }
+        if (bet?.status === "WON" || bet?.status === "LOST") {
+            console.log(`    ✅ Bet processed! Outcome: ${bet.final_result}`);
+            console.log("\n✅ WEBHOOK TEST PASSED");
         } else {
-            console.error("    ❌ Transaction was NOT updated to PAID.");
+            console.error("    ❌ Bet was NOT updated (Still WAITING_PAYMENT?).");
         }
 
     } catch (err) {
         console.error("\n❌ Test Failed:", err);
     } finally {
-        // Cleanup? Optional. Keeping data for inspection is good.
         client.release();
         await pool.end();
     }
