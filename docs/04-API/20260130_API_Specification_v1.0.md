@@ -89,6 +89,7 @@
 
 **Charge Paid**
 *   **POST** `/api/v1/webhooks/opennode`
+*   **Content-Type:** `application/x-www-form-urlencoded`
 *   **Headers:** `x-signature: <HMAC>`
 *   **Body:**
     ```json

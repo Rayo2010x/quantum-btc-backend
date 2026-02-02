@@ -37,9 +37,10 @@ services:
 | :--- | :--- | :--- |
 | `PORT` | API Port | `3000` |
 | `DATABASE_URL` | Postgres Connection | `postgresql://user:pass@localhost:5432/db` |
-| `OPENNODE_API_KEY` | Admin Key (Read/Withdraw/Invoices) | `ebd8...` |
-| `OPENNODE_HASHED_SECRET` | Webhook Secret (Same as API Key) | `ebd8...` |
-| `ANU_API_KEY` | Quantum API Key | `...` |
+| `OPENNODE_API_KEY` | Admin Key (Invoices) | `ebd8...` |
+| `OPENNODE_HASHED_SECRET` | **MUST match `OPENNODE_API_KEY`** (for Signature verification) | `ebd8...` |
+| `PUBLIC_URL` | Application URL for Webhooks (No trailing slash) | `https://...` |
+| `ANU_API_KEY` | Quantum API Key (Optional, triggers fallback if missing) | `...` |
 | `BANKROLL_FLOOR_SATS` | Safety Stop Limit | `400000` |
 
 ## 3. Disaster Recovery (DR)

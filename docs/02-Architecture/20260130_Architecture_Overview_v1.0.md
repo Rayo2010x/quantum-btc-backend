@@ -30,7 +30,7 @@ graph TD
 ### Component Roles
 1.  **Fastify API Server:** Handles all HTTP requests, game logic, authentication (stateless), and payment orchestration.
 2.  **PostgreSQL:** Primary persistence layer. Stores bets, transactions, and the entropy buffer. Uses `BigInt` for Satoshi precision.
-3.  **Entropy Worker:** A background process (or cron) that proactively fetches quantum random numbers from ANU allows for zero-latency betting by maintaining a "Buffer" of pre-verified randomness.
+3.  **Entropy Worker:** A background process that aggressively fetches quantum random numbers from ANU. **Includes automatic fallback to standard CSPRNG (Crypto)** if the ANU API limit is reached or returns errors (403/500).
 4.  **OpenNode:** Managed node provider for generating invoices and handling LNURL-withdraw requests.
 5.  **Drand:** Used as a secondary public beacon to ensure the "provably fair" chain cannot be manipulated by the server alone.
 

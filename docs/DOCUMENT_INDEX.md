@@ -18,7 +18,7 @@
 ## 02-Architecture (System Design)
 | Artifact | Version | Status | Last Modified |
 | :--- | :--- | :--- | :--- |
-| [Architecture Overview & DFD](02-Architecture/20260130_Architecture_Overview_v1.0.md) | 1.0 | **DRAFT** | 2026-01-30 |
+| [Architecture Overview & DFD](02-Architecture/20260130_Architecture_Overview_v1.0.md) | 1.1 | **VIGENTE** | 2026-02-02 |
 | [Security Model](02-Architecture/20260130_Security_Model_v1.0.md) | 1.0 | **DRAFT** | 2026-01-30 |
 
 ## 03-Database (Persistence Layer)
@@ -30,7 +30,7 @@
 ## 04-API (Interfaces & Contracts)
 | Artifact | Version | Status | Last Modified |
 | :--- | :--- | :--- | :--- |
-| [API Specification (REST & LNURL)](04-API/20260130_API_Specification_v1.0.md) | 1.0 | **DRAFT** | 2026-01-30 |
+| [API Specification (REST & LNURL)](04-API/20260130_API_Specification_v1.0.md) | 1.1 | **VIGENTE** | 2026-02-02 |
 
 ## 05-QA-Testing (Verification)
 | Artifact | Version | Status | Last Modified |
@@ -41,7 +41,7 @@
 ## 06-Operations (Deployment & Maintenance)
 | Artifact | Version | Status | Last Modified |
 | :--- | :--- | :--- | :--- |
-| [Operations Manual](06-Operations/20260130_Operations_Manual_v1.0.md) | 1.0 | **VIGENTE** | 2026-01-30 |
+| [Operations Manual](06-Operations/20260130_Operations_Manual_v1.0.md) | 1.1 | **VIGENTE** | 2026-02-02 |
 
 ## 07-Archive (Obsolete)
 | Artifact | Version | Status | Last Modified |
