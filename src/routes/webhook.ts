@@ -21,12 +21,15 @@ export async function webhookRoutes(app: FastifyInstance) {
     // 1. Verify HMAC
     const body = req.body as any;
     const { id, status, hashed_order } = body;
+    console.log(`🪝 Webhook received for ID: ${id}, Status: ${status}`);
 
     // Optional: Real verification
     if (!OpenNode.verifySignature(id, hashed_order)) {
-      app.log.warn(`Invalid Webhook Signature: ${id}`);
+      console.warn(`❌ Invalid Webhook Signature: ${id}`);
+      // Log what we have vs what we expected if possible? No, verifySignature hides it.
       return reply.status(400).send({ error: "Invalid Signature" });
     }
+    console.log(`✅ Signature verified for ID: ${id}`);
 
     if (status !== 'paid') {
       return { ok: true, ignored: true };
@@ -38,6 +41,7 @@ export async function webhookRoutes(app: FastifyInstance) {
         const betRes = await client.query("SELECT * FROM bets WHERE invoice_id = $1 FOR UPDATE", [id]);
 
         if ((betRes.rowCount || 0) === 0) {
+          console.log(`ℹ️ No bet found for Invoice ID: ${id}. Checking transactions...`);
           // Might be a deposit/regular transaction, check 'transactions' (Legacy/Hybrid support)
           const res = await client.query("SELECT * FROM transactions WHERE provider_id = $1", [id]);
           if ((res.rowCount || 0) > 0) {
@@ -48,9 +52,14 @@ export async function webhookRoutes(app: FastifyInstance) {
         }
 
         const bet = betRes.rows[0];
+        console.log(`🎰 Bet found: ${bet.id}, Current Status: ${bet.status}`);
+
         if (bet.status !== 'WAITING_PAYMENT') {
+          console.log(`⚠️ Bet already processed or invalid status: ${bet.status}`);
           return { ok: true, idempotent: true };
         }
+
+        console.log(`🎲 Executing Game Logic for Bet: ${bet.id}...`);
 
         // 3. Execute Game Logic
         // Retrieve Entropy from Buffer (It was reserved/linked in bet.entropy_id)
@@ -119,6 +128,7 @@ export async function webhookRoutes(app: FastifyInstance) {
           [finalStatus, outcome, BigInt(totalPayout), entropyData, withdrawalTokenId, bet.id]
         );
 
+        console.log(`🏁 Game Finished. Result: ${finalStatus}, Outcome: ${outcome}, Payout: ${totalPayout}`);
         return { ok: true, betId: bet.id, result: finalStatus };
       });
 
