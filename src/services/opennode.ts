@@ -24,12 +24,15 @@ export const OpenNode = {
     async createCharge(amountSat: number, description: string = "Quantum BTC Deposit") {
         try {
             console.log(`🔌 Creating Charge for ${amountSat} sats via OpenNode...`);
-            const response = await api.post("/charges", {
+            const payload = {
                 amount: amountSat,
                 description,
                 callback_url: `${env.PUBLIC_URL}/v1/webhooks/opennode`,
                 auto_settle: false
-            }, {
+            };
+            console.log("🔌 Creating OpenNode Charge with Callback URL:", `${env.PUBLIC_URL}/v1/webhooks/opennode`);
+
+            const response = await api.post("/charges", payload, {
                 headers: { Authorization: env.OPENNODE_INVOICE_KEY }
             });
             console.log("✅ Charge Created:", response.data.data.id);
