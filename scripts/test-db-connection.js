@@ -22,7 +22,7 @@ if (!connectionString) {
 console.log(`ℹ️  Usando cadena de conexión: ${connectionString.replace(/:[^:@]+@/, ':***@')}`); // Ocultar contraseña en logs
 
 const client = new Client({
-  connectionString,
+  connectionString: connectionString.split('?')[0],
   ssl: { rejectUnauthorized: false }, // Necessary for Supabase
 });
 

@@ -6,7 +6,7 @@ import { env } from "../config/env.js";
 
 export const pool = new Pool({
   // Strip query params (like ?sslmode=require) to allow explicit ssl config to work
-  connectionString: env.DATABASE_URL,
+  connectionString: env.DATABASE_URL.split('?')[0],
   ssl: { rejectUnauthorized: false } // MVP
 });
 
