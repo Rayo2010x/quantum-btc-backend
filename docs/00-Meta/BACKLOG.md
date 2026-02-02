@@ -2,7 +2,7 @@
 # Project Backlog & Roadmap
 
 > **Status:** Active
-> **Last Updated:** 2026-01-31
+> **Last Updated:** 2026-02-02
 
 Este documento centraliza los pendientes técnicos, deuda técnica y roadmap del proyecto Quantum BTC.
 
@@ -17,7 +17,7 @@ Este documento centraliza los pendientes técnicos, deuda técnica y roadmap del
 - [x] **Inicialización:** Setup de Next.js/React + Vite (Completado).
 - [x] **Diseño UI:** Implementar la interfaz "Premium" (MVP funcional con BetControls).
 - [x] **Integración LNURL:** Mostrar QRs de retiro (Completado).
-- [/] **Animación de Ruleta:** Visualización del resultado (En Progreso).
+- [x] **Animación de Ruleta:** Visualización del resultado (Completado - Verificado en Prod).
 
 ## 3. QA & Testing
 ## 3. QA & Testing
@@ -26,5 +26,5 @@ Este documento centraliza los pendientes técnicos, deuda técnica y roadmap del
 - [ ] **Security Audit:** Revisión de dependencias y secretos.
 
 ## 4. Documentación
-- [ ] **Completar DRAFTs:** Finalizar documentos de Arquitectura y Seguridad.
-- [ ] **API Registry:** Documentar endpoints finales con ejemplos de Request/Response.
+- [x] **Completar DRAFTs:** Finalizar documentos de Arquitectura y Seguridad (Completado v1.1).
+- [x] **API Registry:** Documentar endpoints finales con ejemplos de Request/Response (Completado en API Spec v1.1).
