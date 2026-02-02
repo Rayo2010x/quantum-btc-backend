@@ -13,11 +13,15 @@ import { startEntropyWorker } from "./services/entropy_worker.js";
 import { sessionRoutes } from "./routes/session.js";
 import { gameStatusRoutes } from "./routes/game_status.js";
 import cors from "@fastify/cors";
+import formbody from "@fastify/formbody";
 
 const app = Fastify({ logger: true });
 
 const allowedOrigins = ["http://localhost:5173", "http://127.0.0.1:5173"];
 if (env.FRONTEND_URL) allowedOrigins.push(env.FRONTEND_URL);
+
+// Content Type Parser (Form Body) - MUST be registered early
+await app.register(formbody);
 
 // CORS
 await app.register(cors, {
