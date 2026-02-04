@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manual de Procesos - Quantum BTC</title>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --accent-color: #3498db;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --danger-color: #c0392b;
+            --light-bg: #f8f9fa;
+            --border-color: #dee2e6;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+        }
+
+        header {
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            margin-bottom: 5px;
+        }
+
+        .meta-info {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        section {
+            margin-bottom: 40px;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--border-color);
+        }
+
+        h2 {
+            color: var(--primary-color);
+            border-left: 5px solid var(--accent-color);
+            padding-left: 10px;
+            margin-top: 0;
+        }
+
+        h3 {
+            color: #555;
+            margin-top: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 0.95em;
+        }
+
+        th,
+        td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background-color: var(--light-bg);
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        tr:hover {
+            background-color: #f1f8ff;
+        }
+
+        .role-tag {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.85em;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .role-user {
+            background-color: #9b59b6;
+        }
+
+        .role-backend {
+            background-color: #34495e;
+        }
+
+        .role-frontend {
+            background-color: #e67e22;
+        }
+
+        .role-db {
+            background-color: #27ae60;
+        }
+
+        .role-opennode {
+            background-color: #2980b9;
+        }
+
+        .role-worker {
+            background-color: #c0392b;
+        }
+
+        .diagram-box {
+            background: var(--light-bg);
+            padding: 15px;
+            border-radius: 5px;
+            border: 1px dashed var(--border-color);
+            margin: 10px 0;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+
+        .alert {
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 1px solid transparent;
+            border-radius: 4px;
+        }
+
+        .alert-info {
+            color: #31708f;
+            background-color: #d9edf7;
+            border-color: #bce8f1;
+        }
+
+        ul.process-list {
+            list-style-type: none;
+            padding-left: 0;
+        }
+
+        ul.process-list li {
+            position: relative;
+            padding-left: 30px;
+            margin-bottom: 15px;
+        }
+
+        ul.process-list li::before {
+            content: "➜";
+            position: absolute;
+            left: 0;
+            color: var(--accent-color);
+        }
+
+        code {
+            background-color: #f1f1f1;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-family: 'Consolas', monospace;
+            color: #e83e8c;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <h1>Manual de Procesos: Ciclo de Vida de Apuesta</h1>
+        <div class="meta-info">
+            <p><strong>Proyecto:</strong> Quantum BTC</p>
+            <p><strong>Fecha:</strong> 2026-02-02</p>
+            <p><strong>Versión:</strong> 1.0 (Draft)</p>
+        </div>
+    </header>
+
+    <section>
+        <h2>1. Actores y Responsabilidades</h2>
+        <p>Definición de los roles técnicos involucrados en la ejecución de la lógica de negocio.</p>
+        <table>
+            <thead>
+                <tr>
+                    <th>Actor</th>
+                    <th>Etiqueta</th>
+                    <th>Responsabilidad Principal</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Usuario Final</td>
+                    <td><span class="role-tag role-user">User</span></td>
+                    <td>Iniciar la sesión, seleccionar apuesta, realizar pagos LN y reclamar premios.</td>
+                </tr>
+                <tr>
+                    <td>Frontend (Next.js/Vercel)</td>
+                    <td><span class="role-tag role-frontend">Frontend</span></td>
+                    <td>Interfaz visual, polling de estados, presentación de QRs.</td>
+                </tr>
+                <tr>
+                    <td>Backend API (Node.js/Railway)</td>
+                    <td><span class="role-tag role-backend">Backend</span></td>
+                    <td>Orquestación central, validación de reglas, cálculo de resultados, control de pagos.</td>
+                </tr>
+                <tr>
+                    <td>Base de Datos (PostgreSQL/Supabase)</td>
+                    <td><span class="role-tag role-db">DB</span></td>
+                    <td>Persistencia transaccional, bloqueo de filas (row-locking), almacenamiento de entropía.</td>
+                </tr>
+                <tr>
+                    <td>Entropy Worker</td>
+                    <td><span class="role-tag role-worker">Worker</span></td>
+                    <td>Proceso background que mantiene el buffer de entropía cuántica lleno.</td>
+                </tr>
+                <tr>
+                    <td>OpenNode (Payment Provider)</td>
+                    <td><span class="role-tag role-opennode">OpenNode</span></td>
+                    <td>Proecesamiento de pagos Lightning Network (Invoices y Withdrawals).</td>
+                </tr>
+            </tbody>
+        </table>
+    </section>
+
+    <section>
+        <h2>2. Matriz Detallada de Procesos</h2>
+        <p>Desglose paso a paso desde el inicio de sesión hasta el cobro del premio.</p>
+
+        <h3>Fase 1: Inicialización y Colocación de Apuesta</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th style="width: 5%">#</th>
+                    <th>Acción / Proceso</th>
+                    <th>Responsable</th>
+                    <th>Detalles Técnicos (Data & State)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>01</td>
+                    <td>Inicio de Sesión (Anónimo)</td>
+                    <td><span class="role-tag role-user">User</span> ➜ <span
+                            class="role-tag role-backend">Backend</span></td>
+                    <td>POST <code>/v1/session/init</code>. Se crea registro en tabla <code>sessions</code>. Retorna
+                        <code>sessionId</code>. No requiere auth profunda.</td>
+                </tr>
+                <tr>
+                    <td>02</td>
+                    <td>Selección de Apuesta y Envío</td>
+                    <td><span class="role-tag role-user">User</span> ➜ <span
+                            class="role-tag role-backend">Backend</span></td>
+                    <td>El usuario envía números y monto. POST <code>/v1/game/bet</code>.</td>
+                </tr>
+                <tr>
+                    <td>03</td>
+                    <td>Validación de Límites (Bankroll)</td>
+                    <td><span class="role-tag role-backend">Backend</span></td>
+                    <td>Verifica que <code>amount &lt; MAX_BET_SATS</code>. <code>MAX_BET</code> se calcula
+                        dinámicamente basado en <code>(Bankroll - Floor) / K</code>.</td>
+                </tr>
+                <tr>
+                    <td>04</td>
+                    <td>Reserva de Entropía y Creación de Invoice</td>
+                    <td><span class="role-tag role-backend">Backend</span> ➜ <span
+                            class="role-tag role-opennode">OpenNode</span></td>
+                    <td>
+                        1. <strong>DB:</strong> Marca 1 bloque de entropía como <code>is_consumed=TRUE</code>
+                        (Reserva).<br>
+                        2. <strong>OpenNode:</strong> Genera Invoice (Charge) por el monto de la apuesta.<br>
+                        3. <strong>DB:</strong> Inserta registro en <code>bets</code> con status
+                        <code>WAITING_PAYMENT</code>, <code>server_seed_hash</code> (Commitment) y link al
+                        <code>invoice_id</code>.
+                    </td>
+                </tr>
+                <tr>
+                    <td>05</td>
+                    <td>Presentación de Invoice QR</td>
+                    <td><span class="role-tag role-backend">Backend</span> ➜ <span
+                            class="role-tag role-frontend">Frontend</span></td>
+                    <td>Retorna el string BOLT11 al usuario para que lo pague con su wallet.</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3>Fase 2: Ejecución del Juego (Pago Confirmado)</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th style="width: 5%">#</th>
+                    <th>Acción / Proceso</th>
+                    <th>Responsable</th>
+                    <th>Detalles Técnicos (Data & State)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>06</td>
+                    <td>Pago de Invoice</td>
+                    <td><span class="role-tag role-user">User</span> ➜ <span
+                            class="role-tag role-opennode">OpenNode</span></td>
+                    <td>Usuario escanea y paga. OpenNode detecta el pago en LN.</td>
+                </tr>
+                <tr>
+                    <td>07</td>
+                    <td>Recepción de Webhook</td>
+                    <td><span class="role-tag role-opennode">OpenNode</span> ➜ <span
+                            class="role-tag role-backend">Backend</span></td>
+                    <td>POST <code>/v1/webhooks/opennode</code>. El Backend verifica la firma HMAC-SHA256 para
+                        autenticidad.</td>
+                </tr>
+                <tr>
+                    <td>08</td>
+                    <td>Bloqueo y Ejecución (Critical Path)</td>
+                    <td><span class="role-tag role-backend">Backend</span> ➜ <span class="role-tag role-db">DB</span>
+                    </td>
+                    <td>
+                        1. <strong>DB Lock:</strong> <code>SELECT ... FOR UPDATE</code> sobre la apuesta para evitar
+                        doble gasto.<br>
+                        2. <strong>Reveal:</strong> Recupera la entropía reservada (ahora revelada como
+                        <code>server_seed</code>).<br>
+                        3. <strong>Cálculo:</strong> <code>Result = SHA256(ServerSeed + ClientSeed) % 37</code>.<br>
+                        4. <strong>Update:</strong> Actualiza <code>bets</code> a <code>WON</code> o <code>LOST</code> y
+                        guarda <code>final_result</code>.
+                    </td>
+                </tr>
+                <tr>
+                    <td>09</td>
+                    <td>Generación de Token de Retiro (Solo Ganadores)</td>
+                    <td><span class="role-tag role-backend">Backend</span> ➜ <span class="role-tag role-db">DB</span>
+                    </td>
+                    <td>Si ganó: Genera un secreto <code>k1</code> y crea registro en <code>withdrawal_tokens</code>
+                        válido por 24h. Vincula este token a la apuesta.</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3>Fase 3: Notificación y Cobro</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th style="width: 5%">#</th>
+                    <th>Acción / Proceso</th>
+                    <th>Responsable</th>
+                    <th>Detalles Técnicos (Data & State)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>10</td>
+                    <td>Polling de Estado</td>
+                    <td><span class="role-tag role-frontend">Frontend</span> ➜ <span
+                            class="role-tag role-backend">Backend</span></td>
+                    <td>El Frontend consulta regularmente el estado de la apuesta. Recibe <code>WON</code> y el payload
+                        del LNURL-withdraw.</td>
+                </tr>
+                <tr>
+                    <td>11</td>
+                    <td>Visualización de Resultado</td>
+                    <td><span class="role-tag role-frontend">Frontend</span></td>
+                    <td>Muestra animación de ruleta deteniéndose en el número resultante. Si gana, muestra botón
+                        "Cobrar" (QR LNURL).</td>
+                </tr>
+                <tr>
+                    <td>12</td>
+                    <td>Solicitud de Retiro (Scan)</td>
+                    <td><span class="role-tag role-user">User</span> ➜ <span
+                            class="role-tag role-backend">Backend</span></td>
+                    <td>Wallet escanea QR. GET <code>/v1/lnurl/withdraw?k1=...</code>. Backend valida token no usado y
+                        no expirado.</td>
+                </tr>
+                <tr>
+                    <td>13</td>
+                    <td>Ejecución de Pago Saliente</td>
+                    <td><span class="role-tag role-opennode">OpenNode</span> ➜ <span
+                            class="role-tag role-backend">Backend</span></td>
+                    <td>Wallet envía Invoice de cobro al callback. Backend valida y ordena a OpenNode pagar la factura
+                        (<code>OpenNode.payInvoice</code>). Marca token como <code>is_used=TRUE</code>.</td>
+                </tr>
+            </tbody>
+        </table>
+    </section>
+
+    <section>
+        <h2>3. Controles y Procesos de Fondo</h2>
+
+        <h3>3.1 Entropy Buffer (Mecánica de Llenado)</h3>
+        <div class="diagram-box">
+            Responsable: Entropy Worker Service (src/services/entropy_worker.ts)
+            Frecuencia: Polling cada 5 segundos.
+
+            PROCESO:
+            1. Consultar conteo DB: `SELECT COUNT(*) FROM entropy_buffer WHERE is_consumed = FALSE`
+            2. Si count < BUFFER_TARGET (100): a. Calcular faltantes (ej. faltan 10). b. Request HTTPS a API ANU Quantum
+                (o fallback a Crypto nativo si falla). c. Iniciar transacción DB. d. INSERT masivo de bloques
+                hexadecimales. e. COMMIT. 3. Dormir 5s y repetir. </div>
+
+                <h3>3.2 Protección de Bankroll (Gestión de Riesgo)</h3>
+                <div class="diagram-box">
+                    Responsable: Bet Route (src/routes/bet.ts)
+                    Momento: Antes de crear cualquier Invoice.
+
+                    REGLA: MAX BET DINÁMICO
+                    Formula: MaxBet = (Current_Balance - Reserved_Funds - FLOOR) / Safety_Factor
+
+                    Donde:
+                    - Current_Balance: Fondos reales en OpenNode.
+                    - Reserved_Funds: Suma de withdrawal_tokens activos (ganados pero no cobrados).
+                    - FLOOR: Mínimo operativo (ej. 400,000 sats).
+                    - Safety_Factor: Divisor para exponer solo una fracción del excedente (ej. 50).
+
+                    Si la apuesta > MaxBet, el sistema rechaza inmediatamente con error 400.
+                </div>
+    </section>
+
+</body>
+
+</html>
