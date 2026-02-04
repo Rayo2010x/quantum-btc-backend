@@ -1,8 +1,17 @@
 
+import { useState, useEffect } from 'react';
 import { Layout } from './components/ui/Layout';
 import { BetControls } from './components/game/BetControls';
+import { GameApi } from './lib/api';
 
 function App() {
+  const [sessionId, setSessionId] = useState<string | null>(null);
+
+  useEffect(() => {
+    // Init session on load
+    GameApi.initSession().then(id => setSessionId(id));
+  }, []);
+
   return (
     <Layout>
       <div className="flex flex-col items-center justify-start min-h-[80vh] text-center space-y-10">
@@ -22,7 +31,7 @@ function App() {
 
         {/* Footer info */}
         <div className="text-xs text-gray-600 font-mono">
-          Session ID: {localStorage.getItem('qb_sessionId') || 'Not Set'}
+          Session ID: {sessionId || 'Initializing...'}
         </div>
       </div>
     </Layout>

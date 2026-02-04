@@ -80,6 +80,10 @@ export const GameApi = {
     getHealth: async () => {
         const res = await api.get('/health');
         return res.data;
+    },
+
+    initSession: async () => {
+        return getOrCreateSession();
     }
 };
 
