@@ -15,6 +15,7 @@ const WebhookSchema = z.object({
 
 import { withTx } from "../db/index.js";
 import crypto from "node:crypto";
+import { broadcastGameResult } from "../services/websocket.js";
 
 export async function webhookRoutes(app: FastifyInstance) {
   app.post("/v1/webhooks/opennode", async (req, reply) => {
@@ -129,6 +130,17 @@ export async function webhookRoutes(app: FastifyInstance) {
         );
 
         console.log(`🏁 Game Finished. Result: ${finalStatus}, Outcome: ${outcome}, Payout: ${totalPayout}`);
+        console.log(`🏁 Game Finished. Result: ${finalStatus}, Outcome: ${outcome}, Payout: ${totalPayout}`);
+
+        // Broadcast Result via Websocket!
+        broadcastGameResult(bet.id, {
+          status: finalStatus,
+          outcome,
+          payoutSat: totalPayout.toString(),
+          serverSeedReveal: entropyData,
+          withdrawalTokenId: withdrawalTokenId
+        });
+
         return { ok: true, betId: bet.id, result: finalStatus };
       });
 

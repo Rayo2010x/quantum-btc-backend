@@ -2,16 +2,16 @@
 # Project Backlog & Roadmap
 
 > **Status:** Active
-> **Last Updated:** 2026-02-02
+> **Last Updated:** 2026-02-04
 
 Este documento centraliza los pendientes técnicos, deuda técnica y roadmap del proyecto Quantum BTC.
 
 ## 1. Backend Core (v0.1.0)
 - [x] **Setup Inicial:** Configuración de servidor, BD y entorno (Completado).
 - [x] **Lógica de Apuestas:** MVP de Ruleta Europea (Completado).
-- [x] **Integración ANU QRNG:** Worker de entropía cuántica (Completado).
+- [x] **Integración ANU QRNG:** Worker de entropía cuántica (Completado - Fix Prod 2026-02-04).
 - [ ] **Integración `drand`:** Añadir beacon de aleatoriedad pública para auditoría temporal (Pendiente - Post-MVP).
-- [ ] **Websockets:** Notificaciones en tiempo real para el frontend (Pendiente).
+- [x] **Websockets:** Notificaciones en tiempo real para el frontend (Completado).
 
 ## 2. Frontend (v0.1.0)
 - [x] **Inicialización:** Setup de Next.js/React + Vite (Completado).

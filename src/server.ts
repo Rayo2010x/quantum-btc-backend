@@ -14,6 +14,8 @@ import { sessionRoutes } from "./routes/session.js";
 import { gameStatusRoutes } from "./routes/game_status.js";
 import cors from "@fastify/cors";
 import formbody from "@fastify/formbody";
+import websocket from "@fastify/websocket";
+import { handleWebsocketConnection } from "./services/websocket.js";
 
 const app = Fastify({ logger: true });
 
@@ -28,6 +30,14 @@ await app.register(cors, {
   origin: "*",
   methods: ["GET", "POST", "PUT", "DELETE"],
 });
+
+// Websocket Support
+await app.register(websocket);
+
+app.get("/ws", { websocket: true }, (connection, req) => {
+  handleWebsocketConnection(connection, req);
+});
+
 
 
 app.get("/health", async () => ({ ok: true }));
