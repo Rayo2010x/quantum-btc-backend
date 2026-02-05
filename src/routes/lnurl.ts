@@ -2,6 +2,7 @@
 import { FastifyInstance } from "fastify";
 import { pool } from "../db/index.js";
 import { OpenNode } from "../services/opennode.js";
+import { env } from "../config/env.js";
 
 export async function lnurlRoutes(app: FastifyInstance) {
 
@@ -26,7 +27,7 @@ export async function lnurlRoutes(app: FastifyInstance) {
 
         return {
             tag: "withdrawRequest",
-            callback: "https://api.quantumbtc.io/api/v1/lnurl/callback",
+            callback: `${env.PUBLIC_URL}/v1/lnurl/callback`,
             k1: k1,
             defaultDescription: "Quantum BTC Winnings",
             minWithdrawable: Number(token.amount_sat) * 1000, // millisats
