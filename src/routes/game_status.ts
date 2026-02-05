@@ -2,6 +2,7 @@
 import { FastifyInstance } from "fastify";
 import { pool } from "../db/index.js";
 import { z } from "zod";
+import lnurl from "lnurl";
 
 export async function gameStatusRoutes(app: FastifyInstance) {
     app.get("/v1/game/bet/:betId/status", async (req, reply) => {
@@ -33,7 +34,8 @@ export async function gameStatusRoutes(app: FastifyInstance) {
             if (bet.status === 'WON' && bet.k1) {
                 // Construct LNURL
                 // Actually return the k1/url directly so frontend renders QR
-                lnurlWithdraw = `https://api.quantumbtc.io/api/v1/lnurl/withdraw?k1=${bet.k1}`;
+                const rawUrl = `https://api.quantumbtc.io/api/v1/lnurl/withdraw?k1=${bet.k1}`;
+                lnurlWithdraw = lnurl.encode(rawUrl).toUpperCase();
             }
 
             return {
