@@ -1,10 +1,10 @@
 # Standard Operating Procedure (SOP): Change Management
-> **Artifact ID:** 20260130_SOP_Change_Management_v1.0
+> **Artifact ID:** SOP_Change_Management
 > **Status:** ACTIVE
 > **Compliance:** MANDATORY
 
 ## The "Doc-First" Protocol
-To comply with `.antigravityrules`, every change to the system must follow this strict 3-phase cycle. **Skipping Phase 1 is a violation of project rules.**
+To comply with `.antigravityrules` and `SOP_Document_Control.md`, every change to the system must follow this strict 3-phase cycle. **Skipping Phase 1 is a violation of project rules.**
 
 ### Phase 1: Documentation (AUTHORIZATION)
 *Before writing a single line of code:*

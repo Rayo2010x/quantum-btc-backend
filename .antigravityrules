@@ -7,7 +7,7 @@
 ## 2. BASE PATHS & CONTEXT
 - **Project Root:** `C:\Dev\quantum-btc-backend\`
 - **Documentation Root:** `C:\Dev\quantum-btc-backend\docs\`
-- **Primary Requirements source:** `docs/01-Requirements/20260130_Manual_Tecnico_Alto_Nivel_v2.0.md`
+- **Primary Requirements source:** `docs/01-Requirements/Manual_Tecnico_Alto_Nivel.md`
 
 ## 3. MANDATORY DELIVERABLES BY CATEGORY
 You are required to create and maintain specific professional artifacts in the corresponding folders. Do not deviate from this structure.
@@ -43,8 +43,8 @@ You are required to create and maintain specific professional artifacts in the c
 
 ## 4. DOCUMENT CONTROL SYSTEM (STRICT)
 - **Master Index:** You MUST maintain `docs/DOCUMENT_INDEX.md` as the single source of truth for the current state of all deliverables listed above.
-- **Naming:** `YYYYMMDD_ArtifactName_vX.X.md`.
-- **Versioning:** Obsolete versions must be moved immediately to `07-Archive/` with suffix `_OLD`.
+- **Naming:** `ArtifactName.md` (NO version numbers, NO dates).
+- **Versioning:** Obsolete versions must be moved immediately to `07-Archive/`.
 
 ## 5. WORKFLOW TRIGGER
 Before writing code for a new module, ask yourself: "Which document in Section 3 needs to be created or updated first?" Start there.
