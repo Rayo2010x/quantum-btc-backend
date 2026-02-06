@@ -51,7 +51,8 @@ export const OpenNode = {
      * So flow is: User scans LNURL -> User wallet calls callback with Invoice -> Backend calls OpenNode to pay invoice.
      */
     async payInvoice(bolt11: string) {
-        const res = await api.post("/withdrawals", {
+        // Use v2 for withdrawals (v1 is deprecated/returns 404)
+        const res = await api.post("https://api.opennode.com/v2/withdrawals", {
             type: "ln",
             address: bolt11,
         }, {
