@@ -82,7 +82,7 @@
     ```
 
 **Step 2: Wallet Sends Invoice**
-*   **GET** `/api/v1/lnurl/callback?k1=...&pr=lnbc1...`
+*   **GET** or **POST** `/api/v1/lnurl/callback?k1=...&pr=lnbc1...`
 *   **Response:** `{ "status": "OK" }` or `{ "status": "ERROR", "reason": "..." }`
 
 ## 4. Webhooks (OpenNode)
