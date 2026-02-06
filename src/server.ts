@@ -17,7 +17,23 @@ import formbody from "@fastify/formbody";
 import websocket from "@fastify/websocket";
 import { handleWebsocketConnection } from "./services/websocket.js";
 
-const app = Fastify({ logger: true });
+const app = Fastify({
+  logger: true,
+  ignoreTrailingSlash: true // Handle /callback/ vs /callback
+});
+
+// Debug: In-memory request log
+export const recentRequests: any[] = [];
+app.addHook('onRequest', async (req) => {
+  recentRequests.unshift({
+    time: new Date().toISOString(),
+    method: req.method,
+    url: req.url,
+    query: req.query,
+    ip: req.ip
+  });
+  if (recentRequests.length > 50) recentRequests.pop();
+});
 
 const allowedOrigins = ["http://localhost:5173", "http://127.0.0.1:5173"];
 if (env.FRONTEND_URL) allowedOrigins.push(env.FRONTEND_URL);
@@ -65,6 +81,11 @@ app.register(lnurlRoutes);       // /v1/lnurl
 // Debug: List Registered Routes
 app.get("/admin/debug/routes", async (req, reply) => {
   return app.printRoutes();
+});
+
+// Debug: List Recent Requests
+app.get("/admin/debug/requests", async (req, reply) => {
+  return { recentRequests };
 });
 
 // Start
