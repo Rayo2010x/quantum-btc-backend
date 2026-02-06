@@ -87,5 +87,6 @@ export async function lnurlRoutes(app: FastifyInstance) {
             } finally {
                 client.release();
             }
-        });
+        },
+    });
 }
