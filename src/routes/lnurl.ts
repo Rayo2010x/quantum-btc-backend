@@ -25,9 +25,11 @@ export async function lnurlRoutes(app: FastifyInstance) {
 
         const token = res.rows[0];
 
+        console.log(`⚡ LNURL-Withdraw Step 1: k1=${k1}`);
+        const baseUrl = env.PUBLIC_URL.replace(/\/$/, "");
         return {
             tag: "withdrawRequest",
-            callback: `${env.PUBLIC_URL}/v1/lnurl/callback`,
+            callback: `${baseUrl}/v1/lnurl/callback`,
             k1: k1,
             defaultDescription: "Quantum BTC Winnings",
             minWithdrawable: Number(token.amount_sat) * 1000, // millisats
@@ -39,6 +41,7 @@ export async function lnurlRoutes(app: FastifyInstance) {
     // GET /v1/lnurl/callback?k1=...&pr=...
     app.get("/v1/lnurl/callback", async (req, reply) => {
         const { k1, pr } = req.query as { k1: string, pr: string };
+        console.log(`⚡ LNURL-Withdraw Step 2: k1=${k1}, pr=${pr}`);
 
         if (!k1 || !pr) return reply.status(400).send({ status: "ERROR", reason: "Missing params" });
 

@@ -62,6 +62,11 @@ app.register(sessionRoutes);     // /v1/session/init
 app.register(webhookRoutes);     // /v1/webhooks
 app.register(lnurlRoutes);       // /v1/lnurl
 
+// Debug: List Registered Routes
+app.get("/admin/debug/routes", async (req, reply) => {
+  return app.printRoutes();
+});
+
 // Start
 const port = env.PORT;
 try {
