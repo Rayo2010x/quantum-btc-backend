@@ -28,3 +28,7 @@ Este documento centraliza los pendientes técnicos, deuda técnica y roadmap del
 ## 4. Documentación
 - [x] **Completar DRAFTs:** Finalizar documentos de Arquitectura y Seguridad (Completado v1.1).
 - [x] **API Registry:** Documentar endpoints finales con ejemplos de Request/Response (Completado en API Spec v1.1).
+
+## 5. Technical Debt
+- [ ] **Cleanup Debug Routes:** Remover `/admin/debug/routes`, `/admin/debug/requests` y logs detallados en `lnurl.ts`.
+- [ ] **Cleanup Scripts:** Eliminar scripts de prueba manual (`manual_withdrawal_qr.ts`, `debug_opennode.ts`) de la rama principal.
