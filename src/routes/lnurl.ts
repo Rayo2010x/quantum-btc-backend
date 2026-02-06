@@ -38,45 +38,54 @@ export async function lnurlRoutes(app: FastifyInstance) {
     });
 
     // Step 2: Wallet sends Invoice
-    // GET /v1/lnurl/callback?k1=...&pr=...
-    app.get("/v1/lnurl/callback", async (req, reply) => {
-        const { k1, pr } = req.query as { k1: string, pr: string };
-        console.log(`⚡ LNURL-Withdraw Step 2: k1=${k1}, pr=${pr}`);
+    // GET or POST /v1/lnurl/callback?k1=...&pr=...
+    app.route({
+        method: ['GET', 'POST'],
+        url: '/v1/lnurl/callback',
+        handler: async (req, reply) => {
+            // Support params in query (standard) or body (fallback)
+            const query = req.query as { k1?: string, pr?: string };
+            const body = req.body as { k1?: string, pr?: string } | undefined;
 
-        if (!k1 || !pr) return reply.status(400).send({ status: "ERROR", reason: "Missing params" });
+            const k1 = query.k1 || body?.k1;
+            const pr = query.pr || body?.pr;
 
-        const client = await pool.connect();
-        try {
-            await client.query("BEGIN");
+            console.log(`⚡ LNURL-Withdraw Step 2: Method=${req.method}, k1=${k1}, pr=${pr}`);
 
-            // Re-check lock
-            const res = await client.query(
-                "SELECT * FROM withdrawal_tokens WHERE k1 = $1 AND is_used = FALSE FOR UPDATE",
-                [k1]
-            );
+            if (!k1 || !pr) return reply.status(400).send({ status: "ERROR", reason: "Missing params" });
 
-            if (res.rowCount === 0) {
+            const client = await pool.connect();
+            try {
+                await client.query("BEGIN");
+
+                // Re-check lock
+                const res = await client.query(
+                    "SELECT * FROM withdrawal_tokens WHERE k1 = $1 AND is_used = FALSE FOR UPDATE",
+                    [k1]
+                );
+
+                if (res.rowCount === 0) {
+                    await client.query("ROLLBACK");
+                    return reply.send({ status: "ERROR", reason: "Token used or invalid" });
+                }
+
+                // Mark used
+                await client.query("UPDATE withdrawal_tokens SET is_used = TRUE WHERE id = $1", [res.rows[0].id]);
+
+                // Call OpenNode to Pay
+                // Note: If OpenNode fails, we "burned" the token. 
+                // Better: Keep 'PENDING' state in db? For MVP, we presume success or manual fix.
+                await OpenNode.payInvoice(pr);
+
+                await client.query("COMMIT");
+                return { status: "OK" };
+
+            } catch (err: any) {
                 await client.query("ROLLBACK");
-                return reply.send({ status: "ERROR", reason: "Token used or invalid" });
+                app.log.error(err);
+                return reply.send({ status: "ERROR", reason: err.message || "Payment Failed" });
+            } finally {
+                client.release();
             }
-
-            // Mark used
-            await client.query("UPDATE withdrawal_tokens SET is_used = TRUE WHERE id = $1", [res.rows[0].id]);
-
-            // Call OpenNode to Pay
-            // Note: If OpenNode fails, we "burned" the token. 
-            // Better: Keep 'PENDING' state in db? For MVP, we presume success or manual fix.
-            await OpenNode.payInvoice(pr);
-
-            await client.query("COMMIT");
-            return { status: "OK" };
-
-        } catch (err: any) {
-            await client.query("ROLLBACK");
-            app.log.error(err);
-            return reply.send({ status: "ERROR", reason: err.message || "Payment Failed" });
-        } finally {
-            client.release();
-        }
-    });
+        });
 }
