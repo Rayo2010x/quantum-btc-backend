@@ -22,20 +22,30 @@ export interface BetStatusResponse {
     k1?: string;
 }
 
-// Session Management (Still used for grouping, but not balance)
+// Session Management
 async function getOrCreateSession(): Promise<string> {
     let sessionId = localStorage.getItem('qb_sessionId');
-    if (!sessionId) {
-        try {
-            const res = await api.post('/session/init');
-            sessionId = res.data.sessionId;
-            localStorage.setItem('qb_sessionId', sessionId || '');
-        } catch (err) {
-            console.error("Failed to init session", err);
-            throw new Error("Could not initialize game session");
+
+    // ALWAYS validate with backend to check for IP changes / Geo-blocking
+    try {
+        const payload = sessionId ? { sessionId } : {};
+        const res = await api.post('/session/init', payload);
+
+        // Backend returns either the same ID (if IP checked out) or a new one
+        const validatedId = res.data.sessionId;
+
+        if (validatedId !== sessionId) {
+            console.log("Session rotated by backend (New IP or Expired)");
+            localStorage.setItem('qb_sessionId', validatedId);
         }
+
+        return validatedId;
+    } catch (err) {
+        console.error("Failed to init/validate session", err);
+        // Fallback: Use local if available, though backend is likely down
+        if (sessionId) return sessionId;
+        throw new Error("Could not initialize game session");
     }
-    return sessionId as string;
 }
 
 export const GameApi = {
