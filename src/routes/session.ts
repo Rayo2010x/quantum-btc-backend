@@ -26,7 +26,7 @@ export async function sessionRoutes(app: FastifyInstance) {
                     [existingId]
                 );
 
-                if (check.rowCount > 0) {
+                if ((check.rowCount ?? 0) > 0) {
                     const session = check.rows[0];
                     // STRICT IP CHECK:
                     // If the stored IP matches the current IP, we return the same ID.
