@@ -19,7 +19,8 @@ import { handleWebsocketConnection } from "./services/websocket.js";
 
 const app = Fastify({
   logger: true,
-  ignoreTrailingSlash: true // Handle /callback/ vs /callback
+  ignoreTrailingSlash: true, // Handle /callback/ vs /callback
+  trustProxy: true // Fix for obtaining real IP behind proxy (Railway/Vercel)
 });
 
 // Debug: In-memory request log
