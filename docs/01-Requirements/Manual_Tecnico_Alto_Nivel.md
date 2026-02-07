@@ -1,10 +1,10 @@
 # Manual Técnico de Alto Nivel: Proyecto Quantum BTC
 
 ---
-**Versión:** 2.1
+**Versión:** 2.2
 **Estado:** Vigente
-**Última Modificación:** 2026-02-05
-**Cambios:** Migración a formato profesional Markdown; integración de gestión de riesgo elástica y sistema de Entropy Buffer optimizado. Limpieza de metadatos de citación.
+**Última Modificación:** 2026-02-06
+**Cambios:** Agregada Sección 7 (Compliance & Geo-Blocking). Migración a formato profesional Markdown; integración de gestión de riesgo elástica y sistema de Entropy Buffer optimizado.
 ---
 
 ## 1. Resumen de Operación (MVP)
@@ -87,3 +87,11 @@ El resultado es el $final\_entropy \pmod{37}$.
 * **Premios Seguros:** Cada withdraw_token es de un solo uso y se procesa mediante transacciones atómicas.
 * **Webhooks:** Se verifica la firma HMAC de OpenNode para confirmar la legitimidad de los pagos.
 * **Límites de Abuso:** Rate limiting por IP y por token de retiro para prevenir ataques.
+
+## 7. Compliance y Geo-Blocking (Regulatorio)
+Para cumplir con normativas internacionales, el sistema implementa controles de acceso geográfico:
+*   **Registro de IP:** Se almacena la dirección IP de origen de cada sesión (`/session/init`) con fines de auditoría.
+*   **Restricción Regional:** Se bloquea el acceso a usuarios con direcciones IP provenientes de:
+    *   Estados Unidos (EE.UU.)
+    *   Unión Europea (UE)
+*   **Mecanismo:** Validación vía middleware en el backend utilizando base de datos local de GeoIP (ej: `fast-geoip`) para minimizar latencia. El bloqueo retorna un error `403 Forbidden`.

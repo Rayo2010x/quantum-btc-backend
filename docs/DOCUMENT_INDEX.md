@@ -7,14 +7,14 @@
 | Artifact | Version | Status | Last Modified |
 | :--- | :--- | :--- | :--- |
 | [SOP: Control de Documentos](00-Meta/SOP_Document_Control.md) | 1.0 | **APPROVED** | 2026-02-03 |
-| [SOP: Change Management](00-Meta/SOP_Change_Management.md) | 1.0 | **VIGENTE** | 2026-01-30 |
+| [SOP: Change Management](00-Meta/SOP_Change_Management.md) | 1.1 | **APPROVED** | 2026-02-05 |
 | [Backlog & Roadmap](00-Meta/BACKLOG.md) | 1.0 | **ACTIVO** | 2026-01-31 |
 
 
 ## 01-Requirements (Business Logic)
 | Artifact | Version | Status | Last Modified |
 | :--- | :--- | :--- | :--- |
-| [Manual Técnico de Alto Nivel](01-Requirements/Manual_Tecnico_Alto_Nivel.md) | 2.0 | **VIGENTE** | 2026-01-30 |
+| [Manual Técnico de Alto Nivel](01-Requirements/Manual_Tecnico_Alto_Nivel.md) | 2.2 | **VIGENTE** | 2026-02-06 |
 
 ## 02-Architecture (System Design)
 | Artifact | Version | Status | Last Modified |
@@ -25,13 +25,13 @@
 ## 03-Database (Persistence Layer)
 | Artifact | Version | Status | Last Modified |
 | :--- | :--- | :--- | :--- |
-| [Data Schema & Dictionary](03-Database/Database_Schema.md) | 1.0 | **VIGENTE** | 2026-01-30 |
+| [Data Schema & Dictionary](03-Database/Database_Schema.md) | 1.1 | **VIGENTE** | 2026-02-06 |
 | [State Transition Models](03-Database/State_Models.md) | 1.0 | **DRAFT** | 2026-01-30 |
 
 ## 04-API (Interfaces & Contracts)
 | Artifact | Version | Status | Last Modified |
 | :--- | :--- | :--- | :--- |
-| [API Specification (REST & LNURL)](04-API/API_Specification.md) | 1.1 | **VIGENTE** | 2026-02-02 |
+| [API Specification (REST & LNURL)](04-API/API_Specification.md) | 1.2 | **VIGENTE** | 2026-02-06 |
 
 ## 05-QA-Testing (Verification)
 | Artifact | Version | Status | Last Modified |

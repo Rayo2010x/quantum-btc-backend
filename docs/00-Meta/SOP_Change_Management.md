@@ -1,6 +1,8 @@
 # Standard Operating Procedure (SOP): Change Management
 > **Artifact ID:** SOP_Change_Management
-> **Status:** ACTIVE
+> **Versión:** 1.1
+> **Fecha:** 2026-02-05
+> **Estado:** APPROVED
 > **Compliance:** MANDATORY
 
 ## The "Doc-First" Protocol

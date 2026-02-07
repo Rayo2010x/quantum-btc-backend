@@ -1,9 +1,9 @@
 # API Specification - Quantum BTC
 
-> **Artifact ID:** 20260130_API_Specification_v1.0
-> **Version:** 1.0
-> **Date:** 2026-01-30
-> **Status:** Draft
+> **Artifact ID:** 20260130_API_Specification_v1.2
+> **Version:** 1.2
+> **Date:** 2026-02-06
+> **Status:** Vigente
 
 ## 1. Base URL
 `https://api.quantumbtc.io` (Production)
@@ -12,27 +12,14 @@
 ## 2. REST Endpoints
 
 ### 2.1 Session Management
-**Init Session** (Optional, creates ephemeral ID)
-*   **POST** `/api/v1/session`
-*   **Response:** `{ "sessionId": "uuid", "balanceSat": 0 }`
+**Init Session** (Creates ephemeral ID)
+*   **POST** `/v1/session/init`
+*   **Response:** `{ "sessionId": "uuid", "message": "Session initialized" }`
+*   **Notes:** Implicitly logs client IP address for compliance/geo-blocking.
 
-### 2.2 Transactions (Inbound)
-**Create Deposit**
-*   **POST** `/api/v1/transactions/deposit`
-*   **Body:** `{ "amountSat": 1000, "sessionId": "uuid" }`
-*   **Response:**
-    ```json
-    {
-      "id": "txn_uuid",
-      "paymentRequest": "lnbc1...",
-      "checkoutUrl": "https://checkout.opennode.com/..."
-    }
-    ```
-
-### 2.3 Game Logic
 ### 2.2 Game Logic (Pay-Per-Spin)
 **Place Bet**
-*   **POST** `/api/v1/game/bet`
+*   **POST** `/v1/game/bet`
 *   **Body:**
     ```json
     {
@@ -53,7 +40,7 @@
     ```
 
 **Get Bet Status**
-*   **GET** `/api/v1/game/bet/:betId/status`
+*   **GET** `/v1/game/bet/:betId/status`
 *   **Response:**
     ```json
     {
@@ -68,12 +55,12 @@
 ## 3. LNURL-Withdraw Specification (LUD-03)
 
 **Step 1: Wallet Scans QR**
-*   **GET** `/api/v1/lnurl/withdraw?k1=...`
+*   **GET** `/v1/lnurl/withdraw?k1=...`
 *   **Response:**
     ```json
     {
       "tag": "withdrawRequest",
-      "callback": "https://api.quantumbtc.io/api/v1/lnurl/callback",
+      "callback": "https://api.quantumbtc.io/v1/lnurl/callback",
       "k1": "...",
       "defaultDescription": "Quantum BTC Winnings",
       "minWithdrawable": 1000,
@@ -82,13 +69,13 @@
     ```
 
 **Step 2: Wallet Sends Invoice**
-*   **GET** or **POST** `/api/v1/lnurl/callback?k1=...&pr=lnbc1...`
+*   **GET** or **POST** `/v1/lnurl/callback?k1=...&pr=lnbc1...`
 *   **Response:** `{ "status": "OK" }` or `{ "status": "ERROR", "reason": "..." }`
 
 ## 4. Webhooks (OpenNode)
 
 **Charge Paid**
-*   **POST** `/api/v1/webhooks/opennode`
+*   **POST** `/v1/webhooks/opennode`
 *   **Content-Type:** `application/x-www-form-urlencoded`
 *   **Headers:** `x-signature: <HMAC>`
 *   **Body:**

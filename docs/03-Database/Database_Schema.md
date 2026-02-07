@@ -1,9 +1,9 @@
 # Database Schema - Quantum BTC
 
-> **Artifact ID:** 20260130_Database_Schema_v1.0
-> **Version:** 1.0
-> **Date:** 2026-01-30
-> **Status:** Draft
+> **Artifact ID:** 20260130_Database_Schema_v1.1
+> **Version:** 1.1
+> **Date:** 2026-02-06
+> **Status:** Vigente
 
 ## 1. Entity-Relationship Diagram (ERD)
 
@@ -13,10 +13,10 @@ erDiagram
     SESSION ||--o{ BET : places
     SESSION {
         uuid id PK
+        inet ip_address
         timestamp created_at
-        bigint current_balance_sat
     }
-    
+
     TRANSACTION {
         uuid id PK
         uuid session_id FK
@@ -54,6 +54,7 @@ erDiagram
 ### 2.1 Table: `sessions`
 Typically ephemeral, mostly for audit/logging in non-custodial mode.
 *   **id:** UUID v4.
+*   **ip_address:** `INET`. Client IP address for compliance/audit.
 *   **created_at:** Timestamp.
 
 ### 2.2 Table: `bets`
@@ -78,8 +79,8 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 CREATE TABLE sessions (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+  ip_address INET,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 CREATE TABLE entropy_buffer (
