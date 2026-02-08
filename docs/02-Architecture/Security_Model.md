@@ -22,6 +22,7 @@ To prevent abuse and DoS attacks:
 To comply with international regulations, the API enforces strict geographic access controls:
 *   **Blocked Regions:** United States (US), European Union (EU).
 *   **Mechanism:** Middleware checks `CF-Connecting-IP` (or `X-Forwarded-For`) against a local GeoIP database (`fast-geoip`).
+*   **Exceptions:** Infrastructure endpoints (`/v1/webhooks`, `/health`) are whitelisted to ensure service reliability (e.g. OpenNode callbacks).
 *   **Action:** Requests from blocked regions return `403 Forbidden`.
 *   **Audit Logic:** Client IP is logged at session initialization (`POST /session/init`) in the `sessions` table.
 

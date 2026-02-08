@@ -7,6 +7,11 @@ export async function geoBlockMiddleware(req: FastifyRequest, reply: FastifyRepl
     // Skip if local dev? Maybe not, we want to test it.
     // But local IP (127.0.0.1) won't be in GeoIP DB.
 
+    // WHITELIST: Infrastructure endpoints that must never be blocked
+    if (req.url.startsWith('/v1/webhooks') || req.url === '/health' || req.url === '/db-ping') {
+        return;
+    }
+
     const ip = req.ip || req.headers['x-forwarded-for'] || req.socket.remoteAddress;
 
     // Normalization if IP is array/comma-separated
