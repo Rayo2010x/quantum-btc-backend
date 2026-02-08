@@ -1,9 +1,6 @@
 
 import { FastifyRequest, FastifyReply } from "fastify";
-import geoip from 'fastify-geoip'; // Wait, I installed "fast-geoip" via npm. 
-// But in my code I used "fast-geoip". 
-// Check package.json again? No I ran "npm install light-bolt11-decoder fast-geoip".
-// So it should be: import geoip from 'fast-geoip';
+// @ts-ignore
 import geoip from 'fast-geoip';
 
 export async function geoBlockMiddleware(req: FastifyRequest, reply: FastifyReply) {
