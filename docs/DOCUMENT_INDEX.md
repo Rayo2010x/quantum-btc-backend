@@ -20,18 +20,18 @@
 | Artifact | Version | Status | Last Modified |
 | :--- | :--- | :--- | :--- |
 | [Architecture Overview & DFD](02-Architecture/Architecture_Overview.md) | 1.2 | **VIGENTE** | 2026-02-03 |
-| [Security Model](02-Architecture/Security_Model.md) | 1.0 | **DRAFT** | 2026-01-30 |
+| [Security Model](02-Architecture/Security_Model.md) | 1.1 | **VIGENTE** | 2026-02-07 |
 
 ## 03-Database (Persistence Layer)
 | Artifact | Version | Status | Last Modified |
 | :--- | :--- | :--- | :--- |
-| [Data Schema & Dictionary](03-Database/Database_Schema.md) | 1.1 | **VIGENTE** | 2026-02-06 |
+| [Data Schema & Dictionary](03-Database/Database_Schema.md) | 1.2 | **VIGENTE** | 2026-02-07 |
 | [State Transition Models](03-Database/State_Models.md) | 1.0 | **DRAFT** | 2026-01-30 |
 
 ## 04-API (Interfaces & Contracts)
 | Artifact | Version | Status | Last Modified |
 | :--- | :--- | :--- | :--- |
-| [API Specification (REST & LNURL)](04-API/API_Specification.md) | 1.2 | **VIGENTE** | 2026-02-06 |
+| [API Specification (REST & LNURL)](04-API/API_Specification.md) | 1.3 | **VIGENTE** | 2026-02-07 |
 
 ## 05-QA-Testing (Verification)
 | Artifact | Version | Status | Last Modified |

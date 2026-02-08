@@ -13,7 +13,7 @@ erDiagram
     SESSION ||--o{ BET : places
     SESSION {
         uuid id PK
-        inet ip_address
+        inet ip_address "Client IP"
         timestamp created_at
     }
 
@@ -54,7 +54,7 @@ erDiagram
 ### 2.1 Table: `sessions`
 Typically ephemeral, mostly for audit/logging in non-custodial mode.
 *   **id:** UUID v4.
-*   **ip_address:** `INET`. Client IP address for compliance/audit.
+*   **ip_address:** `INET`. Client IP address captured at session initialization for compliance and audit.
 *   **created_at:** Timestamp.
 
 ### 2.2 Table: `bets`

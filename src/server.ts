@@ -23,6 +23,9 @@ const app = Fastify({
   trustProxy: true // Fix for obtaining real IP behind proxy (Railway/Vercel)
 });
 
+import { geoBlockMiddleware } from "./middleware/geoBlock.js";
+app.addHook("onRequest", geoBlockMiddleware);
+
 // Debug: In-memory request log
 export const recentRequests: any[] = [];
 app.addHook('onRequest', async (req) => {

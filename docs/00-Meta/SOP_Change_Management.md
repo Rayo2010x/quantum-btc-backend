@@ -6,7 +6,7 @@
 > **Compliance:** MANDATORY
 
 ## The "Doc-First" Protocol
-To comply with `.antigravityrules` and `SOP_Document_Control.md`, every change to the system must follow this strict 3-phase cycle. **Skipping Phase 1 is a violation of project rules.**
+To comply with `C:\Dev\quantum-btc-backend\.agent\rules\quantum-btc-backend.md` and `SOP_Document_Control.md`, every change to the system must follow this strict 3-phase cycle. **Skipping Phase 1 is a violation of project rules.**
 
 ### Phase 1: Documentation (AUTHORIZATION)
 *Before writing a single line of code:*

@@ -3,6 +3,7 @@ import { FastifyInstance } from "fastify";
 import { pool } from "../db/index.js";
 import { OpenNode } from "../services/opennode.js";
 import { env } from "../config/env.js";
+import { decode } from "light-bolt11-decoder";
 
 export async function lnurlRoutes(app: FastifyInstance) {
 
@@ -54,19 +55,51 @@ export async function lnurlRoutes(app: FastifyInstance) {
 
             if (!k1 || !pr) return reply.status(400).send({ status: "ERROR", reason: "Missing params" });
 
+            // Validate Invoice Amount
+            let invoiceAmountMsat = 0;
+            try {
+                const decoded = decode(pr);
+                const amountSection = decoded.sections.find((s: any) => s.name === 'amount');
+                if (amountSection && (amountSection as any).value) {
+                    invoiceAmountMsat = parseInt((amountSection as any).value, 10);
+                }
+            } catch (err) {
+                app.log.error({ msg: "Failed to decode PR", pr, err });
+                return reply.send({ status: "ERROR", reason: "Invalid invoice" });
+            }
+
             const client = await pool.connect();
             try {
                 await client.query("BEGIN");
 
-                // Re-check lock
+                // Re-check lock & Expiration
                 const res = await client.query(
-                    "SELECT * FROM withdrawal_tokens WHERE k1 = $1 AND is_used = FALSE FOR UPDATE",
+                    "SELECT * FROM withdrawal_tokens WHERE k1 = $1 AND is_used = FALSE AND expires_at > NOW() FOR UPDATE",
                     [k1]
                 );
 
                 if (res.rowCount === 0) {
                     await client.query("ROLLBACK");
-                    return reply.send({ status: "ERROR", reason: "Token used or invalid" });
+                    return reply.send({ status: "ERROR", reason: "Token used, invalid, or expired" });
+                }
+
+                const token = res.rows[0];
+                const maxWithdrawableMsat = BigInt(token.amount_sat) * 1000n;
+
+                // Amount Check
+                // We allow a small buffer? No, strict check. 
+                // Invoice amount must be <= token amount.
+                // Usually user scans exact amount. 
+                // LUD-03 says: "The amount in the invoice must be less than or equal to maxWithdrawable"
+                if (BigInt(invoiceAmountMsat) > maxWithdrawableMsat) {
+                    await client.query("ROLLBACK");
+                    app.log.warn({
+                        msg: "LNURL Amount Mismatch",
+                        invoice: invoiceAmountMsat,
+                        max: maxWithdrawableMsat,
+                        k1
+                    });
+                    return reply.send({ status: "ERROR", reason: "Invoice amount exceeds withdrawable limit" });
                 }
 
                 // Mark used

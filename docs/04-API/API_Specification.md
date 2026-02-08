@@ -71,6 +71,9 @@
 **Step 2: Wallet Sends Invoice**
 *   **GET** or **POST** `/v1/lnurl/callback?k1=...&pr=lnbc1...`
 *   **Response:** `{ "status": "OK" }` or `{ "status": "ERROR", "reason": "..." }`
+*   **Security Notes:**
+    *   **Amount Validation:** The `amount` in the provided BOLT11 invoice (`pr`) MUST be less than or equal to the authorized `maxWithdrawable` amount.
+    *   **Expiration:** The callback will be rejected if the `k1` token has expired.
 
 ## 4. Webhooks (OpenNode)
 

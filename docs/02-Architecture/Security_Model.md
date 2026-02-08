@@ -18,6 +18,19 @@ To prevent abuse and DoS attacks:
 *   **Action Limit:** 1 withdrawal request per 10 seconds per IP.
 *   **Betting Limit:** Max 1 bet per 500ms to allow for outcome verification and preventing race conditions on the balance.
 
+### 1.3 Geo-Blocking & Compliance
+To comply with international regulations, the API enforces strict geographic access controls:
+*   **Blocked Regions:** United States (US), European Union (EU).
+*   **Mechanism:** Middleware checks `CF-Connecting-IP` (or `X-Forwarded-For`) against a local GeoIP database (`fast-geoip`).
+*   **Action:** Requests from blocked regions return `403 Forbidden`.
+*   **Audit Logic:** Client IP is logged at session initialization (`POST /session/init`) in the `sessions` table.
+
+### 1.4 LNURL Security (LUD-03/17)
+Specific controls for the withdraw flow:
+*   **Amount Validation:** The `pr` (invoice) amount in the callback MUST NOT exceed `maxWithdrawable`.
+*   **Token Expiration:** The `k1` token has a strict TTL (e.g., 24h). Expired tokens are rejected.
+*   **One-Time Use:** A `k1` token is invalidated immediately after a successful withdrawal request.
+
 ## 2. Webhook Security (OpenNode)
 
 All incoming webhooks from OpenNode MUST be verified using HMAC-SHA256.
