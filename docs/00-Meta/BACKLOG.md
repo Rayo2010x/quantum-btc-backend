@@ -20,7 +20,6 @@ Este documento centraliza los pendientes técnicos, deuda técnica y roadmap del
 - [x] **Animación de Ruleta:** Visualización del resultado (Completado - Verificado en Prod).
 
 ## 3. QA & Testing
-## 3. QA & Testing
 - [x] **Smoke Tests:** Scripts básicos de flujo completo (Verificado Localmente con `auto_simulate.ts`).
 - [ ] **Load Testing:** Pruebas de carga para el Entropy Worker.
 - [ ] **Security Audit:** Revisión de dependencias y secretos.

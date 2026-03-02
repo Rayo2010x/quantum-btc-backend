@@ -14,7 +14,7 @@
 ## 01-Requirements (Business Logic)
 | Artifact | Version | Status | Last Modified |
 | :--- | :--- | :--- | :--- |
-| [Manual Técnico de Alto Nivel](01-Requirements/Manual_Tecnico_Alto_Nivel.md) | 2.2 | **VIGENTE** | 2026-02-06 |
+| [Manual Técnico de Alto Nivel](01-Requirements/Manual_Tecnico_Alto_Nivel.md) | 2.3 | **VIGENTE** | 2026-03-02 |
 | [Lineamientos UI/UX y Frontend](01-Requirements/UI_UX_Guidelines.md) | 1.0 | **DRAFT** | 2026-03-01 |
 
 ## 02-Architecture (System Design)
@@ -22,6 +22,7 @@
 | :--- | :--- | :--- | :--- |
 | [Architecture Overview & DFD](02-Architecture/Architecture_Overview.md) | 1.2 | **VIGENTE** | 2026-02-03 |
 | [Security Model](02-Architecture/Security_Model.md) | 1.1 | **VIGENTE** | 2026-02-07 |
+| [Drand Integration Design](02-Architecture/Drand_Integration_Design.md) | 1.0 | **DRAFT** | 2026-03-02 |
 
 ## 03-Database (Persistence Layer)
 | Artifact | Version | Status | Last Modified |

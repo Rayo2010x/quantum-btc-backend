@@ -1,10 +1,10 @@
 # Manual Técnico de Alto Nivel: Proyecto Quantum BTC
 
 ---
-**Versión:** 2.2
+**Versión:** 2.3
 **Estado:** Vigente
-**Última Modificación:** 2026-02-06
-**Cambios:** Agregada Sección 7 (Compliance & Geo-Blocking). Migración a formato profesional Markdown; integración de gestión de riesgo elástica y sistema de Entropy Buffer optimizado.
+**Última Modificación:** 2026-03-02
+**Cambios:** Refinada Sección 4.1 respecto a la operación síncrona, polling y almacenamiento del beacon público (drand).
 ---
 
 ## 1. Resumen de Operación (MVP)
@@ -59,10 +59,12 @@ Para mantener la experiencia "Premium", el sistema no debe mostrar el resultado 
 ## 4. Provably Fair y Entropy Buffer
 El motor de azar utiliza un esquema híbrido de Commit-Reveal para garantizar transparencia y eliminar latencia.
 
-### 4.1 El "Entropy Buffer" (ANU QRNG + drand)
-1.  **Recolección:** Un proceso en segundo plano almacena bytes de entropía cuántica de ANU Quantum Numbers en la base de datos.
-2.  **Consumo:** Al confirmarse una apuesta, el sistema asocia bytes del buffer al bet_id.
-3.  **Verificabilidad:** Se combina con un beacon público (drand) para asegurar la integridad.
+### 4.1 El "Entropy Buffer" y Beacon Público (ANU QRNG + drand)
+El sistema garantiza entropía justa e impredecible utilizando dos fuentes integradas en tiempo de resolución:
+
+1.  **Recolección Local (ANU QRNG):** Un proceso en segundo plano (worker) almacena bytes de entropía cuántica pre-generada en la base de datos de forma asíncrona para evitar latencia.
+2.  **Recolección Pública Síncrona (drand):** En el momento exacto de la confirmación del pago (vía webhook), el sistema realiza un HTTP GET al endpoint `/public/latest` de la API de drand. Esta llamada define el estado temporal ("cuándo" ocurrió la confirmación).
+3.  **Almacenamiento y Prueba (Auditoría):** Los datos resultantes de drand (`round`, `randomness` y `signature`) se almacenan inmediatamente en la tabla de apuestas asociados al `bet_id`, garantizando que el usuario pueda verificar computacionalmente la honestidad de la ronda.
 
 ### 4.2 Fórmula de Resultado
 La entropía final se calcula tras el pago:
