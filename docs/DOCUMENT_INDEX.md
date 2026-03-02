@@ -1,7 +1,7 @@
 # DOCUMENT INDEX - Quantum BTC Backend
 
 > **Master Index:** Single source of truth for all project documentation.
-> **Last Updated:** 2026-02-06
+> **Last Updated:** 2026-03-01
 
 ## 00-Meta (Process & Standards)
 | Artifact | Version | Status | Last Modified |
@@ -15,6 +15,7 @@
 | Artifact | Version | Status | Last Modified |
 | :--- | :--- | :--- | :--- |
 | [Manual Técnico de Alto Nivel](01-Requirements/Manual_Tecnico_Alto_Nivel.md) | 2.2 | **VIGENTE** | 2026-02-06 |
+| [Lineamientos UI/UX y Frontend](01-Requirements/UI_UX_Guidelines.md) | 1.0 | **DRAFT** | 2026-03-01 |
 
 ## 02-Architecture (System Design)
 | Artifact | Version | Status | Last Modified |
