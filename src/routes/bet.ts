@@ -5,11 +5,11 @@ import { pool, withTx } from "../db/index.js";
 import crypto from "node:crypto";
 import { env } from "../config/env.js";
 
-const MAX_BET_SATS = env.BANKROLL_FLOOR_SATS / 50; // Dynamic-ish limit buffer
+import { getBankroll } from "../services/bankroll_worker.js";
 
 const PlaceBetSchema = z.object({
   sessionId: z.string().uuid(),
-  amountSat: z.number().int().positive().max(MAX_BET_SATS),
+  amountSat: z.number().int().positive(),
   betType: z.enum(["STRAIGHT"]), // MVP support only Straight for now
   selection: z.array(z.number().min(0).max(36)).length(1), // Array of 1 for Straight
   clientSeed: z.string().min(10) // User contribution
@@ -37,7 +37,14 @@ function calculateOutcome(serverEntropy: string, clientSeed: string): number {
 import { OpenNode } from "../services/opennode.js";
 
 export async function betRoutes(app: FastifyInstance) {
-  app.post("/v1/game/bet", async (req, reply) => {
+  app.post("/v1/game/bet", {
+    config: {
+      rateLimit: {
+        max: 10,
+        timeWindow: "1 minute"
+      }
+    }
+  }, async (req, reply) => {
     const MultiBetSchema = z.object({
       sessionId: z.string().uuid(), // Still keep session for grouping/history
       clientSeed: z.string().min(10),
@@ -50,9 +57,25 @@ export async function betRoutes(app: FastifyInstance) {
     const { sessionId, bets, clientSeed } = MultiBetSchema.parse(req.body);
     const totalBetAmount = bets.reduce((sum, b) => sum + b.amount, 0);
 
-    // Hard limit check? 
-    if (totalBetAmount > MAX_BET_SATS * 10) {
-      return reply.status(400).send({ error: "Total bet too high" });
+    // Dynamic Bankroll Risk Management (Kelly Criterion)
+    const currentBankroll = getBankroll();
+    const effectiveBankroll = currentBankroll > 0 ? currentBankroll : env.BANKROLL_FLOOR_SATS;
+    const maxPayoutAllowed = effectiveBankroll * env.CASINO_RISK_TOLERANCE_PERCENT;
+
+    // Calculate total potential exposure
+    let maxPotentialPayout = 0;
+    bets.forEach(b => {
+      maxPotentialPayout += b.amount * 36; // Straight (Pleno) multiplier is 36x
+    });
+
+    if (maxPotentialPayout > maxPayoutAllowed) {
+      return reply.status(400).send({
+        error: `Bet multiplier exposure exceeds casino liquidity safety limits. Max Payout allowed: ${Math.floor(maxPayoutAllowed)} Sats.`
+      });
+    }
+
+    if (effectiveBankroll < 20000) {
+      return reply.status(503).send({ error: "System Under Maintenance. Casino liquidity too low." });
     }
 
     try {

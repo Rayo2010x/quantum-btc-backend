@@ -15,6 +15,7 @@
 | Artifact | Version | Status | Last Modified |
 | :--- | :--- | :--- | :--- |
 | [Manual Técnico de Alto Nivel](01-Requirements/Manual_Tecnico_Alto_Nivel.md) | 2.3 | **VIGENTE** | 2026-03-02 |
+| [Bankroll & Risk Analysis](01-Requirements/Bankroll_Risk_Analysis.md) | 1.0 | **DRAFT** | 2026-03-02 |
 | [Lineamientos UI/UX y Frontend](01-Requirements/UI_UX_Guidelines.md) | 1.0 | **DRAFT** | 2026-03-01 |
 
 ## 02-Architecture (System Design)
@@ -41,6 +42,8 @@
 | [Test Strategy](05-QA-Testing/Test_Strategy.md) | 1.0 | **DRAFT** | 2026-01-30 |
 | [Setup & Smoke Test Log](05-QA-Testing/Setup_Log.md) | 1.0 | **VIGENTE** | 2026-01-30 |
 | [Transaction Verification Log](05-QA-Testing/Transaction_Verification_Log.md) | 1.0 | **VIGENTE** | 2026-01-31 |
+| [Security Audit Report](05-QA-Testing/Security_Audit_Report.md) | 1.0 | **DRAFT** | 2026-03-02 |
+| [Load Test Plan](05-QA-Testing/Load_Test_Plan.md) | 1.0 | **DRAFT** | 2026-03-02 |
 
 ## 06-Operations (Deployment & Maintenance)
 | Artifact | Version | Status | Last Modified |

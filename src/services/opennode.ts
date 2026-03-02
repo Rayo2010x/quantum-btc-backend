@@ -62,6 +62,21 @@ export const OpenNode = {
     },
 
     /**
+     * Gets the current OpenNode account balance
+     */
+    async getAccountBalance(): Promise<{ balance: number }> {
+        try {
+            const response = await api.get("https://api.opennode.com/v1/account", {
+                headers: { Authorization: env.OPENNODE_INVOICE_KEY } // Assuming invoice key has read access to balance, usually INVOICE or WITHDRAWAL works depending on permissions
+            });
+            return { balance: response.data.data.balance };
+        } catch (error: any) {
+            console.error("❌ OpenNode Balance Fetch Error:", error.response?.data || error.message);
+            throw new Error("Failed to fetch OpenNode balance");
+        }
+    },
+
+    /**
      * Verifies HMAC signature of a webhook
      */
     verifySignature(chargeId: string, hashedOrder: string): boolean {

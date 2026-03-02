@@ -21,6 +21,8 @@ const envSchema = z.object({
 
     // Game Logic
     BANKROLL_FLOOR_SATS: z.coerce.number().default(400000),
+    CASINO_RISK_TOLERANCE_PERCENT: z.coerce.number().default(0.02), // 2% Max Payout Exposure
+    ADMIN_ALERT_WEBHOOK: z.string().url().optional(), // Webhook for Discord/Telegram alerts
 
     // Security
     SESSION_SECRET: z.string().min(32, "Session Secret must be at least 32 chars"),

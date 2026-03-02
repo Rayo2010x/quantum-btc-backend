@@ -17,9 +17,17 @@ import { withTx } from "../db/index.js";
 import crypto from "node:crypto";
 import { broadcastGameResult } from "../services/websocket.js";
 import { fetchDrandLatest } from "../services/drand.js";
+import { syncBankrollBalance } from "../services/bankroll_worker.js";
 
 export async function webhookRoutes(app: FastifyInstance) {
-  app.post("/v1/webhooks/opennode", async (req, reply) => {
+  app.post("/v1/webhooks/opennode", {
+    config: {
+      rateLimit: {
+        max: 20,
+        timeWindow: "1 minute"
+      }
+    }
+  }, async (req, reply) => {
     // 1. Verify HMAC
     const body = req.body as any;
     const { id, status, hashed_order } = body;
@@ -38,6 +46,10 @@ export async function webhookRoutes(app: FastifyInstance) {
     }
 
     try {
+      // Fetch Drand Public Randomness BEFORE acquiring DB lock (Prevent PG Pool Exhaustion)
+      const drandData = await fetchDrandLatest(1500);
+      let drandRandomnessVal = drandData ? drandData.randomness : `DRAND_UNAVAILABLE_${Date.now()}`;
+
       await withTx(async (client) => {
         // 2. Find Associated Bet
         const betRes = await client.query("SELECT * FROM bets WHERE invoice_id = $1 FOR UPDATE", [id]);
@@ -78,9 +90,8 @@ export async function webhookRoutes(app: FastifyInstance) {
           entropyData = crypto.randomBytes(32).toString('hex');
         }
 
-        // Fetch Drand Public Randomness (timeout: 1.5s)
-        const drandData = await fetchDrandLatest(1500);
-        let drandRandomnessVal = drandData ? drandData.randomness : `DRAND_UNAVAILABLE_${Date.now()}`;
+        // Drand Public Randomness already fetched outside of transaction
+
 
         // Server Reveal = entropyData
         // Calculate Outcome
@@ -157,6 +168,9 @@ export async function webhookRoutes(app: FastifyInstance) {
 
         return { ok: true, betId: bet.id, result: finalStatus };
       });
+
+      // Asynchronously trigger Bankroll Sync after successful deposit + game resolution
+      syncBankrollBalance().catch(err => app.log.error("Bankroll Sync Error:", err));
 
       return { ok: true };
 

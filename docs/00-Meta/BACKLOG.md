@@ -10,8 +10,9 @@ Este documento centraliza los pendientes técnicos, deuda técnica y roadmap del
 - [x] **Setup Inicial:** Configuración de servidor, BD y entorno (Completado).
 - [x] **Lógica de Apuestas:** MVP de Ruleta Europea (Completado).
 - [x] **Integración ANU QRNG:** Worker de entropía cuántica (Completado - Fix Prod 2026-02-04).
-- [ ] **Integración `drand`:** Añadir beacon de aleatoriedad pública para auditoría temporal (Pendiente - Post-MVP).
+- [x] **Integración `drand`:** Añadir beacon de aleatoriedad pública para auditoría temporal (Completado - 2026-03-02).
 - [x] **Websockets:** Notificaciones en tiempo real para el frontend (Completado).
+- [ ] **Risk & Bankroll Management:** Límite de apuestas dinámico, monitorización de OpenNode y alertas de liquidez (Añadido - 2026-03-02).
 
 ## 2. Frontend (v0.1.0)
 - [x] **Inicialización:** Setup de Next.js/React + Vite (Completado).
@@ -21,8 +22,8 @@ Este documento centraliza los pendientes técnicos, deuda técnica y roadmap del
 
 ## 3. QA & Testing
 - [x] **Smoke Tests:** Scripts básicos de flujo completo (Verificado Localmente con `auto_simulate.ts`).
-- [ ] **Load Testing:** Pruebas de carga para el Entropy Worker.
-- [ ] **Security Audit:** Revisión de dependencias y secretos.
+- [x] **Load Testing:** Pruebas de carga para el Entropy Worker (Completado - 2026-03-02, hallazgo de rendimiento detectado y en resolución).
+- [x] **Security Audit:** Revisión de dependencias y secretos (Completado - 2026-03-02).
 
 ## 4. Documentación
 - [x] **Completar DRAFTs:** Finalizar documentos de Arquitectura y Seguridad (Completado v1.1).

@@ -10,11 +10,13 @@ import { betRoutes } from "./routes/bet.js";
 import { webhookRoutes } from "./routes/webhook.js";
 import { lnurlRoutes } from "./routes/lnurl.js";
 import { startEntropyWorker } from "./services/entropy_worker.js";
+import { startBankrollWorker } from "./services/bankroll_worker.js";
 import { sessionRoutes } from "./routes/session.js";
 import { gameStatusRoutes } from "./routes/game_status.js";
 import cors from "@fastify/cors";
 import formbody from "@fastify/formbody";
 import websocket from "@fastify/websocket";
+import rateLimit from "@fastify/rate-limit";
 import { handleWebsocketConnection } from "./services/websocket.js";
 
 const app = Fastify({
@@ -40,6 +42,20 @@ await app.register(cors, {
 
 // Websocket Support
 await app.register(websocket);
+
+// Rate Limiting (Global)
+await app.register(rateLimit, {
+  global: true,
+  max: 100,
+  timeWindow: "1 minute",
+  errorResponseBuilder: function (request, context) {
+    return {
+      statusCode: 429,
+      error: "Too Many Requests",
+      message: `Rate limit exceeded, retry in ${context.after}`
+    };
+  }
+});
 
 app.get("/ws", { websocket: true }, (connection, req) => {
   handleWebsocketConnection(connection, req);
@@ -77,6 +93,7 @@ try {
 
   // Start Background Workers
   startEntropyWorker();
+  startBankrollWorker();
 } catch (err) {
   app.log.error(err);
   process.exit(1);

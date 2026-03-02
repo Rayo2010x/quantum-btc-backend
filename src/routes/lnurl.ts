@@ -4,6 +4,7 @@ import { pool } from "../db/index.js";
 import { OpenNode } from "../services/opennode.js";
 import { env } from "../config/env.js";
 import { decode } from "light-bolt11-decoder";
+import { syncBankrollBalance } from "../services/bankroll_worker.js";
 
 export async function lnurlRoutes(app: FastifyInstance) {
 
@@ -108,6 +109,10 @@ export async function lnurlRoutes(app: FastifyInstance) {
                 await OpenNode.payInvoice(pr);
 
                 await client.query("COMMIT");
+
+                // Asynchronously sync bankroll because money left OpenNode
+                syncBankrollBalance().catch(err => app.log.error("Bankroll Sync Error:", err));
+
                 return { status: "OK" };
 
             } catch (err: any) {
