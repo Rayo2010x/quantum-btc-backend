@@ -8,7 +8,7 @@
 | :--- | :--- | :--- | :--- |
 | [SOP: Control de Documentos](00-Meta/SOP_Document_Control.md) | 1.0 | **APPROVED** | 2026-02-03 |
 | [SOP: Change Management](00-Meta/SOP_Change_Management.md) | 1.1 | **APPROVED** | 2026-02-05 |
-| [Backlog & Roadmap](00-Meta/BACKLOG.md) | 1.0 | **ACTIVO** | 2026-01-31 |
+| [Backlog & Roadmap](00-Meta/BACKLOG.md) | 1.0 | **ACTIVO** | 2026-03-02 |
 
 
 ## 01-Requirements (Business Logic)
@@ -32,7 +32,7 @@
 ## 04-API (Interfaces & Contracts)
 | Artifact | Version | Status | Last Modified |
 | :--- | :--- | :--- | :--- |
-| [API Specification (REST & LNURL)](04-API/API_Specification.md) | 1.3 | **VIGENTE** | 2026-02-07 |
+| [API Specification (REST & LNURL)](04-API/API_Specification.md) | 1.4 | **VIGENTE** | 2026-03-02 |
 
 ## 05-QA-Testing (Verification)
 | Artifact | Version | Status | Last Modified |

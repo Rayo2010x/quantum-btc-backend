@@ -1,8 +1,8 @@
 # API Specification - Quantum BTC
 
-> **Artifact ID:** 20260130_API_Specification_v1.2
-> **Version:** 1.2
-> **Date:** 2026-02-06
+> **Artifact ID:** 20260130_API_Specification_v1.4
+> **Version:** 1.4
+> **Date:** 2026-03-02
 > **Status:** Vigente
 
 ## 1. Base URL
@@ -82,10 +82,4 @@
 *   **Content-Type:** `application/x-www-form-urlencoded`
 *   **Headers:** `x-signature: <HMAC>`
 *   **Body:**
-    ```json
-    {
-      "id": "charge_id",
-      "status": "paid",
-      "hashed_order": "secret_hash"
-    }
     ```

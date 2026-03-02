@@ -26,7 +26,6 @@ export async function lnurlRoutes(app: FastifyInstance) {
 
         const token = res.rows[0];
 
-        console.log(`⚡ LNURL-Withdraw Step 1: k1=${k1}`);
         const baseUrl = env.PUBLIC_URL.replace(/\/$/, "");
         return {
             tag: "withdrawRequest",
@@ -50,8 +49,6 @@ export async function lnurlRoutes(app: FastifyInstance) {
 
             const k1 = query.k1 || body?.k1;
             const pr = query.pr || body?.pr;
-
-            console.log(`⚡ LNURL-Withdraw Step 2: Method=${req.method}, k1=${k1}, pr=${pr}`);
 
             if (!k1 || !pr) return reply.status(400).send({ status: "ERROR", reason: "Missing params" });
 
