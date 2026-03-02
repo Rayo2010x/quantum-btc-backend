@@ -83,6 +83,10 @@ All documentation artifacts must live under the documentation root and follow th
   - Enforce clean naming conventions.
   - Maintain versioning discipline.
   - Ensure documentation consistency, traceability, and long-term maintainability.
+  - **ATOMIC DOCUMENT HEURISTIC (Mandatory):** Any modification to a `.md` file in `docs/` MUST be executed as a single atomic block of 3 steps:
+    1. Edit the content.
+    2. Increment `Version` and update `Last Updated` in the file's frontmatter/header.
+    3. Update `docs/DOCUMENT_INDEX.md` with the new version and date.
 
 ---
 
