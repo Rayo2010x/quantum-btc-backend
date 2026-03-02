@@ -16,6 +16,7 @@ const WebhookSchema = z.object({
 import { withTx } from "../db/index.js";
 import crypto from "node:crypto";
 import { broadcastGameResult } from "../services/websocket.js";
+import { fetchDrandLatest } from "../services/drand.js";
 
 export async function webhookRoutes(app: FastifyInstance) {
   app.post("/v1/webhooks/opennode", async (req, reply) => {
@@ -77,15 +78,20 @@ export async function webhookRoutes(app: FastifyInstance) {
           entropyData = crypto.randomBytes(32).toString('hex');
         }
 
+        // Fetch Drand Public Randomness (timeout: 1.5s)
+        const drandData = await fetchDrandLatest(1500);
+        let drandRandomnessVal = drandData ? drandData.randomness : `DRAND_UNAVAILABLE_${Date.now()}`;
+
         // Server Reveal = entropyData
         // Calculate Outcome
-        // Need: server_seed (entropy), client_seed
+        // Need: server_seed (entropy), client_seed, drand_randomness
 
         // Re-implement calculateOutcome helper here or reuse
         const combined = crypto
           .createHash("sha256")
           .update(entropyData)
           .update(bet.client_seed)
+          .update(drandRandomnessVal)
           .digest("hex");
         const intValue = parseInt(combined.substring(0, 8), 16);
         const outcome = intValue % 37;
@@ -124,9 +130,14 @@ export async function webhookRoutes(app: FastifyInstance) {
         await client.query(
           `UPDATE bets 
                  SET status = $1, final_result = $2, payout_sat = $3, 
-                     server_seed_reveal = $4, withdrawal_token_id = $5 
-                 WHERE id = $6`,
-          [finalStatus, outcome, BigInt(totalPayout), entropyData, withdrawalTokenId, bet.id]
+                     server_seed_reveal = $4, withdrawal_token_id = $5,
+                     drand_round = $6, drand_randomness = $7, drand_signature = $8
+                 WHERE id = $9`,
+          [
+            finalStatus, outcome, BigInt(totalPayout), entropyData, withdrawalTokenId,
+            drandData?.round || null, drandData?.randomness || null, drandData?.signature || null,
+            bet.id
+          ]
         );
 
         console.log(`🏁 Game Finished. Result: ${finalStatus}, Outcome: ${outcome}, Payout: ${totalPayout}`);
@@ -138,7 +149,10 @@ export async function webhookRoutes(app: FastifyInstance) {
           outcome,
           payoutSat: totalPayout.toString(),
           serverSeedReveal: entropyData,
-          withdrawalTokenId: withdrawalTokenId
+          withdrawalTokenId: withdrawalTokenId,
+          drandRound: drandData?.round || null,
+          drandRandomness: drandData?.randomness || null,
+          drandSignature: drandData?.signature || null
         });
 
         return { ok: true, betId: bet.id, result: finalStatus };

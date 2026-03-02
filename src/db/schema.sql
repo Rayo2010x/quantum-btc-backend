@@ -50,6 +50,11 @@ CREATE TABLE IF NOT EXISTS bets (
   -- Entropy Relation
   entropy_id UUID REFERENCES entropy_buffer(id),
   
+  -- Drand Audit Data
+  drand_round BIGINT,
+  drand_randomness VARCHAR(255),
+  drand_signature VARCHAR(512),
+  
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
