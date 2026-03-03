@@ -66,10 +66,22 @@ export const OpenNode = {
      */
     async getAccountBalance(): Promise<{ balance: number }> {
         try {
-            const response = await api.get("https://api.opennode.com/v1/account", {
-                headers: { Authorization: env.OPENNODE_INVOICE_KEY } // Assuming invoice key has read access to balance, usually INVOICE or WITHDRAWAL works depending on permissions
+            const response = await api.get("https://api.opennode.com/v1/account/balance", {
+                headers: { Authorization: env.OPENNODE_INVOICE_KEY }
             });
-            return { balance: response.data.data.balance };
+
+            // OpenNode usually returns { data: { balance: { BTC: 123456, USD: 0 } } }
+            // Let's defensively parse it.
+            const data = response.data.data;
+            let finalBalance = 0;
+
+            if (typeof data.balance === 'object' && data.balance !== null && 'BTC' in data.balance) {
+                finalBalance = Number(data.balance.BTC); // Measured in Sats usually
+            } else {
+                finalBalance = Number(data.balance);
+            }
+
+            return { balance: finalBalance };
         } catch (error: any) {
             console.error("❌ OpenNode Balance Fetch Error:", error.response?.data || error.message);
             throw new Error("Failed to fetch OpenNode balance");
