@@ -14,7 +14,7 @@
 ## 01-Requirements (Business Logic)
 | Artifact | Version | Status | Last Modified |
 | :--- | :--- | :--- | :--- |
-| [Manual Técnico de Alto Nivel](01-Requirements/Manual_Tecnico_Alto_Nivel.md) | 2.5 | **VIGENTE** | 2026-03-03 |
+| [Manual Técnico de Alto Nivel](01-Requirements/Manual_Tecnico_Alto_Nivel.md) | 2.6 | **VIGENTE** | 2026-03-03 |
 | [Bankroll & Risk Analysis](01-Requirements/Bankroll_Risk_Analysis.md) | 1.0 | **DRAFT** | 2026-03-02 |
 | [Frontend Integration Plan](01-Requirements/Frontend_Integration_Plan.md) | 1.0 | **DRAFT** | 2026-03-02 |
 | [Lineamientos UI/UX y Frontend](01-Requirements/UI_UX_Guidelines.md) | 1.1 | **DRAFT** | 2026-03-03 |
@@ -35,7 +35,7 @@
 ## 04-API (Interfaces & Contracts)
 | Artifact | Version | Status | Last Modified |
 | :--- | :--- | :--- | :--- |
-| [API Specification (REST & LNURL)](04-API/API_Specification.md) | 1.4 | **VIGENTE** | 2026-03-02 |
+| [API Specification (REST & LNURL)](04-API/API_Specification.md) | 1.5 | **VIGENTE** | 2026-03-03 |
 
 ## 05-QA-Testing (Verification)
 | Artifact | Version | Status | Last Modified |
