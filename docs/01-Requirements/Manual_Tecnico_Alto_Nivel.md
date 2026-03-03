@@ -1,10 +1,10 @@
 # Manual Técnico de Alto Nivel: Proyecto Quantum BTC
 
 ---
-**Versión:** 2.3
+**Versión:** 2.4
 **Estado:** Vigente
-**Última Modificación:** 2026-03-02
-**Cambios:** Refinada Sección 4.1 respecto a la operación síncrona, polling y almacenamiento del beacon público (drand).
+**Última Modificación:** 2026-03-03
+**Cambios:** Añadido registro permanente de intentos de acceso bloqueados (Geo-Blocking Logging) en tabla `geo_block_logs`.
 ---
 
 ## 1. Resumen de Operación (MVP)
@@ -97,3 +97,4 @@ Para cumplir con normativas internacionales, el sistema implementa controles de 
     *   Estados Unidos (EE.UU.)
     *   Unión Europea (UE)
 *   **Mecanismo:** Validación vía middleware en el backend utilizando base de datos local de GeoIP (ej: `fast-geoip`) para minimizar latencia. El bloqueo retorna un error `403 Forbidden`.
+*   **Auditoría de Bloqueos:** Todo intento de acceso bloqueado es registrado permanentemente en la tabla `geo_block_logs` (IP, país y timestamp) para mantener la consistencia de auditoría y análisis de seguridad.

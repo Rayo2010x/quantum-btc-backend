@@ -1,7 +1,7 @@
 # DOCUMENT INDEX - Quantum BTC Backend
 
 > **Master Index:** Single source of truth for all project documentation.
-> **Last Updated:** 2026-03-01
+> **Last Updated:** 2026-03-03
 
 ## 00-Meta (Process & Standards)
 | Artifact | Version | Status | Last Modified |
@@ -14,7 +14,7 @@
 ## 01-Requirements (Business Logic)
 | Artifact | Version | Status | Last Modified |
 | :--- | :--- | :--- | :--- |
-| [Manual Técnico de Alto Nivel](01-Requirements/Manual_Tecnico_Alto_Nivel.md) | 2.3 | **VIGENTE** | 2026-03-02 |
+| [Manual Técnico de Alto Nivel](01-Requirements/Manual_Tecnico_Alto_Nivel.md) | 2.4 | **VIGENTE** | 2026-03-03 |
 | [Bankroll & Risk Analysis](01-Requirements/Bankroll_Risk_Analysis.md) | 1.0 | **DRAFT** | 2026-03-02 |
 | [Frontend Integration Plan](01-Requirements/Frontend_Integration_Plan.md) | 1.0 | **DRAFT** | 2026-03-02 |
 | [Lineamientos UI/UX y Frontend](01-Requirements/UI_UX_Guidelines.md) | 1.0 | **DRAFT** | 2026-03-01 |
@@ -29,7 +29,7 @@
 ## 03-Database (Persistence Layer)
 | Artifact | Version | Status | Last Modified |
 | :--- | :--- | :--- | :--- |
-| [Data Schema & Dictionary](03-Database/Database_Schema.md) | 1.2 | **VIGENTE** | 2026-02-07 |
+| [Data Schema & Dictionary](03-Database/Database_Schema.md) | 1.2 | **VIGENTE** | 2026-03-03 |
 | [State Transition Models](03-Database/State_Models.md) | 1.0 | **DRAFT** | 2026-01-30 |
 
 ## 04-API (Interfaces & Contracts)

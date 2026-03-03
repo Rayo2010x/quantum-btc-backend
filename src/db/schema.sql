@@ -12,6 +12,15 @@ CREATE TABLE IF NOT EXISTS sessions (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
+-- 1.1 GEO BLOCK LOGS
+-- Tracks attempts to access the API from restricted regions
+CREATE TABLE IF NOT EXISTS geo_block_logs (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  ip_address INET NOT NULL,
+  country VARCHAR(2) NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
 -- 2. ENTROPY BUFFER
 -- Stores pre-fetched quantum randomness from ANU
 CREATE TABLE IF NOT EXISTS entropy_buffer (

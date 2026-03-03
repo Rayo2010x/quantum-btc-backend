@@ -2,6 +2,7 @@
 import { FastifyRequest, FastifyReply } from "fastify";
 // @ts-ignore
 import geoip from 'fast-geoip';
+import { pool } from '../db/index.js';
 
 export async function geoBlockMiddleware(req: FastifyRequest, reply: FastifyReply) {
     // Skip if local dev? Maybe not, we want to test it.
@@ -42,6 +43,15 @@ export async function geoBlockMiddleware(req: FastifyRequest, reply: FastifyRepl
 
             if (blockedCountries.includes(country)) {
                 req.log.warn({ msg: "Geo-Block Triggered", ip: finalIp, country });
+
+                // Fire and forget: Log to database
+                pool.query(
+                    'INSERT INTO geo_block_logs (ip_address, country) VALUES ($1, $2)',
+                    [finalIp, country]
+                ).catch(err => {
+                    req.log.error({ msg: "Failed to insert geo block log", err, ip: finalIp, country });
+                });
+
                 return reply.status(403).send({
                     error: "Access Denied",
                     message: "Service not available in your region."

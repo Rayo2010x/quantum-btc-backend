@@ -1,8 +1,8 @@
 # Database Schema - Quantum BTC
 
-> **Artifact ID:** 20260130_Database_Schema_v1.1
-> **Version:** 1.1
-> **Date:** 2026-02-06
+> **Artifact ID:** 20260130_Database_Schema_v1.2
+> **Version:** 1.2
+> **Date:** 2026-03-03
 > **Status:** Vigente
 
 ## 1. Entity-Relationship Diagram (ERD)
@@ -11,6 +11,12 @@
 erDiagram
     SESSION ||--o{ TRANSACTION : initiates
     SESSION ||--o{ BET : places
+    GEO_BLOCK_LOG {
+        uuid id PK
+        inet ip_address "Blocked IP"
+        string country "Country Code"
+        timestamp created_at
+    }
     SESSION {
         uuid id PK
         inet ip_address "Client IP"
@@ -72,6 +78,13 @@ Pre-fetched quantum randomness.
 *   **raw_hex_data:** High-quality entropy from ANU.
 *   **is_consumed:** Index for fast retrieval (`WHERE is_consumed = false LIMIT 1`).
 
+### 2.4 Table: `geo_block_logs`
+Audit log for blocked IP addresses.
+*   **id:** UUID v4.
+*   **ip_address:** `INET`. The blocked client IP address.
+*   **country:** `VARCHAR(2)`. The 2-letter ISO country code of the blocked IP.
+*   **created_at:** Timestamp.
+
 ## 3. SQL Schema (schema.sql)
 
 ```sql
@@ -80,6 +93,13 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 CREATE TABLE sessions (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   ip_address INET,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+CREATE TABLE geo_block_logs (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  ip_address INET NOT NULL,
+  country VARCHAR(2) NOT NULL,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 

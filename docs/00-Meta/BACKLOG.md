@@ -42,5 +42,5 @@ Este documento centraliza los pendientes técnicos, deuda técnica y roadmap del
 - [x] **Geo-Blocking (US/EU):** Implementar middleware para bloquear acceso desde direcciones IP de Estados Unidos y Unión Europea.
     - Utilizar librería local (ej: `fast-geoip`) para minimizar latencia.
     - Retornar `403 Forbidden` con mensaje "Service Not Available in your Region".
-- [ ] **Geo-Blocking Logging (Medium):** Registrar permanentemente el IP bloqueado en Supabase (evaluar si conviene crear una nueva tabla `geo_block_logs` o añadir una bandera booleana a la tabla de sesiones) para mantener consistencia de auditoría.
+- [x] **Geo-Blocking Logging (Medium):** Registrar permanentemente el IP bloqueado en Supabase (evaluar si conviene crear una nueva tabla `geo_block_logs` o añadir una bandera booleana a la tabla de sesiones) para mantener consistencia de auditoría (Completado - 2026-03-03).
 - [ ] **Geo-Blocking UX Fix (Medium):** Revisar la lógica y orden de ejecución (ej. CORS vs GeoBlock) para garantizar que el error *"403 Access Denied / Service not available in your region"* tenga prioridad y llegue correctamente al frontend, evitando que este último colapse prematuramente mostrando un genérico "Network Error".
