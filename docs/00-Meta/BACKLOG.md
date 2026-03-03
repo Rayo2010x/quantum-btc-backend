@@ -2,7 +2,7 @@
 # Project Backlog & Roadmap
 
 > **Status:** Active
-> **Last Updated:** 2026-03-02
+> **Last Updated:** 2026-03-03
 
 Este documento centraliza los pendientes técnicos, deuda técnica y roadmap del proyecto Quantum BTC.
 
@@ -12,7 +12,7 @@ Este documento centraliza los pendientes técnicos, deuda técnica y roadmap del
 - [x] **Integración ANU QRNG:** Worker de entropía cuántica (Completado - Fix Prod 2026-02-04).
 - [x] **Integración `drand`:** Añadir beacon de aleatoriedad pública para auditoría temporal (Completado - 2026-03-02).
 - [x] **Websockets:** Notificaciones en tiempo real para el frontend (Completado).
-- [ ] **Risk & Bankroll Management:** Límite de apuestas dinámico, monitorización de OpenNode y alertas de liquidez (Añadido - 2026-03-02).
+- [x] **Risk & Bankroll Management:** Límite de apuestas dinámico, monitorización de OpenNode y alertas de liquidez (Completado - 2026-03-03).
 
 ## 2. Frontend (v0.1.0)
 - [x] **Inicialización:** Setup de Next.js/React + Vite (Completado).
@@ -42,4 +42,5 @@ Este documento centraliza los pendientes técnicos, deuda técnica y roadmap del
 - [x] **Geo-Blocking (US/EU):** Implementar middleware para bloquear acceso desde direcciones IP de Estados Unidos y Unión Europea.
     - Utilizar librería local (ej: `fast-geoip`) para minimizar latencia.
     - Retornar `403 Forbidden` con mensaje "Service Not Available in your Region".
-
+- [ ] **Geo-Blocking Logging (Medium):** Registrar permanentemente el IP bloqueado en Supabase (evaluar si conviene crear una nueva tabla `geo_block_logs` o añadir una bandera booleana a la tabla de sesiones) para mantener consistencia de auditoría.
+- [ ] **Geo-Blocking UX Fix (Medium):** Revisar la lógica y orden de ejecución (ej. CORS vs GeoBlock) para garantizar que el error *"403 Access Denied / Service not available in your region"* tenga prioridad y llegue correctamente al frontend, evitando que este último colapse prematuramente mostrando un genérico "Network Error".
