@@ -49,14 +49,9 @@ async function getOrCreateSession(): Promise<string> {
 }
 
 export const GameApi = {
-    placeBet: async (bets: Record<number, number>, clientSeed: string) => {
+    // `bets` is now pre-formatted by the UI as an array of objects matching the backend MultiBetSchema
+    placeBet: async (betsArray: { numbers: number[], amount: number }[], clientSeed: string) => {
         let sessionId = await getOrCreateSession();
-
-        // Transform map to array
-        const betsArray = Object.entries(bets).map(([numStr, amount]) => ({
-            number: parseInt(numStr, 10),
-            amount: amount
-        }));
 
         if (betsArray.length === 0) throw new Error("No bets placed");
 

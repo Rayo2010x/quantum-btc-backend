@@ -111,11 +111,18 @@ export async function webhookRoutes(app: FastifyInstance) {
         const betsList = bet.bet_details; // JSONB
         let totalPayout = 0n;
 
-        // betsList is array of { number, amount }
+        // betsList is array of { numbers: number[], amount: number }
         if (Array.isArray(betsList)) {
           for (const b of betsList) {
-            if (b.number === outcome) {
-              totalPayout += BigInt(b.amount) * 36n;
+            // Because MVP originally used `number: number`, handle both for backwards compatibility
+            // if legacy records exist, though DB was wiped/migrated ideally.
+            const targetNumbers: number[] = b.numbers || (b.number !== undefined ? [b.number] : []);
+
+            if (targetNumbers.includes(outcome)) {
+              // Calculate dynamic multiplier based on the spread of numbers
+              // e.g., Straight (1 number) = 36x, Red (18 numbers) = 2x, Dozen (12 numbers) = 3x
+              const multiplier = BigInt(Math.floor(36 / targetNumbers.length));
+              totalPayout += BigInt(b.amount) * multiplier;
             }
           }
         }

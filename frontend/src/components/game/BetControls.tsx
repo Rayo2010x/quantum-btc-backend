@@ -11,7 +11,8 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function BetControls() {
-    const [bets, setBets] = useState<Record<number, number>>({});
+    // keys can be numbers "17" or group IDs "red", "col_1", "dozen_0"
+    const [bets, setBets] = useState<Record<string, number>>({});
     const [chipValue, setChipValue] = useState<number>(100);
     const [loading, setLoading] = useState(false);
 
@@ -29,15 +30,49 @@ export function BetControls() {
 
     const totalWager = Object.values(bets).reduce((a, b) => a + b, 0);
 
+    // Standard European Roulette layout logic has been moved to OUTSIDE_BETS_MAP
+
     const handleNumberClick = (num: number) => {
         if (currentBet || isSpinning || isMaintenance) return; // Lock during spin or maintenance
         setBets(prev => {
-            const current = prev[num] || 0;
+            const current = prev[num.toString()] || 0;
             return {
                 ...prev,
-                [num]: current + chipValue
+                [num.toString()]: current + chipValue
             };
         });
+    };
+
+    const handleOutsideBet = (groupId: string) => {
+        if (currentBet || isSpinning || isMaintenance) return;
+        setBets(prev => {
+            const current = prev[groupId] || 0;
+            return {
+                ...prev,
+                [groupId]: current + chipValue
+            };
+        });
+    };
+
+    // Outside Bet Definitions mapped to Arrays
+    const OUTSIDE_BETS_MAP: Record<string, number[]> = {
+        'col_0': Array.from({ length: 12 }, (_, i) => (i * 3) + 1), // 1, 4, 7...
+        'col_1': Array.from({ length: 12 }, (_, i) => (i * 3) + 2), // 2, 5, 8...
+        'col_2': Array.from({ length: 12 }, (_, i) => (i * 3) + 3), // 3, 6, 9...
+        'doz_0': Array.from({ length: 12 }, (_, i) => i + 1), // 1-12
+        'doz_1': Array.from({ length: 12 }, (_, i) => i + 13), // 13-24
+        'doz_2': Array.from({ length: 12 }, (_, i) => i + 25), // 25-36
+        'half_low': Array.from({ length: 18 }, (_, i) => i + 1), // 1-18
+        'half_high': Array.from({ length: 18 }, (_, i) => i + 19), // 19-36
+        'even': Array.from({ length: 36 }, (_, i) => i + 1).filter(n => n % 2 === 0),
+        'odd': Array.from({ length: 36 }, (_, i) => i + 1).filter(n => n % 2 !== 0),
+        'red': [1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36],
+        'black': Array.from({ length: 36 }, (_, i) => i + 1).filter(n => ![1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36].includes(n)),
+    };
+
+    // Helpers to calculate visual summary of bets placed on outside groups
+    const getOutsideBetTotal = (groupId: string) => {
+        return bets[groupId] || 0;
     };
 
     // Polling Hook
@@ -98,7 +133,17 @@ export function BetControls() {
 
         try {
             const clientSeed = "client-seed-" + Math.random().toString(36).substring(7);
-            const res = await GameApi.placeBet(bets, clientSeed);
+
+            // Map the frontend Group IDs into actual number arrays for the backend
+            const payloadArray: { numbers: number[], amount: number }[] = Object.entries(bets).map(([key, amount]) => {
+                if (OUTSIDE_BETS_MAP[key]) {
+                    return { numbers: OUTSIDE_BETS_MAP[key], amount: amount };
+                } else {
+                    return { numbers: [parseInt(key, 10)], amount: amount };
+                }
+            });
+
+            const res = await GameApi.placeBet(payloadArray, clientSeed);
             setCurrentBet(res);
         } catch (err: any) {
             console.error(err);
@@ -257,30 +302,85 @@ export function BetControls() {
                 ))}
             </div>
 
-            {/* Betting Grid */}
-            <div className="grid grid-cols-12 gap-1 sm:gap-2 select-none">
-                {/* 0 Green */}
-                <NumberButton
-                    num={0}
-                    currentBet={bets[0]}
-                    onClick={() => handleNumberClick(0)}
-                    className="col-span-12"
-                    isGreen
-                />
-
-                {/* 1-36 */}
-                {Array.from({ length: 36 }, (_, i) => {
-                    const num = i + 1;
-                    return (
+            {/* Betting Grid - Classic European Layout */}
+            <div className="flex flex-col gap-1 w-full overflow-x-auto pb-4">
+                <div className="min-w-[700px] flex gap-1">
+                    {/* Zero */}
+                    <div className="w-12 sm:w-16 flex-shrink-0">
                         <NumberButton
-                            key={num}
-                            num={num}
-                            currentBet={bets[num]}
-                            onClick={() => handleNumberClick(num)}
-                            className="col-span-4 sm:col-span-3 md:col-span-1"
+                            num={0}
+                            currentBet={bets['0']}
+                            onClick={() => handleNumberClick(0)}
+                            className="h-full w-full rounded-l-3xl border-r-0"
+                            isGreen
                         />
-                    );
-                })}
+                    </div>
+
+                    {/* Main Board (1-36) + Columns */}
+                    <div className="flex-grow flex flex-col gap-1">
+                        {/* Top Row: 3, 6, 9... 36 (Column 3) */}
+                        <div className="flex gap-1 h-12 sm:h-14">
+                            {[3, 6, 9, 12, 15, 18, 21, 24, 27, 30, 33, 36].map(num => (
+                                <NumberButton key={num} num={num} currentBet={bets[num.toString()]} onClick={() => handleNumberClick(num)} className="flex-1 rounded-none border-collapse" />
+                            ))}
+                            <OutsideBetButton label="2:1" currentBet={getOutsideBetTotal('col_2')} onClick={() => handleOutsideBet('col_2')} className="flex-1 font-sans text-xs border-l-0 rounded-r-xl" />
+                        </div>
+                        {/* Middle Row: 2, 5, 8... 35 (Column 2) */}
+                        <div className="flex gap-1 h-12 sm:h-14">
+                            {[2, 5, 8, 11, 14, 17, 20, 23, 26, 29, 32, 35].map(num => (
+                                <NumberButton key={num} num={num} currentBet={bets[num.toString()]} onClick={() => handleNumberClick(num)} className="flex-1 rounded-none border-collapse" />
+                            ))}
+                            <OutsideBetButton label="2:1" currentBet={getOutsideBetTotal('col_1')} onClick={() => handleOutsideBet('col_1')} className="flex-1 font-sans text-xs border-l-0 rounded-r-xl" />
+                        </div>
+                        {/* Bottom Row: 1, 4, 7... 34 (Column 1) */}
+                        <div className="flex gap-1 h-12 sm:h-14">
+                            {[1, 4, 7, 10, 13, 16, 19, 22, 25, 28, 31, 34].map(num => (
+                                <NumberButton key={num} num={num} currentBet={bets[num.toString()]} onClick={() => handleNumberClick(num)} className="flex-1 rounded-none border-collapse" />
+                            ))}
+                            <OutsideBetButton label="2:1" currentBet={getOutsideBetTotal('col_0')} onClick={() => handleOutsideBet('col_0')} className="flex-1 font-sans text-xs border-l-0 rounded-r-xl" />
+                        </div>
+                    </div>
+                </div>
+
+                {/* Dozens Row */}
+                <div className="min-w-[700px] flex gap-1 pl-12 sm:pl-16 pr-[calc(5%+2rem)] sm:pr-[calc(8.33%+.5rem)]">
+                    <OutsideBetButton label="1st 12" currentBet={getOutsideBetTotal('doz_0')} onClick={() => handleOutsideBet('doz_0')} className="flex-1 h-10 sm:h-12 border-t-0" />
+                    <OutsideBetButton label="2nd 12" currentBet={getOutsideBetTotal('doz_1')} onClick={() => handleOutsideBet('doz_1')} className="flex-1 h-10 sm:h-12 border-t-0" />
+                    <OutsideBetButton label="3rd 12" currentBet={getOutsideBetTotal('doz_2')} onClick={() => handleOutsideBet('doz_2')} className="flex-1 h-10 sm:h-12 border-t-0" />
+                </div>
+
+                {/* Bottom Outside Bets Row */}
+                <div className="min-w-[700px] flex gap-1 pl-12 sm:pl-16 pr-[calc(5%+2rem)] sm:pr-[calc(8.33%+.5rem)]">
+                    <OutsideBetButton label="1-18" currentBet={getOutsideBetTotal('half_low')} onClick={() => handleOutsideBet('half_low')} className="flex-1 h-10 sm:h-12 rounded-bl-xl border-t-0" />
+                    <OutsideBetButton label="EVEN" currentBet={getOutsideBetTotal('even')} onClick={() => handleOutsideBet('even')} className="flex-1 h-10 sm:h-12 border-t-0" />
+
+                    {/* RED Diamond */}
+                    <button onClick={() => handleOutsideBet('red')} className="flex-1 relative h-10 sm:h-12 bg-gray-800/40 border border-white/5 border-t-0 hover:bg-gray-800/80 transition-colors flex items-center justify-center group overflow-hidden">
+                        <div className="w-5 h-5 bg-red-600 rotate-45 transform skew-x-12 skew-y-12 rounded-sm shadow-inner z-10 border border-red-800/50"></div>
+                        {getOutsideBetTotal('red') > 0 && (
+                            <div className="absolute inset-0 flex items-center justify-center bg-black/60 backdrop-blur-[1px] z-20 animate-in fade-in zoom-in duration-200">
+                                <div className="w-8 h-8 rounded-full bg-primary text-black flex items-center justify-center text-[10px] font-bold shadow-lg border border-white filter-none opacity-100">
+                                    {getOutsideBetTotal('red') >= 1000 ? (getOutsideBetTotal('red') / 1000) + 'k' : getOutsideBetTotal('red')}
+                                </div>
+                            </div>
+                        )}
+                    </button>
+
+                    {/* BLACK Diamond */}
+                    <button onClick={() => handleOutsideBet('black')} className="flex-1 relative h-10 sm:h-12 bg-gray-800/40 border border-white/5 border-t-0 hover:bg-gray-800/80 transition-colors flex items-center justify-center group overflow-hidden">
+                        <div className="w-5 h-5 bg-black rotate-45 transform skew-x-12 skew-y-12 rounded-sm shadow-inner z-10 border border-gray-700"></div>
+                        {getOutsideBetTotal('black') > 0 && (
+                            <div className="absolute inset-0 flex items-center justify-center bg-black/60 backdrop-blur-[1px] z-20 animate-in fade-in zoom-in duration-200">
+                                <div className="w-8 h-8 rounded-full bg-primary text-black flex items-center justify-center text-[10px] font-bold shadow-lg border border-white filter-none opacity-100">
+                                    {getOutsideBetTotal('black') >= 1000 ? (getOutsideBetTotal('black') / 1000) + 'k' : getOutsideBetTotal('black')}
+                                </div>
+                            </div>
+                        )}
+                    </button>
+
+                    <OutsideBetButton label="ODD" currentBet={getOutsideBetTotal('odd')} onClick={() => handleOutsideBet('odd')} className="flex-1 h-10 sm:h-12 border-t-0" />
+                    <OutsideBetButton label="19-36" currentBet={getOutsideBetTotal('half_high')} onClick={() => handleOutsideBet('half_high')} className="flex-1 h-10 sm:h-12 rounded-br-xl border-t-0" />
+                </div>
             </div>
 
             {/* Controls */}
@@ -349,6 +449,32 @@ function NumberButton({ num, currentBet, onClick, className, isGreen }: any) {
             )}
         >
             <span className="z-10 font-display text-lg">{num}</span>
+
+            {/* Chip Indicator */}
+            {currentBet > 0 && (
+                <div className="absolute inset-0 flex items-center justify-center bg-black/60 backdrop-blur-[1px] z-20 animate-in fade-in zoom-in duration-200">
+                    <div className="w-8 h-8 rounded-full bg-primary text-black flex items-center justify-center text-[10px] font-bold shadow-lg border border-white">
+                        {currentBet >= 1000 ? (currentBet / 1000) + 'k' : currentBet}
+                    </div>
+                </div>
+            )}
+        </button>
+    );
+}
+
+// Subcomponent for Outside Bets (Dozens, Columns, Red/Black, etc)
+function OutsideBetButton({ label, currentBet, onClick, className }: { label: string, currentBet: number, onClick: () => void, className?: string }) {
+    return (
+        <button
+            onClick={onClick}
+            className={cn(
+                "relative font-display font-bold text-sm tracking-wider transition-all border flex items-center justify-center overflow-hidden group",
+                "bg-gray-800/40 text-gray-300 border-white/5 hover:bg-gray-800/80",
+                currentBet > 0 && "border-primary/50 ring-1 ring-primary/50 text-white",
+                className
+            )}
+        >
+            <span className="z-10">{label}</span>
 
             {/* Chip Indicator */}
             {currentBet > 0 && (

@@ -49,9 +49,12 @@ export async function betRoutes(app: FastifyInstance) {
       sessionId: z.string().uuid(), // Still keep session for grouping/history
       clientSeed: z.string().min(10),
       bets: z.array(z.object({
-        number: z.number().min(0).max(36),
+        numbers: z.array(z.number().min(0).max(36)).min(1).max(18),
         amount: z.number().int().positive()
-      })).min(1).max(37)
+      })).min(1).max(37).refine((bets) => {
+        // Enforce that length is a perfect divisor of 36 to avoid fractional satoshis
+        return bets.every(b => 36 % b.numbers.length === 0);
+      }, { message: "Invalid bet combination. The array length must perfectly divide 36." })
     });
 
     const { sessionId, bets, clientSeed } = MultiBetSchema.parse(req.body);
@@ -65,7 +68,8 @@ export async function betRoutes(app: FastifyInstance) {
     // Calculate total potential exposure
     let maxPotentialPayout = 0;
     bets.forEach(b => {
-      maxPotentialPayout += b.amount * 36; // Straight (Pleno) multiplier is 36x
+      const multiplier = 36 / b.numbers.length;
+      maxPotentialPayout += b.amount * multiplier;
     });
 
     if (maxPotentialPayout > maxPayoutAllowed) {
@@ -116,7 +120,10 @@ export async function betRoutes(app: FastifyInstance) {
         }
 
         const serverSeedHash = crypto.createHash('sha256').update(entropyData).digest('hex');
-        const selectedNumbers = bets.map(b => b.number);
+
+        // Flatten all selected numbers across all bets for the high-level selected_numbers column 
+        // useful for simple DB queries, but actual payout logic will parse `bet_details` JSON.
+        const selectedNumbers = Array.from(new Set(bets.flatMap(b => b.numbers)));
 
         const insert = await client.query(
           `INSERT INTO bets (

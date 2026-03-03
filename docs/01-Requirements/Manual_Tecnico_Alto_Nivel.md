@@ -1,10 +1,10 @@
 # Manual Técnico de Alto Nivel: Proyecto Quantum BTC
 
 ---
-**Versión:** 2.5
+**Versión:** 2.6
 **Estado:** Vigente
 **Última Modificación:** 2026-03-03
-**Cambios:** Detalle de respuestas HTTP (400 y 503) para Límite de Exposición y Alerta Roja de Bankroll en Sección 2.3.
+**Cambios:** Refactorización del esquema de apuestas para soportar Apuestas Múltiples/Externas nativas mediante arreglos de números (`numbers[]`).
 ---
 
 ## 1. Resumen de Operación (MVP)
@@ -47,12 +47,21 @@ Para una integración segura entre la API y el Front-End de Quantum BTC, se apli
 ## 3. Mecánica del Juego: Ruleta Europea
 Se utiliza el modelo estándar de 37 números (0-36). El cero siempre favorece a la casa en apuestas externas.
 
-| Tipo de apuesta | Payout | Pago Total (M) |
+El sistema soporta apuestas simples y complejas (Outside Bets, Dozens, Splits) mediante la evaluación de un **Arreglo de Números**.
+El API Backend recibe un arreglo de `$N$` números. El multiplicador de premio se calcula matemáticamente de forma dinámica en el backend:
+
+$$Multiplier = \frac{36}{N}$$
+
+**Reglas Críticas de Aceptación:**
+1. $N$ (la cantidad de números en la apuesta) debe ser un divisor exacto de 36 para garantizar que no existan premios fraccionarios en Satoshis (`36 % N == 0`).
+2. El tamaño máximo del arreglo es 18 (e.g., apostar a 1-18, Rojo/Negro, Par/Impar).
+
+| Tipo de apuesta (Frontend) | Tamaño del Arreglo ($N$) | Multiplicador de Pago ($M$) |
 | :--- | :--- | :--- |
-| Pleno (1 número) | 35:1 | 36× |
-| Split (2 números) | 17:1 | 18× |
-| Docena / Columna | 2:1 | 3× |
-| Rojo/Negro, Par/Impar | 1:1 | 2× |
+| Pleno (1 número) | 1 | 36× |
+| Split (2 números) | 2 | 18× |
+| Docena / Columna | 12 | 3× |
+| Rojo/Negro, Par/Impar | 18 | 2× |
 
 ### 3.1 Visualización del Resultado (Animación)
 Para mantener la experiencia "Premium", el sistema no debe mostrar el resultado numérico inmediatamente.

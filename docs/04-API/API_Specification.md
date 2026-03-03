@@ -1,8 +1,8 @@
 # API Specification - Quantum BTC
 
 > **Artifact ID:** 20260130_API_Specification_v1.4
-> **Version:** 1.4
-> **Date:** 2026-03-02
+> **Version:** 1.5
+> **Date:** 2026-03-03
 > **Status:** Vigente
 
 ## 1. Base URL
@@ -24,7 +24,10 @@
     ```json
     {
       "sessionId": "uuid",
-      "bets": { "0": 100, "17": 50 },
+      "bets": [
+        { "numbers": [0], "amount": 100 },
+        { "numbers": [1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36], "amount": 500 }
+      ],
       "clientSeed": "user_provided_entropy"
     }
     ```
