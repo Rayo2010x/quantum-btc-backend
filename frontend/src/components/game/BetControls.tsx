@@ -302,63 +302,66 @@ export function BetControls() {
                 ))}
             </div>
 
-            {/* Betting Grid - Classic European Layout */}
-            <div className="flex flex-col gap-1 w-full overflow-x-auto pb-4">
-                <div className="min-w-[700px] flex gap-1">
+            {/* Betting Grid - Classic European Layout (NetEnt Style) */}
+            <div className="flex flex-col w-full overflow-x-auto pb-6 pt-4 px-2 sm:px-4 bg-[#05401e] rounded-xl border-4 border-[#3a200a]/80 shadow-2xl relative">
+                {/* Wood/Gold trim accent */}
+                <div className="absolute inset-0 rounded-lg border border-[#e8c15a]/20 pointer-events-none"></div>
+
+                <div className="min-w-[700px] flex relative z-10">
                     {/* Zero */}
-                    <div className="w-12 sm:w-16 flex-shrink-0">
+                    <div className="w-12 sm:w-16 flex-shrink-0 flex flex-col items-stretch">
                         <NumberButton
                             num={0}
                             currentBet={bets['0']}
                             onClick={() => handleNumberClick(0)}
-                            className="h-full w-full rounded-l-3xl border-r-0"
+                            className="flex-1 w-full h-auto rounded-l-[2rem] border border-white/30 border-r-0 -mr-px"
                             isGreen
                         />
                     </div>
 
                     {/* Main Board (1-36) + Columns */}
-                    <div className="flex-grow flex flex-col gap-1">
+                    <div className="flex-grow flex flex-col">
                         {/* Top Row: 3, 6, 9... 36 (Column 3) */}
-                        <div className="flex gap-1 h-12 sm:h-14">
+                        <div className="flex h-12 sm:h-14">
                             {[3, 6, 9, 12, 15, 18, 21, 24, 27, 30, 33, 36].map(num => (
-                                <NumberButton key={num} num={num} currentBet={bets[num.toString()]} onClick={() => handleNumberClick(num)} className="flex-1 rounded-none border-collapse" />
+                                <NumberButton key={num} num={num} currentBet={bets[num.toString()]} onClick={() => handleNumberClick(num)} className="flex-1 rounded-none border-collapse -ml-px -mt-px first:ml-0" />
                             ))}
-                            <OutsideBetButton label="2:1" currentBet={getOutsideBetTotal('col_2')} onClick={() => handleOutsideBet('col_2')} className="flex-1 font-sans text-xs border-l-0 rounded-r-xl" />
+                            <OutsideBetButton label="2:1" currentBet={getOutsideBetTotal('col_2')} onClick={() => handleOutsideBet('col_2')} className="flex-1 font-sans text-[10px] sm:text-xs rounded-tr-3xl -ml-px -mt-px" />
                         </div>
                         {/* Middle Row: 2, 5, 8... 35 (Column 2) */}
-                        <div className="flex gap-1 h-12 sm:h-14">
+                        <div className="flex h-12 sm:h-14">
                             {[2, 5, 8, 11, 14, 17, 20, 23, 26, 29, 32, 35].map(num => (
-                                <NumberButton key={num} num={num} currentBet={bets[num.toString()]} onClick={() => handleNumberClick(num)} className="flex-1 rounded-none border-collapse" />
+                                <NumberButton key={num} num={num} currentBet={bets[num.toString()]} onClick={() => handleNumberClick(num)} className="flex-1 rounded-none border-collapse -ml-px -mt-px first:ml-0" />
                             ))}
-                            <OutsideBetButton label="2:1" currentBet={getOutsideBetTotal('col_1')} onClick={() => handleOutsideBet('col_1')} className="flex-1 font-sans text-xs border-l-0 rounded-r-xl" />
+                            <OutsideBetButton label="2:1" currentBet={getOutsideBetTotal('col_1')} onClick={() => handleOutsideBet('col_1')} className="flex-1 font-sans text-[10px] sm:text-xs rounded-none -ml-px -mt-px" />
                         </div>
                         {/* Bottom Row: 1, 4, 7... 34 (Column 1) */}
-                        <div className="flex gap-1 h-12 sm:h-14">
+                        <div className="flex h-12 sm:h-14">
                             {[1, 4, 7, 10, 13, 16, 19, 22, 25, 28, 31, 34].map(num => (
-                                <NumberButton key={num} num={num} currentBet={bets[num.toString()]} onClick={() => handleNumberClick(num)} className="flex-1 rounded-none border-collapse" />
+                                <NumberButton key={num} num={num} currentBet={bets[num.toString()]} onClick={() => handleNumberClick(num)} className="flex-1 rounded-none border-collapse -ml-px -mt-px first:ml-0" />
                             ))}
-                            <OutsideBetButton label="2:1" currentBet={getOutsideBetTotal('col_0')} onClick={() => handleOutsideBet('col_0')} className="flex-1 font-sans text-xs border-l-0 rounded-r-xl" />
+                            <OutsideBetButton label="2:1" currentBet={getOutsideBetTotal('col_0')} onClick={() => handleOutsideBet('col_0')} className="flex-1 font-sans text-[10px] sm:text-xs rounded-br-3xl -ml-px -mt-px" />
                         </div>
                     </div>
                 </div>
 
                 {/* Dozens Row */}
-                <div className="min-w-[700px] flex gap-1 pl-12 sm:pl-16 pr-[calc(5%+2rem)] sm:pr-[calc(8.33%+.5rem)]">
-                    <OutsideBetButton label="1st 12" currentBet={getOutsideBetTotal('doz_0')} onClick={() => handleOutsideBet('doz_0')} className="flex-1 h-10 sm:h-12 border-t-0" />
-                    <OutsideBetButton label="2nd 12" currentBet={getOutsideBetTotal('doz_1')} onClick={() => handleOutsideBet('doz_1')} className="flex-1 h-10 sm:h-12 border-t-0" />
-                    <OutsideBetButton label="3rd 12" currentBet={getOutsideBetTotal('doz_2')} onClick={() => handleOutsideBet('doz_2')} className="flex-1 h-10 sm:h-12 border-t-0" />
+                <div className="min-w-[700px] flex relative z-10 pl-12 sm:pl-16 pr-[calc(5%+2rem)] sm:pr-[calc(8.33%+.5rem)]">
+                    <OutsideBetButton label="1st 12" currentBet={getOutsideBetTotal('doz_0')} onClick={() => handleOutsideBet('doz_0')} className="flex-1 h-10 sm:h-12 -mt-px -ml-px" />
+                    <OutsideBetButton label="2nd 12" currentBet={getOutsideBetTotal('doz_1')} onClick={() => handleOutsideBet('doz_1')} className="flex-1 h-10 sm:h-12 -mt-px -ml-px" />
+                    <OutsideBetButton label="3rd 12" currentBet={getOutsideBetTotal('doz_2')} onClick={() => handleOutsideBet('doz_2')} className="flex-1 h-10 sm:h-12 -mt-px -ml-px" />
                 </div>
 
                 {/* Bottom Outside Bets Row */}
-                <div className="min-w-[700px] flex gap-1 pl-12 sm:pl-16 pr-[calc(5%+2rem)] sm:pr-[calc(8.33%+.5rem)]">
-                    <OutsideBetButton label="1-18" currentBet={getOutsideBetTotal('half_low')} onClick={() => handleOutsideBet('half_low')} className="flex-1 h-10 sm:h-12 rounded-bl-xl border-t-0" />
-                    <OutsideBetButton label="EVEN" currentBet={getOutsideBetTotal('even')} onClick={() => handleOutsideBet('even')} className="flex-1 h-10 sm:h-12 border-t-0" />
+                <div className="min-w-[700px] flex relative z-10 pl-12 sm:pl-16 pr-[calc(5%+2rem)] sm:pr-[calc(8.33%+.5rem)] pb-2">
+                    <OutsideBetButton label="1-18" currentBet={getOutsideBetTotal('half_low')} onClick={() => handleOutsideBet('half_low')} className="flex-1 h-12 sm:h-14 rounded-bl-3xl -mt-px -ml-px" />
+                    <OutsideBetButton label="EVEN" currentBet={getOutsideBetTotal('even')} onClick={() => handleOutsideBet('even')} className="flex-1 h-12 sm:h-14 -mt-px -ml-px" />
 
                     {/* RED Diamond */}
-                    <button onClick={() => handleOutsideBet('red')} className="flex-1 relative h-10 sm:h-12 bg-gray-800/40 border border-white/5 border-t-0 hover:bg-gray-800/80 transition-colors flex items-center justify-center group overflow-hidden">
-                        <div className="w-5 h-5 bg-red-600 rotate-45 transform skew-x-12 skew-y-12 rounded-sm shadow-inner z-10 border border-red-800/50"></div>
+                    <button onClick={() => handleOutsideBet('red')} className={cn("flex-1 relative h-12 sm:h-14 bg-transparent border border-white/30 hover:bg-white/10 transition-colors flex items-center justify-center group overflow-hidden -mt-px -ml-px", getOutsideBetTotal('red') > 0 && "border-primary ring-2 ring-primary ring-inset z-20")}>
+                        <div className="w-6 h-6 bg-[#c91c1c] rotate-45 transform rounded-[2px] shadow-sm z-10 border border-white/40"></div>
                         {getOutsideBetTotal('red') > 0 && (
-                            <div className="absolute inset-0 flex items-center justify-center bg-black/60 backdrop-blur-[1px] z-20 animate-in fade-in zoom-in duration-200">
+                            <div className="absolute inset-0 flex items-center justify-center bg-black/40 backdrop-blur-[1px] z-20 animate-in fade-in zoom-in duration-200">
                                 <div className="w-8 h-8 rounded-full bg-primary text-black flex items-center justify-center text-[10px] font-bold shadow-lg border border-white filter-none opacity-100">
                                     {getOutsideBetTotal('red') >= 1000 ? (getOutsideBetTotal('red') / 1000) + 'k' : getOutsideBetTotal('red')}
                                 </div>
@@ -367,10 +370,10 @@ export function BetControls() {
                     </button>
 
                     {/* BLACK Diamond */}
-                    <button onClick={() => handleOutsideBet('black')} className="flex-1 relative h-10 sm:h-12 bg-gray-800/40 border border-white/5 border-t-0 hover:bg-gray-800/80 transition-colors flex items-center justify-center group overflow-hidden">
-                        <div className="w-5 h-5 bg-black rotate-45 transform skew-x-12 skew-y-12 rounded-sm shadow-inner z-10 border border-gray-700"></div>
+                    <button onClick={() => handleOutsideBet('black')} className={cn("flex-1 relative h-12 sm:h-14 bg-transparent border border-white/30 hover:bg-white/10 transition-colors flex items-center justify-center group overflow-hidden -mt-px -ml-px", getOutsideBetTotal('black') > 0 && "border-primary ring-2 ring-primary ring-inset z-20")}>
+                        <div className="w-6 h-6 bg-[#1c1c1c] rotate-45 transform rounded-[2px] shadow-sm z-10 border border-white/40"></div>
                         {getOutsideBetTotal('black') > 0 && (
-                            <div className="absolute inset-0 flex items-center justify-center bg-black/60 backdrop-blur-[1px] z-20 animate-in fade-in zoom-in duration-200">
+                            <div className="absolute inset-0 flex items-center justify-center bg-black/40 backdrop-blur-[1px] z-20 animate-in fade-in zoom-in duration-200">
                                 <div className="w-8 h-8 rounded-full bg-primary text-black flex items-center justify-center text-[10px] font-bold shadow-lg border border-white filter-none opacity-100">
                                     {getOutsideBetTotal('black') >= 1000 ? (getOutsideBetTotal('black') / 1000) + 'k' : getOutsideBetTotal('black')}
                                 </div>
@@ -378,8 +381,8 @@ export function BetControls() {
                         )}
                     </button>
 
-                    <OutsideBetButton label="ODD" currentBet={getOutsideBetTotal('odd')} onClick={() => handleOutsideBet('odd')} className="flex-1 h-10 sm:h-12 border-t-0" />
-                    <OutsideBetButton label="19-36" currentBet={getOutsideBetTotal('half_high')} onClick={() => handleOutsideBet('half_high')} className="flex-1 h-10 sm:h-12 rounded-br-xl border-t-0" />
+                    <OutsideBetButton label="ODD" currentBet={getOutsideBetTotal('odd')} onClick={() => handleOutsideBet('odd')} className="flex-1 h-12 sm:h-14 -mt-px -ml-px" />
+                    <OutsideBetButton label="19-36" currentBet={getOutsideBetTotal('half_high')} onClick={() => handleOutsideBet('half_high')} className="flex-1 h-12 sm:h-14 rounded-br-3xl -mt-px -ml-px" />
                 </div>
             </div>
 
@@ -438,13 +441,13 @@ function NumberButton({ num, currentBet, onClick, className, isGreen }: any) {
         <button
             onClick={onClick}
             className={cn(
-                "relative h-12 sm:h-14 rounded-md font-bold transition-all border flex items-center justify-center overflow-hidden group",
+                "relative h-12 sm:h-14 font-bold transition-all border flex items-center justify-center overflow-hidden group border-white/30",
                 isGreen
-                    ? "bg-green-900/40 text-green-400 border-green-500/20 hover:bg-green-900/60"
+                    ? "bg-[#0b6b3a] text-white hover:bg-[#0e8a4a]"
                     : isRed
-                        ? "bg-red-900/20 text-red-400 border-red-500/20 hover:bg-red-900/40"
-                        : "bg-gray-800/40 text-gray-300 border-white/5 hover:bg-gray-800/80",
-                currentBet > 0 && "border-primary/50 ring-1 ring-primary/50",
+                        ? "bg-[#c91c1c] text-white hover:bg-[#e62020]"
+                        : "bg-[#1c1c1c] text-white hover:bg-[#2e2e2e]",
+                currentBet > 0 && "border-primary ring-2 ring-primary ring-inset z-20",
                 className
             )}
         >
@@ -468,9 +471,9 @@ function OutsideBetButton({ label, currentBet, onClick, className }: { label: st
         <button
             onClick={onClick}
             className={cn(
-                "relative font-display font-bold text-sm tracking-wider transition-all border flex items-center justify-center overflow-hidden group",
-                "bg-gray-800/40 text-gray-300 border-white/5 hover:bg-gray-800/80",
-                currentBet > 0 && "border-primary/50 ring-1 ring-primary/50 text-white",
+                "relative font-display font-bold text-sm tracking-widest transition-all border border-white/30 flex items-center justify-center overflow-hidden group",
+                "bg-transparent text-white hover:bg-white/10",
+                currentBet > 0 && "border-primary ring-2 ring-primary ring-inset z-20 text-white",
                 className
             )}
         >
