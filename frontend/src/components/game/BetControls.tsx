@@ -104,6 +104,8 @@ export function BetControls() {
             console.error(err);
             if (err.response?.status === 400) {
                 setError("Exposure Limit Reached: Maximum potential payout exceeds allowable risk. Please lower your wager.");
+            } else if (err.response?.status === 403) {
+                setError(err.response?.data?.message || "Service not available in your region.");
             } else if (err.response?.status === 503) {
                 setIsMaintenance(true);
             } else {
