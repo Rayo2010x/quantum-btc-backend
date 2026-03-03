@@ -67,7 +67,7 @@ export const OpenNode = {
     async getAccountBalance(): Promise<{ balance: number }> {
         try {
             const response = await api.get("https://api.opennode.com/v1/account/balance", {
-                headers: { Authorization: env.OPENNODE_INVOICE_KEY }
+                headers: { Authorization: env.OPENNODE_WITHDRAWAL_KEY }
             });
 
             // OpenNode usually returns { data: { balance: { BTC: 123456, USD: 0 } } }
