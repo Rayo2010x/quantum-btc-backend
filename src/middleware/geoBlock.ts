@@ -1,7 +1,7 @@
 
 import { FastifyRequest, FastifyReply } from "fastify";
 // @ts-ignore
-import geoip from 'fast-geoip';
+import geoip from 'geoip-lite';
 import { pool } from '../db/index.js';
 
 export async function geoBlockMiddleware(req: FastifyRequest, reply: FastifyReply) {
@@ -26,9 +26,19 @@ export async function geoBlockMiddleware(req: FastifyRequest, reply: FastifyRepl
     }
 
     try {
-        const geo = await geoip.lookup(finalIp);
-        if (geo) {
-            const country = geo.country; // 2-letter ISO code
+        const cfCountry = req.headers['cf-ipcountry'] as string | undefined;
+        let country: string | null = null;
+
+        if (cfCountry && cfCountry.length === 2) {
+            country = cfCountry.toUpperCase();
+        } else {
+            const geo = geoip.lookup(finalIp);
+            if (geo) {
+                country = geo.country; // 2-letter ISO code
+            }
+        }
+
+        if (country) {
             // Block US and EU
             // EU countries list is long. I should list them or use a helper.
             // Simplified list for now (major ones): DE, FR, IT, ES, nl, etc.

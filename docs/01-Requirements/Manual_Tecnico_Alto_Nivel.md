@@ -96,5 +96,5 @@ Para cumplir con normativas internacionales, el sistema implementa controles de 
 *   **Restricción Regional:** Se bloquea el acceso a usuarios con direcciones IP provenientes de:
     *   Estados Unidos (EE.UU.)
     *   Unión Europea (UE)
-*   **Mecanismo:** Validación vía middleware en el backend utilizando base de datos local de GeoIP (ej: `fast-geoip`) para minimizar latencia. El bloqueo retorna un error `403 Forbidden`.
+*   **Mecanismo:** Validación vía middleware en el backend. Se prioriza el uso de cabeceras de red perimetral (Edge Network Headers como `CF-IPCountry`) proporcionadas por proveedores como Cloudflare para una máxima precisión geográfica frente a redes Anycast/VPN. Como respaldo o para entornos locales, se utiliza una base de datos local de GeoIP (`geoip-lite`). El bloqueo retorna un error `403 Forbidden`.
 *   **Auditoría de Bloqueos:** Todo intento de acceso bloqueado es registrado permanentemente en la tabla `geo_block_logs` (IP, país y timestamp) para mantener la consistencia de auditoría y análisis de seguridad.
