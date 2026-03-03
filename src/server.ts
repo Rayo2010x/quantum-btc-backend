@@ -25,9 +25,6 @@ const app = Fastify({
   trustProxy: true // Fix for obtaining real IP behind proxy (Railway/Vercel)
 });
 
-import { geoBlockMiddleware } from "./middleware/geoBlock.js";
-app.addHook("onRequest", geoBlockMiddleware);
-
 const allowedOrigins = ["http://localhost:5173", "http://127.0.0.1:5173"];
 if (env.FRONTEND_URL) allowedOrigins.push(env.FRONTEND_URL);
 
@@ -39,6 +36,11 @@ await app.register(cors, {
   origin: "*",
   methods: ["GET", "POST", "PUT", "DELETE"],
 });
+
+// Geo-Block Middleware
+// Applied as preHandler to ensure CORS headers are set and OPTIONS preflight succeeds.
+import { geoBlockMiddleware } from "./middleware/geoBlock.js";
+app.addHook("preHandler", geoBlockMiddleware);
 
 // Websocket Support
 await app.register(websocket);

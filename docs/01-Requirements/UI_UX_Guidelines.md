@@ -1,8 +1,8 @@
 ---
 Type: Core Documentation
 Title: UI/UX & Frontend Design Guidelines
-Version: 1.0
-Last Updated: 2026-03-01
+Version: 1.1
+Last Updated: 2026-03-03
 Status: DRAFT
 ---
 
@@ -41,6 +41,12 @@ En estricta alineación con la directiva de seguridad global (Sección Global Se
 - **Diseño Espacial y Profundidad:** Proveer espacio negativo (whitespace) generoso y rítmico. Evitar la "densidad de cajones amontonados".
 - **Estructuras Audaces:** Permitir la experimentación moderada con asimetría, superposiciones o layouts que rompan la red cuando beneficien el flujo narrativo de la pantalla, sin sacrificar UX.
 - **Detalles y Texturas (Micro-aesthetics):** Aplicar texturas o patrones de ruido suaves, mallas de degradado (gradient meshes) sutiles o efectos _glassmorphism_ de alta calidad donde aumente la inmersión del usuario.
+
+### 4.4. Referencia Visual (Mesa Europea)
+Como referencia fundamental para la diagramación del Frontend (la mesa de apuestas, la ubicación de la ruleta 3D al tope, indicadores de "Hot/Cold Numbers" y controles de fichas al pie), utilizamos la siguiente composición de la Ruleta Europea Clásica (ej. NetEnt):
+
+![Mesa de Ruleta Europea de Referencia](../assets/european_roulette_reference.jpg)
+*(Nota: Ver imagen de referencia subida en el Backlog. Si el framework lo exige, el frontend debe apuntar a este grado de elegancia con acentos oscuros)*
 
 ### 4.4. Movimiento y Micro-interacciones (Motion)
 - **Uso Estructural:** Las animaciones CSS y las transiciones deben usarse de manera intencional para: a) orientar al usuario y b) proporcionar retroalimentación táctil, no solo como "adorno ciego".

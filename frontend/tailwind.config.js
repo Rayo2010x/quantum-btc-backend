@@ -15,6 +15,7 @@ export default {
             },
             fontFamily: {
                 sans: ['Inter', 'sans-serif'],
+                display: ['Space Grotesk', 'sans-serif'],
             },
             animation: {
                 'spin-slow': 'spin 3s linear infinite',

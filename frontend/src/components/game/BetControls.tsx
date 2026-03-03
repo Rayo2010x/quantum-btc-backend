@@ -24,10 +24,13 @@ export function BetControls() {
     const [isSpinning, setIsSpinning] = useState(false);
     const [showResultOverlay, setShowResultOverlay] = useState(false);
 
+    // System Limiter State
+    const [isMaintenance, setIsMaintenance] = useState(false);
+
     const totalWager = Object.values(bets).reduce((a, b) => a + b, 0);
 
     const handleNumberClick = (num: number) => {
-        if (currentBet || isSpinning) return; // Lock during spin
+        if (currentBet || isSpinning || isMaintenance) return; // Lock during spin or maintenance
         setBets(prev => {
             const current = prev[num] || 0;
             return {
@@ -76,7 +79,7 @@ export function BetControls() {
     };
 
     const handleClear = () => {
-        if (currentBet && !betStatus?.outcome && !isSpinning) return;
+        if ((currentBet && !betStatus?.outcome && !isSpinning) || isMaintenance) return;
         setBets({});
         setCurrentBet(null);
         setBetStatus(null);
@@ -99,7 +102,13 @@ export function BetControls() {
             setCurrentBet(res);
         } catch (err: any) {
             console.error(err);
-            setError(err.response?.data?.error || err.message || "Failed to create invoice");
+            if (err.response?.status === 400) {
+                setError("Exposure Limit Reached: Maximum potential payout exceeds allowable risk. Please lower your wager.");
+            } else if (err.response?.status === 503) {
+                setIsMaintenance(true);
+            } else {
+                setError("Transaction failed. Please try again.");
+            }
         } finally {
             setLoading(false);
         }
@@ -107,13 +116,30 @@ export function BetControls() {
 
 
     return (
-        <div className="w-full max-w-4xl mx-auto p-4 sm:p-6 bg-surface/50 backdrop-blur-sm rounded-xl border border-white/10 space-y-6 relative">
+        <div className="w-full max-w-4xl mx-auto p-4 sm:p-6 glass rounded-xl space-y-6 relative">
 
             {/* Error Overlay */}
             {error && (
-                <div className="absolute top-4 left-4 right-4 z-50 p-4 bg-red-900/90 border border-red-500 rounded-lg text-white flex justify-between items-center">
-                    <span className="flex items-center gap-2"><AlertCircle size={18} /> {error}</span>
-                    <button onClick={() => setError(null)}><X size={18} /></button>
+                <div className="absolute top-4 left-4 right-4 z-[60] p-4 bg-red-900/90 border border-red-500 rounded-lg text-white flex justify-between items-center shadow-lg backdrop-blur-sm animate-in fade-in slide-in-from-top-4">
+                    <span className="flex items-center gap-3"><AlertCircle size={20} className="shrink-0" /> <span className="text-sm font-medium">{error}</span></span>
+                    <button onClick={() => setError(null)} className="hover:bg-white/10 p-1 rounded-md transition-colors"><X size={18} /></button>
+                </div>
+            )}
+
+            {/* Maintenance Overlay */}
+            {isMaintenance && (
+                <div className="absolute inset-0 z-[100] flex flex-col items-center justify-center bg-black/95 backdrop-blur-md p-6 rounded-xl border border-red-500/50 text-center animate-in zoom-in duration-300">
+                    <AlertCircle size={56} className="text-red-500 mb-6 animate-pulse" />
+                    <h2 className="text-3xl font-display font-bold text-red-500 mb-3 tracking-wide uppercase">Liquidity Maintenance</h2>
+                    <p className="text-gray-300 max-w-sm mb-8 text-sm leading-relaxed">
+                        The platform is currently operating under restricted liquidity mode. Betting controls are temporarily disabled to ensure player safety.
+                    </p>
+                    <button
+                        onClick={() => setIsMaintenance(false)}
+                        className="px-8 py-3 bg-red-500/10 border border-red-500/30 hover:bg-red-500/20 text-red-400 rounded-full font-display text-sm tracking-widest uppercase transition-all"
+                    >
+                        Acknowledge
+                    </button>
                 </div>
             )}
 
@@ -122,7 +148,7 @@ export function BetControls() {
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
                     <div className="bg-surface border border-primary/30 p-8 rounded-2xl max-w-md w-full text-center space-y-6 shadow-[0_0_50px_rgba(0,240,255,0.2)]">
                         <div>
-                            <h2 className="text-2xl font-bold text-white mb-2">Pay to Spin</h2>
+                            <h2 className="text-2xl font-bold text-white mb-2 font-display">Pay to Spin</h2>
                             <p className="text-gray-400">Scan via Lightning Wallet</p>
                         </div>
 
@@ -130,7 +156,7 @@ export function BetControls() {
                             <QRCodeSVG value={currentBet.paymentRequest} size={200} />
                         </div>
 
-                        <div className="font-mono text-xl text-primary font-bold">
+                        <div className="font-mono text-xl text-primary font-bold font-display">
                             {currentBet.amountSat} sats
                         </div>
 
@@ -167,7 +193,7 @@ export function BetControls() {
                         betStatus.status === 'WON' ? "bg-green-500" : "bg-red-500"
                     )} />
 
-                    <h2 className={cn("text-4xl font-bold mb-4", betStatus.status === 'WON' ? "text-green-400" : "text-red-400")}>
+                    <h2 className={cn("text-4xl font-bold mb-4 font-display", betStatus.status === 'WON' ? "text-green-400" : "text-red-400")}>
                         {betStatus.status === 'WON' ? "YOU WON!" : "ROUND OVER"}
                     </h2>
 
@@ -260,7 +286,7 @@ export function BetControls() {
                 <div className="flex items-center gap-4">
                     <div className="text-right">
                         <span className="block text-xs text-gray-500 uppercase">Total Bet</span>
-                        <span className="text-xl font-mono font-bold text-white">{totalWager} Sats</span>
+                        <span className="text-2xl font-display font-bold text-white tracking-widest">{totalWager} Sats</span>
                     </div>
                     <button
                         onClick={handleClear}
@@ -273,10 +299,10 @@ export function BetControls() {
 
                 <button
                     onClick={handleSpin}
-                    disabled={loading || totalWager === 0}
+                    disabled={loading || totalWager === 0 || isMaintenance}
                     className={cn(
-                        "w-full sm:w-auto px-10 py-4 rounded-full font-bold text-xl uppercase tracking-widest transition-all",
-                        loading || totalWager === 0
+                        "w-full sm:w-auto px-10 py-4 rounded-full font-bold text-xl uppercase tracking-widest transition-all font-display",
+                        loading || totalWager === 0 || isMaintenance
                             ? "bg-gray-800 text-gray-500 cursor-not-allowed"
                             : "bg-primary text-black hover:bg-primary/90 shadow-[0_0_20px_rgba(0,240,255,0.3)] hover:shadow-[0_0_30px_rgba(0,240,255,0.5)] active:scale-95"
                     )}
@@ -320,7 +346,7 @@ function NumberButton({ num, currentBet, onClick, className, isGreen }: any) {
                 className
             )}
         >
-            <span className="z-10">{num}</span>
+            <span className="z-10 font-display text-lg">{num}</span>
 
             {/* Chip Indicator */}
             {currentBet > 0 && (

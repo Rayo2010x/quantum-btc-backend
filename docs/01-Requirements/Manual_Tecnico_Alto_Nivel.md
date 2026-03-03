@@ -1,10 +1,10 @@
 # Manual Técnico de Alto Nivel: Proyecto Quantum BTC
 
 ---
-**Versión:** 2.4
+**Versión:** 2.5
 **Estado:** Vigente
 **Última Modificación:** 2026-03-03
-**Cambios:** Añadido registro permanente de intentos de acceso bloqueados (Geo-Blocking Logging) en tabla `geo_block_logs`.
+**Cambios:** Detalle de respuestas HTTP (400 y 503) para Límite de Exposición y Alerta Roja de Bankroll en Sección 2.3.
 ---
 
 ## 1. Resumen de Operación (MVP)
@@ -37,6 +37,12 @@ El sistema permitirá apuestas siempre que el balance real sea suficiente para c
 $$balance\_sat - reserved\_sat - (bet\_sat \cdot M) - fee\_buffer\_sat > 0$$
 
 Si el balance cae por debajo del 80% (floor_sat), el sistema emitirá alertas automáticas, pero seguirá operando mientras exista liquidez real.
+
+#### Manejo de Estados HTTP y Control de Front-End
+Para una integración segura entre la API y el Front-End de Quantum BTC, se aplican los siguientes estados de error durante la admisión de apuestas:
+
+-   **HTTP 400 Bad Request (Límite de Exposición):** Si una apuesta supera el cálculo establecido por el límite elástico (`MaxBet`), usualmente si el pago total rompe el umbral dinámico (aprox > 2% del Bankroll), el servidor rechazará la solicitud indicando `400 Bad Request`. El Frontend debe capturar este error y mostrar una alerta o Toast visual explicando que se superó el límite máximo de pago por jugada.
+-   **HTTP 503 Service Unavailable (Alerta Roja):** Si el Bankroll cae a niveles críticos (e.g., `< 20,000 Sats`), el sistema entra en modo de protección de liquidez. El backend responderá con `503 Service Unavailable`. El Frontend debe bloquear todo control de apuestas (Disable) y mostrar un cartel/overlay de "Mantenimiento de Liquidez".
 
 ## 3. Mecánica del Juego: Ruleta Europea
 Se utiliza el modelo estándar de 37 números (0-36). El cero siempre favorece a la casa en apuestas externas.
