@@ -20,8 +20,6 @@ export function VerifyHistoryView({ sessionId }: VerifyHistoryViewProps) {
     const [historyLoading, setHistoryLoading] = useState(true);
 
     // Verify State
-    const [betId, setBetId] = useState('');
-    const [loading, setLoading] = useState(false);
     const [verificationData, setVerificationData] = useState<any>(null);
     const [calculatedHash, setCalculatedHash] = useState<string | null>(null);
     const [calculatedOutcome, setCalculatedOutcome] = useState<number | null>(null);
@@ -56,14 +54,12 @@ export function VerifyHistoryView({ sessionId }: VerifyHistoryViewProps) {
     const handleVerify = async (e?: React.FormEvent, forceId?: string) => {
         if (e) e.preventDefault();
 
-        const targetBetId = forceId || betId;
-        if (!targetBetId.trim()) return;
+        const targetBetId = forceId;
+        if (!targetBetId || !targetBetId.trim()) return;
 
         // Auto-scroll to top smoothly
         window.scrollTo({ top: 0, behavior: 'smooth' });
 
-        setBetId(targetBetId);
-        setLoading(true);
         setVerificationData(null);
         setCalculatedHash(null);
         setCalculatedOutcome(null);
@@ -74,7 +70,6 @@ export function VerifyHistoryView({ sessionId }: VerifyHistoryViewProps) {
 
             if (!data.serverSeedReveal || !data.drandRandomness) {
                 setVerifyError("Cryptographic ingredients not yet available. Wait for bet resolution.");
-                setLoading(false);
                 return;
             }
 
@@ -105,8 +100,6 @@ export function VerifyHistoryView({ sessionId }: VerifyHistoryViewProps) {
         } catch (error) {
             console.error(error);
             setVerifyError("Failed to fetch bet details or bet not found.");
-        } finally {
-            setLoading(false);
         }
     };
 
