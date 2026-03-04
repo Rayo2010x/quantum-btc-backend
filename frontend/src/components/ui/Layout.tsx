@@ -2,17 +2,21 @@
 import React from 'react';
 import { Terminal } from 'lucide-react';
 
+export type ViewType = 'game' | 'history';
+
 interface LayoutProps {
     children: React.ReactNode;
+    currentView?: ViewType;
+    onViewChange?: (view: ViewType) => void;
 }
 
-export function Layout({ children }: LayoutProps) {
+export function Layout({ children, currentView = 'game', onViewChange }: LayoutProps) {
     return (
         <div className="min-h-screen flex flex-col">
             {/* Header */}
             <header className="border-b border-white/10 bg-black/50 backdrop-blur-md sticky top-0 z-50">
                 <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 cursor-pointer" onClick={() => onViewChange?.('game')}>
                         <div className="w-8 h-8 bg-primary/20 rounded-md flex items-center justify-center border border-primary/50 text-primary">
                             <Terminal size={20} />
                         </div>
@@ -22,9 +26,18 @@ export function Layout({ children }: LayoutProps) {
                     </div>
 
                     <nav className="flex gap-6 text-sm font-medium text-gray-400">
-                        <a href="#" className="hover:text-primary transition-colors">Roulette</a>
-                        <a href="#" className="hover:text-primary transition-colors">Verify (Fair)</a>
-                        <a href="#" className="hover:text-primary transition-colors">History</a>
+                        <button
+                            onClick={() => onViewChange?.('game')}
+                            className={`transition-colors hover:text-primary ${currentView === 'game' ? 'text-primary font-bold' : ''}`}
+                        >
+                            Roulette
+                        </button>
+                        <button
+                            onClick={() => onViewChange?.('history')}
+                            className={`transition-colors hover:text-primary flex items-center gap-2 ${currentView === 'history' ? 'text-primary font-bold' : ''}`}
+                        >
+                            Verify (Fair) & History
+                        </button>
                     </nav>
                 </div>
             </header>

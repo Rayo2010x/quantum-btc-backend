@@ -12,6 +12,7 @@ export async function gameStatusRoutes(app: FastifyInstance) {
         try {
             const res = await pool.query(
                 `SELECT b.status, b.final_result, b.payout_sat, b.server_seed_reveal, b.bet_details,
+                        b.client_seed, b.drand_round, b.drand_randomness, b.drand_signature,
                         wt.k1 
                  FROM bets b
                  LEFT JOIN withdrawal_tokens wt ON b.withdrawal_token_id = wt.id
@@ -44,6 +45,10 @@ export async function gameStatusRoutes(app: FastifyInstance) {
                 outcome: bet.final_result,
                 payoutSat: Number(bet.payout_sat),
                 serverSeedReveal: bet.server_seed_reveal,
+                clientSeed: bet.client_seed,
+                drandRound: bet.drand_round,
+                drandRandomness: bet.drand_randomness,
+                drandSignature: bet.drand_signature,
                 lnurlWithdraw,
                 k1: bet.k1
             };

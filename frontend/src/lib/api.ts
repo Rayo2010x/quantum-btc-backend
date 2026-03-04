@@ -1,7 +1,8 @@
 
 import axios from 'axios';
 
-const API_URL = 'https://quantum-btc-backend-production.up.railway.app/v1';
+// Target production backend for Vercel deployment
+const API_URL = import.meta.env.VITE_API_URL || 'https://quantum-btc-backend-production.up.railway.app/v1';
 
 const api = axios.create({
     baseURL: API_URL,
@@ -18,8 +19,23 @@ export interface BetStatusResponse {
     outcome?: number;
     payoutSat?: number;
     serverSeedReveal?: string;
+    clientSeed?: string;
+    drandRound?: number;
+    drandRandomness?: string;
+    drandSignature?: string;
     lnurlWithdraw?: string;
     k1?: string;
+}
+
+export interface BetHistoryResponse {
+    history: {
+        id: string;
+        amountSat: number;
+        payoutSat: number;
+        status: string;
+        outcome: number;
+        createdAt: string;
+    }[];
 }
 
 // Session Management
@@ -79,6 +95,11 @@ export const GameApi = {
 
     checkStatus: async (betId: string) => {
         const res = await api.get<BetStatusResponse>(`/game/bet/${betId}/status`);
+        return res.data;
+    },
+
+    getHistory: async (sessionId: string) => {
+        const res = await api.get<BetHistoryResponse>(`/game/history`, { params: { sessionId } });
         return res.data;
     },
 

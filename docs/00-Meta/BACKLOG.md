@@ -37,6 +37,9 @@ Este documento centraliza los pendientes técnicos, deuda técnica y roadmap del
 - [x] **LNURL-Withdraw Amount Validation (HIGH):** Validar que el monto de la factura (`pr`) recibida en el callback NO exceda el monto autorizado en `withdrawal_tokens`. Evita robos por facturas infladas.
 - [x] **LNURL-Withdraw Expiration Check (HIGH):** Implementar validación `metrics.expires_at > NOW()` también en el paso 2 (Callback/Pago), no solo en el paso 1.
 
+## 8. Post-Release & Maintenance (Pending)
+- [x] **Frontend VITE_API_URL:** Recuerda cambiar `API_URL` en `frontend/src/lib/api.ts` de nuevo a Producción (Railway) o configurar variables de entorno reales en Vercel antes del próximo despliegue.
+
 ## 7. Compliance & Geo-Blocking
 - [x] **IP Tracking & Audit:** Registrar `ip_address` al crear sesión (POST `/session/init`) y eliminar columna redundante `updated_at`.
 - [x] **Geo-Blocking (US/EU):** Implementar middleware para bloquear acceso desde direcciones IP de Estados Unidos y Unión Europea.

@@ -1,10 +1,10 @@
 # Manual Técnico de Alto Nivel: Proyecto Quantum BTC
 
 ---
-**Versión:** 2.6
+**Versión:** 2.7
 **Estado:** Vigente
-**Última Modificación:** 2026-03-03
-**Cambios:** Refactorización del esquema de apuestas para soportar Apuestas Múltiples/Externas nativas mediante arreglos de números (`numbers[]`).
+**Última Modificación:** 2026-03-04
+**Cambios:** Actualización de la fórmula criptográfica en la sección "Provably Fair": alineación con implementación en producción (eliminación de `bet_id` como semilla).
 ---
 
 ## 1. Resumen de Operación (MVP)
@@ -83,7 +83,7 @@ El sistema garantiza entropía justa e impredecible utilizando dos fuentes integ
 
 ### 4.2 Fórmula de Resultado
 La entropía final se calcula tras el pago:
-$$final\_entropy = SHA256(server\_seed \ || \ client\_seed \ || \ drand\_randomness \ || \ cached\_anu\_bytes \ || \ bet\_id)$$
+$$final\_entropy = SHA256(cached\_anu\_bytes \ || \ client\_seed \ || \ drand\_randomness)$$
 El resultado es el $final\_entropy \pmod{37}$.
 
 ## 5. Arquitectura Técnica y Flujos

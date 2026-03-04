@@ -1,7 +1,7 @@
 ---
 Type: Core Documentation
 Title: UI/UX & Frontend Design Guidelines
-Version: 1.1
+Version: 1.2
 Last Updated: 2026-03-03
 Status: DRAFT
 ---
@@ -52,6 +52,14 @@ Como referencia fundamental para la diagramación del Frontend (la mesa de apues
 - **Uso Estructural:** Las animaciones CSS y las transiciones deben usarse de manera intencional para: a) orientar al usuario y b) proporcionar retroalimentación táctil, no solo como "adorno ciego".
 - **Revelación Escalonada (Staggered Reveals):** Fomentar que el contenido aterrice con animaciones escalonadas y suaves en la carga inicial para evitar cambios abruptos y desorientadores.
 - **Optimización CSS:** Priorizar soluciones CSS puras y amigables con el hardware antes de dependencias masivas en JavaScript para efectos comunes (ej. estados hover dinámicos y transformaciones espaciales).
+
+### 4.5. Verification Page (Provably Fair UI)
+- **Aesthetic of Truth:** Esta sección debe sentirse como un "Laboratorio Técnico". Usar fuentes monoespaciadas para los valores de datos (hex strings, hashes) para enfatizar la precisión.
+- **Interactive Breakdown:** Utilizar un diagrama o animación de "Cinta Transportadora" o "Tanque de Mezcla" para mostrar cómo los cuatro inputs (Cliente, Servidor, Cuántico, Público) se fusionan en el resultado final.
+- **Indicadores de Confianza:** 
+    - Usar insignias de "Verificado" en verde cuando un cálculo se valida localmente.
+    - Proveer enlaces profundos a exploradores externos (drand) para demostrar la ausencia de colusión.
+- **Experiencia de Copiado:** Garantizar que todos los strings hexadecimales tengan funcionalidad de "Click to Copy" con feedback visual sutil.
 
 ## 5. Proceso de Implementación y Definición de Terminado
 

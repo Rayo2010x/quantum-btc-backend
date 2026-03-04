@@ -1,8 +1,8 @@
 # API Specification - Quantum BTC
 
-> **Artifact ID:** 20260130_API_Specification_v1.4
-> **Version:** 1.5
-> **Date:** 2026-03-03
+> **Artifact ID:** 20260130_API_Specification_v1.6
+> **Version:** 1.6
+> **Date:** 2026-03-04
 > **Status:** Vigente
 
 ## 1. Base URL
@@ -50,7 +50,30 @@
       "status": "WAITING_PAYMENT | PROCESSING | WON | LOST",
       "outcome": 17,
       "payoutSat": 3600,
+      "serverSeedReveal": "a1b2...",
+      "clientSeed": "user_provided_entropy",
+      "drandRound": 1234567,
+      "drandRandomness": "89ab...",
+      "drandSignature": "cd34...",
       "lnurlWithdraw": "lnurl1..." // Only if WON
+    }
+    ```
+
+**Get Session History**
+*   **GET** `/v1/game/history?sessionId=uuid`
+*   **Response:**
+    ```json
+    {
+      "history": [
+        {
+          "id": "uuid",
+          "amountSat": 100,
+          "payoutSat": 0,
+          "status": "LOST",
+          "outcome": 0,
+          "createdAt": "2026-03-04T12:00:00Z"
+        }
+      ]
     }
     ```
 
