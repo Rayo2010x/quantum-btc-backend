@@ -1,10 +1,10 @@
 # Manual Técnico de Alto Nivel: Proyecto Quantum BTC
 
 ---
-**Versión:** 2.8
+**Versión:** 2.9
 **Estado:** Vigente
-**Última Modificación:** 2026-03-04
-**Cambios:** Actualización de la UI Front-End: eliminación de botones redundantes de reintento, estado de "Premio Transferido" y alerta de spin con premio sin cobrar.
+**Última Modificación:** 2026-03-05
+**Cambios:** Adición de la pestaña de Estadísticas (Statistics Tab) con distribución histórica de aciertos (Números, Docenas, Filas, Mitades, Colores, Paridad).
 ---
 
 ## 1. Resumen de Operación (MVP)
@@ -104,6 +104,19 @@ El resultado es el $final\_entropy \pmod{37}$.
 * **Validez del QR de Cobro:** Los premios tienen un TTL de 24 horas.
 * **Gestión de Reserva:** Durante estas 24 horas, el monto se mantiene en reserved_sat.
 * **Expiración:** Si no se cobra, el monto vuelve al balance operativo, manteniendo el registro de la deuda.
+
+### 5.2 Pestaña de Estadísticas (Statistics Tab)
+Para proveer transparencia sobre la recurrencia de los resultados, el sistema cuenta con una pestaña dedicada a métricas agregadas ("Statistics"), accesible permanentemente y ubicada junto a "Roulette".
+*   **Métrica Global:** Cantidad total de apuestas jugadas.
+*   **Distribución (Histogramas de Doble Eje):** Información histórica agregada (Cantidad Absoluta y Porcentaje) sobre:
+    *   Frecuencia de Plenos (Números 0-36).
+    *   Frecuencia por Filas (Row 1, Row 2, Row 3).
+    *   Frecuencia por Docenas (1st, 2nd, 3rd).
+    *   Frecuencia por Mitades (1-18, 19-36).
+    *   Frecuencia por Colores (Rojo, Negro).
+    *   Frecuencia por Paridad (Par, Impar).
+*   **Nota Técnica Frontend:** El cero (0) no contabiliza en las métricas de color, paridad, mitades, docenas ni filas, en estricto apego a las reglas de la ruleta europea. Los gráficos están renderizados de manera altamente optimizada sin dependencias masivas usando CSS puro/Glassmorphism y soportan abreviación automática de cifras (1.2K, 3.5M) para prevenir desbordes tipográficos a medida que aumenta el volumen de apuestas.
+
 
 ## 6. Seguridad e Idempotencia
 * **Premios Seguros:** Cada withdraw_token es de un solo uso y se procesa mediante transacciones atómicas.

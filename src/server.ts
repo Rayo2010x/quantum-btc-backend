@@ -14,6 +14,7 @@ import { startBankrollWorker } from "./services/bankroll_worker.js";
 import { sessionRoutes } from "./routes/session.js";
 import { gameStatusRoutes } from "./routes/game_status.js";
 import { historyRoutes } from "./routes/history.js";
+import { statisticsRoutes } from "./routes/statistics.js";
 import cors from "@fastify/cors";
 import formbody from "@fastify/formbody";
 import websocket from "@fastify/websocket";
@@ -85,6 +86,7 @@ app.get("/db-ping", async (_req, reply) => {
 app.register(betRoutes);         // /v1/game/bet
 app.register(gameStatusRoutes);  // /v1/game/bet/:id/status
 app.register(historyRoutes);     // /v1/game/history
+app.register(statisticsRoutes);  // /v1/game/statistics
 app.register(sessionRoutes);     // /v1/session/init
 app.register(webhookRoutes);     // /v1/webhooks
 app.register(lnurlRoutes);       // /v1/lnurl

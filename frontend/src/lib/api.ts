@@ -39,6 +39,11 @@ export interface BetHistoryResponse {
     }[];
 }
 
+export interface StatisticsResponse {
+    totalBets: number;
+    frequencies: Record<number, number>;
+}
+
 // Session Management
 async function getOrCreateSession(): Promise<string> {
     let sessionId = localStorage.getItem('qb_sessionId');
@@ -106,6 +111,11 @@ export const GameApi = {
 
     getHealth: async () => {
         const res = await api.get('/health');
+        return res.data;
+    },
+
+    getStatistics: async () => {
+        const res = await api.get<StatisticsResponse>(`/game/statistics`);
         return res.data;
     },
 

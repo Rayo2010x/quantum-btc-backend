@@ -6,6 +6,7 @@ import { BetControls } from './components/game/BetControls';
 import { GameApi } from './lib/api';
 import { VerifyHistoryView } from './components/history/VerifyHistoryView';
 import { WhitePaperView } from './components/whitepaper/WhitePaperView';
+import { StatisticsView } from './components/statistics/StatisticsView';
 
 function App() {
   const [sessionId, setSessionId] = useState<string | null>(null);
@@ -44,6 +45,10 @@ function App() {
             Session ID: {sessionId || 'Initializing...'}
           </div>
         </div>
+      )}
+
+      {currentView === 'statistics' && (
+        <StatisticsView />
       )}
 
       {currentView === 'history' && (
