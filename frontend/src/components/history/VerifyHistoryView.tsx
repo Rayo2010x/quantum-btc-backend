@@ -172,7 +172,7 @@ export function VerifyHistoryView({ sessionId }: VerifyHistoryViewProps) {
                                     label={`Drand Beacon (#${verificationData.drandRound})`}
                                     value={verificationData.drandRandomness}
                                     tooltip="Public randomness fetched at exact moment of transaction."
-                                    link={`https://drand.love/explorer/`}
+                                    link={`https://api.drand.sh/public/${verificationData.drandRound}`}
                                     onCopy={() => copyToClipboard(verificationData.drandRandomness, 'drand')}
                                     isCopied={copiedId === 'drand'}
                                 />
