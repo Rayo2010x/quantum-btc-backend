@@ -1,7 +1,6 @@
-import React, { useEffect, useState } from 'react';
-import { GameApi } from '../../lib/api';
+import { useEffect, useState } from 'react';
 import { Loader2, ArrowRight } from 'lucide-react';
-import { ViewType } from '../ui/Layout';
+
 
 interface HistoryViewProps {
     sessionId: string | null;
