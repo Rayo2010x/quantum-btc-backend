@@ -5,10 +5,11 @@ import type { ViewType } from './components/ui/Layout';
 import { BetControls } from './components/game/BetControls';
 import { GameApi } from './lib/api';
 import { VerifyHistoryView } from './components/history/VerifyHistoryView';
+import { WhitePaperView } from './components/whitepaper/WhitePaperView';
 
 function App() {
   const [sessionId, setSessionId] = useState<string | null>(null);
-  const [currentView, setCurrentView] = useState<ViewType>('game');
+  const [currentView, setCurrentView] = useState<ViewType>('whitepaper');
   // Verify handling is now inside VerifyHistoryView
 
   useEffect(() => {
@@ -18,6 +19,10 @@ function App() {
 
   return (
     <Layout currentView={currentView} onViewChange={setCurrentView}>
+
+      {currentView === 'whitepaper' && (
+        <WhitePaperView />
+      )}
 
       {currentView === 'game' && (
         <div className="flex flex-col items-center justify-start min-h-[80vh] text-center space-y-10">

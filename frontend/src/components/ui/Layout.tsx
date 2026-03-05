@@ -1,6 +1,6 @@
 
 import React from 'react';
-export type ViewType = 'game' | 'history';
+export type ViewType = 'whitepaper' | 'game' | 'history';
 
 interface LayoutProps {
     children: React.ReactNode;
@@ -8,7 +8,7 @@ interface LayoutProps {
     onViewChange?: (view: ViewType) => void;
 }
 
-export function Layout({ children, currentView = 'game', onViewChange }: LayoutProps) {
+export function Layout({ children, currentView = 'whitepaper', onViewChange }: LayoutProps) {
     return (
         <div className="min-h-screen flex flex-col">
             {/* Header */}
@@ -18,6 +18,12 @@ export function Layout({ children, currentView = 'game', onViewChange }: LayoutP
                     </div>
 
                     <nav className="flex gap-6 text-sm font-medium text-gray-400">
+                        <button
+                            onClick={() => onViewChange?.('whitepaper')}
+                            className={`transition-colors hover:text-primary ${currentView === 'whitepaper' ? 'text-primary font-bold' : ''}`}
+                        >
+                            White Paper
+                        </button>
                         <button
                             onClick={() => onViewChange?.('game')}
                             className={`transition-colors hover:text-primary ${currentView === 'game' ? 'text-primary font-bold' : ''}`}
