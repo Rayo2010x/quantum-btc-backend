@@ -1,11 +1,11 @@
 > **ID:** White_Paper
-> **Versión:** 0.2
+> **Versión:** 0.3
 > **Fecha:** 2026-03-05
-> **Estado:** DRAFT
+> **Estado:** APPROVED
 
 # Quantum BTC White Paper:  Securing Satoshi’s Vision in the Quantum Era
 
-A coalition of physicists specializing in Quantum Mechanics, mathematicians expert in Cryptography, and seasoned Blockchain developers have united under a shared conviction: the philosophy of Bitcoin.
+A coalition of physicists specializing in Quantum Mechanics, mathematicians expert in Cryptography, and seasoned Blockchain developers have united under a shared conviction: the philosophy of Satoshi Nakamoto.
 
 Bitcoin represents a paradigm shift in financial sovereignty. Unlike fiat currencies—which are subject to inflationary policies, central bank manipulation, and arbitrary censorship—Bitcoin is governed by immutable math. Its true power lies in decentralization: a permissionless, distributed network where no single entity dictates the rules, ensuring true peer-to-peer financial freedom without intermediaries.
 
