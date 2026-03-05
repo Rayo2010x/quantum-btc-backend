@@ -70,8 +70,12 @@ export function HistoryView({ sessionId, onVerifyClick }: HistoryViewProps) {
                             <tbody>
                                 {bets.map((bet) => (
                                     <tr key={bet.id} className="border-b border-white/5 hover:bg-white/5 transition-colors">
-                                        <td className="px-6 py-4 text-gray-400 font-mono text-xs">
-                                            {new Date(bet.createdAt).toLocaleTimeString()}
+                                        <td className="px-6 py-4 text-gray-400 font-mono text-xs whitespace-nowrap">
+                                            {(() => {
+                                                const d = new Date(bet.createdAt);
+                                                const pad = (n: number) => n.toString().padStart(2, '0');
+                                                return `${d.getUTCFullYear()}-${pad(d.getUTCMonth() + 1)}-${pad(d.getUTCDate())} ${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())}:${pad(d.getUTCSeconds())}+00`;
+                                            })()}
                                         </td>
                                         <td className="px-6 py-4 font-mono text-xs text-gray-300">
                                             {bet.id.substring(0, 8)}...
