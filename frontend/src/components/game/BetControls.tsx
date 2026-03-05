@@ -19,6 +19,7 @@ export function BetControls() {
     // Non-Custodial States
     const [currentBet, setCurrentBet] = useState<PlaceBetResponse | null>(null);
     const [betStatus, setBetStatus] = useState<BetStatusResponse | null>(null);
+    const [pollingBetId, setPollingBetId] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
 
     // Animation State
@@ -77,13 +78,11 @@ export function BetControls() {
 
     // Polling Hook
     useEffect(() => {
-        if (!currentBet) return;
-        // If we already have a result displayed, stop polling.
-        if (showResultOverlay) return;
+        if (!pollingBetId) return;
 
         const interval = setInterval(async () => {
             try {
-                const status = await GameApi.checkStatus(currentBet.betId);
+                const status = await GameApi.checkStatus(pollingBetId);
 
                 // If status changed to PROCESSING or WON/LOST
                 if (status.status !== 'WAITING_PAYMENT') {
@@ -96,8 +95,10 @@ export function BetControls() {
                         setCurrentBet(null); // Hide QR code modal
                     }
 
-                    if (status.status === 'WON' || status.status === 'LOST') {
+                    // Stop polling if lost or if won and claimed
+                    if (status.status === 'LOST' || (status.status === 'WON' && status.isClaimed)) {
                         clearInterval(interval);
+                        setPollingBetId(null);
                     }
                 }
             } catch (e) {
@@ -106,7 +107,7 @@ export function BetControls() {
         }, 1500); // Check every 1.5s
 
         return () => clearInterval(interval);
-    }, [currentBet, betStatus, isSpinning, showResultOverlay]);
+    }, [pollingBetId, isSpinning, showResultOverlay]);
 
     const handleAnimationFinish = () => {
         setIsSpinning(false);
@@ -118,16 +119,25 @@ export function BetControls() {
         setBets({});
         setCurrentBet(null);
         setBetStatus(null);
+        setPollingBetId(null);
         setIsSpinning(false);
         setShowResultOverlay(false);
     };
 
     const handleSpin = async () => {
         if (totalWager === 0) return;
+
+        // Prevent spin if there is an unclaimed prize
+        if (betStatus?.status === 'WON' && !betStatus.isClaimed) {
+            const confirmed = window.confirm("Warning: You haven't claimed your prize yet! If you continue without claiming, you might lose it. Do you want to continue?");
+            if (!confirmed) return;
+        }
+
         setLoading(true);
         setError(null);
         setCurrentBet(null);
         setBetStatus(null);
+        setPollingBetId(null);
         setIsSpinning(false);
         setShowResultOverlay(false);
 
@@ -145,6 +155,7 @@ export function BetControls() {
 
             const res = await GameApi.placeBet(payloadArray, clientSeed);
             setCurrentBet(res);
+            setPollingBetId(res.betId);
         } catch (err: any) {
             console.error(err);
             if (err.response?.status === 400) {
@@ -257,28 +268,27 @@ export function BetControls() {
                         ) : null}
                     </div>
 
-                    {/* Withdrawal QR if Won */}
-                    {betStatus.status === 'WON' && betStatus.lnurlWithdraw && (
+                    {/* Withdrawal QR or Claimed State if Won */}
+                    {betStatus.status === 'WON' && (
                         <div className="bg-white/5 p-6 rounded-xl border border-green-500/30">
-                            <p className="text-green-400 font-bold mb-4 flex items-center justify-center gap-2">
-                                <CheckCircle size={20} /> CLAIM YOUR PRIZE
-                            </p>
-                            <div className="bg-white p-3 rounded-lg inline-block mb-4">
-                                <QRCodeSVG value={betStatus.lnurlWithdraw} size={150} />
-                            </div>
-                            <p className="text-xs text-gray-500">Scan with Wallet to Withdraw</p>
-                            <div className="mt-4 pt-4 border-t border-white/10">
-                                <button onClick={handleClear} className="px-6 py-2 bg-white/10 hover:bg-white/20 rounded-full text-sm">
-                                    Play Again
-                                </button>
-                            </div>
+                            {betStatus.isClaimed ? (
+                                <p className="text-green-400 font-bold mb-4 flex items-center justify-center gap-2 text-xl">
+                                    <CheckCircle size={28} /> Prize transferred. Congrats!
+                                </p>
+                            ) : (
+                                <>
+                                    <p className="text-green-400 font-bold mb-4 flex items-center justify-center gap-2">
+                                        <CheckCircle size={20} /> CLAIM YOUR PRIZE
+                                    </p>
+                                    {betStatus.lnurlWithdraw && (
+                                        <div className="bg-white p-3 rounded-lg inline-block mb-4">
+                                            <QRCodeSVG value={betStatus.lnurlWithdraw} size={150} />
+                                        </div>
+                                    )}
+                                    <p className="text-xs text-gray-500">Scan with Wallet to Withdraw</p>
+                                </>
+                            )}
                         </div>
-                    )}
-
-                    {betStatus.status === 'LOST' && (
-                        <button onClick={handleClear} className="px-8 py-3 bg-white/10 hover:bg-white/20 rounded-full font-bold">
-                            Try Again
-                        </button>
                     )}
                 </div>
             )}

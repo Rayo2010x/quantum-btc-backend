@@ -1,10 +1,10 @@
 # Manual Técnico de Alto Nivel: Proyecto Quantum BTC
 
 ---
-**Versión:** 2.7
+**Versión:** 2.8
 **Estado:** Vigente
 **Última Modificación:** 2026-03-04
-**Cambios:** Actualización de la fórmula criptográfica en la sección "Provably Fair": alineación con implementación en producción (eliminación de `bet_id` como semilla).
+**Cambios:** Actualización de la UI Front-End: eliminación de botones redundantes de reintento, estado de "Premio Transferido" y alerta de spin con premio sin cobrar.
 ---
 
 ## 1. Resumen de Operación (MVP)
@@ -70,6 +70,11 @@ Para mantener la experiencia "Premium", el sistema no debe mostrar el resultado 
 3.  **Estado RESULT:** La ruleta se detiene exactamente en el número calculado por la entropía ($final\_result$).
 4.  **Feedback:** Indicadores visuales claros de GANADOR (Lluvia de confeti/brillo) o PERDEDOR (Tono apagado).
 
+**Flujo de Continuidad (UI Requisitos):**
+*   **Perdedor:** No debe mostrarse un botón de "Inténtalo de nuevo". El jugador simplemente debe limpiar la mesa o seleccionar nuevas fichas para volver a jugar.
+*   **Ganador (Cobro Pendiente):** Se muestra el código QR LNURL-withdraw. No debe mostrarse un botón de "Jugar de nuevo" debajo del QR.
+*   **Ganador (Premio Cobrado):** Una vez que el jugador escanea y cobra exitosamente el LNURL (detectado vía polling del estado del token o webhook), el QR debe ocultarse y reemplazarse por el mensaje "Prize transferred. Congrats!".
+*   **Prevención de Pérdida de Premio:** Si el jugador intenta pulsar "SPIN" para una nueva jugada mientras existe un premio ganador que **no** ha sido cobrado, el front-end debe interceptar la acción con un diálogo de advertencia explícito para evitar que pierda el QR de cobro de la vista. Emitir el mensaje: *"Warning: You haven't claimed your prize yet! If you continue without claiming, you might lose it. Do you want to continue?"*
 
 ## 4. Provably Fair y Entropy Buffer
 El motor de azar utiliza un esquema híbrido de Commit-Reveal para garantizar transparencia y eliminar latencia.

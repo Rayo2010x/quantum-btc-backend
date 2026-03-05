@@ -25,6 +25,7 @@ export interface BetStatusResponse {
     drandSignature?: string;
     lnurlWithdraw?: string;
     k1?: string;
+    isClaimed?: boolean;
 }
 
 export interface BetHistoryResponse {

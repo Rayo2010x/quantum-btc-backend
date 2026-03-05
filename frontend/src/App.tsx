@@ -24,10 +24,10 @@ function App() {
           {/* Hero Section */}
           <div className="space-y-4 pt-8">
             <h1 className="text-5xl md:text-7xl font-extrabold tracking-tighter font-display">
-              PROVABLY <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">QUANTUM</span> FAIR
+              QUANTUM FAIR <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">ROULETTE</span>
             </h1>
             <p className="text-lg md:text-xl text-gray-400 max-w-2xl mx-auto">
-              Europe's finest roulette powered by real-time quantum fluctuations.
+              Entropy powered by real quantum fluctuations
             </p>
           </div>
 
