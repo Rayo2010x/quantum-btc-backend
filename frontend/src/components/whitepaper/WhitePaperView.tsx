@@ -15,16 +15,16 @@ export function WhitePaperView() {
                     Securing Satoshi’s Vision in the Quantum Era
                 </p>
                 <div className="flex items-center justify-center gap-4 text-xs font-mono text-gray-500 pt-4">
-                    <span className="bg-white/5 px-3 py-1 rounded-full border border-white/5">Version: 0.2</span>
+                    <span className="bg-white/5 px-3 py-1 rounded-full border border-white/5">Version: 0.3</span>
                     <span className="bg-white/5 px-3 py-1 rounded-full border border-white/5">Date: 2026-03-05</span>
-                    <span className="bg-emerald-500/10 text-emerald-400 px-3 py-1 rounded-full border border-emerald-500/20">Status: DRAFT</span>
+                    <span className="bg-emerald-500/10 text-emerald-400 px-3 py-1 rounded-full border border-emerald-500/20">Status: APPROVED</span>
                 </div>
             </div>
 
             {/* Content Body */}
             <div className="space-y-8 text-gray-300 leading-relaxed font-body text-lg w-full px-4 md:px-0">
                 <p className="text-xl text-white font-medium leading-normal border-l-4 border-primary pl-6 -ml-6 py-2">
-                    A coalition of physicists specializing in Quantum Mechanics, mathematicians expert in Cryptography, and seasoned Blockchain developers have united under a shared conviction: the philosophy of Bitcoin.
+                    A coalition of physicists specializing in Quantum Mechanics, mathematicians expert in Cryptography, and seasoned Blockchain developers have united under a shared conviction: the philosophy of Satoshi Nakamoto.
                 </p>
 
                 <p>
