@@ -114,8 +114,9 @@ export const GameApi = {
         return res.data;
     },
 
-    getStatistics: async () => {
-        const res = await api.get<StatisticsResponse>(`/game/statistics`);
+    getStatistics: async (limit?: number | string) => {
+        const params = limit ? { limit } : {};
+        const res = await api.get<StatisticsResponse>(`/game/statistics`, { params });
         return res.data;
     },
 

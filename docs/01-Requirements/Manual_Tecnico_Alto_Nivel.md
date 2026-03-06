@@ -1,10 +1,10 @@
 # Manual Técnico de Alto Nivel: Proyecto Quantum BTC
 
 ---
-**Versión:** 2.9
+**Versión:** 2.10
 **Estado:** Vigente
-**Última Modificación:** 2026-03-05
-**Cambios:** Adición de la pestaña de Estadísticas (Statistics Tab) con distribución histórica de aciertos (Números, Docenas, Filas, Mitades, Colores, Paridad).
+**Última Modificación:** 2026-03-06
+**Cambios:** Adición de la pestaña de Estadísticas (Statistics Tab) con distribución histórica de aciertos e inclusión de filtro 'Last Bets' (Últimas N jugadas).
 ---
 
 ## 1. Resumen de Operación (MVP)
@@ -102,8 +102,9 @@ El resultado es el $final\_entropy \pmod{37}$.
 
 ### 5.2 Pestaña de Estadísticas (Statistics Tab)
 Para proveer transparencia sobre la recurrencia de los resultados, el sistema cuenta con una pestaña dedicada a métricas agregadas ("Statistics"), accesible permanentemente y ubicada junto a "Roulette".
-*   **Métrica Global:** Cantidad total de apuestas jugadas.
-*   **Distribución (Histogramas de Doble Eje):** Información histórica agregada (Cantidad Absoluta y Porcentaje) sobre:
+*   **Métrica Global:** Cantidad total de apuestas jugadas o la cantidad filtrada según elección.
+*   **Selector "Last Bets":** Se provee un menú de filtrado interactivo que permite cuantificar únicamente las últimas $N$ jugadas (200, 500, 1000, 5000, All). Esto aisla el "ruido de datos" de jugadas extremadamente antiguas y favorece un análisis probabilístico reciente. Su estado predeterminado es "200". La vista se actualiza de manera exclusiva al acceder por primera vez o al modificar el selector.
+*   **Distribución (Histogramas de Doble Eje):** Información histórica agregada (Cantidad Absoluta y Porcentaje) extraída del lote de apuestas correspondientes al filtro aplicado:
     *   Frecuencia de Plenos (Números 0-36).
     *   Frecuencia por Filas (Row 1, Row 2, Row 3).
     *   Frecuencia por Docenas (1st, 2nd, 3rd).

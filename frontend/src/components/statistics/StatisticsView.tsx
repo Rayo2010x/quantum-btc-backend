@@ -20,9 +20,11 @@ export function StatisticsView() {
     const [stats, setStats] = useState<StatisticsResponse | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [selectedLimit, setSelectedLimit] = useState<string>("200");
 
     useEffect(() => {
-        GameApi.getStatistics()
+        setIsLoading(true);
+        GameApi.getStatistics(selectedLimit)
             .then(data => {
                 setStats(data);
                 setIsLoading(false);
@@ -32,7 +34,7 @@ export function StatisticsView() {
                 setError("Failed to load statistics");
                 setIsLoading(false);
             });
-    }, []);
+    }, [selectedLimit]);
 
     const numbersData: HistogramDataPoint[] = useMemo(() => {
         if (!stats?.frequencies) return [];
@@ -155,9 +157,32 @@ export function StatisticsView() {
             </div>
 
             <div className="bg-gradient-to-r from-primary/20 via-black to-secondary/20 border border-white/10 rounded-2xl p-8 text-center backdrop-blur-md shadow-2xl">
-                <h2 className="text-sm font-mono text-primary tracking-widest uppercase mb-2">Total Bets Played</h2>
+                <h2 className="text-sm font-mono text-primary tracking-widest uppercase mb-2">
+                    {selectedLimit === 'All' ? 'Total Bets Played' : `Last ${selectedLimit} Bets`}
+                </h2>
                 <div className="text-6xl md:text-8xl font-black tracking-tighter text-white font-display drop-shadow-[0_0_15px_rgba(234,179,8,0.3)]">
                     {formatCompactNumber(totalBets)}
+                </div>
+            </div>
+
+            <div className="flex justify-center -mt-6 relative z-10">
+                <div className="flex items-center space-x-3 bg-black/60 p-2 rounded-xl border border-white/10 backdrop-blur-md shadow-lg">
+                    <span className="text-xs font-mono text-gray-400 uppercase tracking-widest ml-2">Show:</span>
+                    <select
+                        value={selectedLimit}
+                        onChange={(e) => setSelectedLimit(e.target.value)}
+                        className="bg-slate-900 text-white border border-white/10 rounded-lg px-6 py-2 appearance-none cursor-pointer focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors text-sm font-bold font-sans tracking-wide text-center"
+                    >
+                        <option value="200">Last 200</option>
+                        <option value="500">Last 500</option>
+                        <option value="1000">Last 1,000</option>
+                        <option value="5000">Last 5,000</option>
+                        <option value="All">All Bets</option>
+                    </select>
+                    {/* Minimal custom dropdown arrow */}
+                    <div className="pointer-events-none absolute right-4 flex items-center text-gray-400">
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </div>
                 </div>
             </div>
 
