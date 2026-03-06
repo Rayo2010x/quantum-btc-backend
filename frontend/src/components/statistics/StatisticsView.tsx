@@ -1,5 +1,6 @@
-import React, { useEffect, useState, useMemo } from 'react';
-import { GameApi, StatisticsResponse } from '../../lib/api';
+import { useEffect, useState, useMemo } from 'react';
+import { GameApi } from '../../lib/api';
+import type { StatisticsResponse } from '../../lib/api';
 import { DualAxisHistogram, formatCompactNumber } from './DualAxisHistogram';
 
 const RED_NUMBERS = new Set([1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36]);
@@ -33,9 +34,8 @@ export function StatisticsView() {
             });
     }, []);
 
-    // 1. Numbers (0-36)
     const numbersData: HistogramDataPoint[] = useMemo(() => {
-        if (!stats) return [];
+        if (!stats?.frequencies) return [];
         return Object.entries(stats.frequencies).map(([numStr, count]) => {
             const n = parseInt(numStr, 10);
             return {
@@ -46,9 +46,8 @@ export function StatisticsView() {
         });
     }, [stats]);
 
-    // 2. Rows (3)
     const rowsData: HistogramDataPoint[] = useMemo(() => {
-        if (!stats) return [];
+        if (!stats?.frequencies) return [];
         let r1 = 0, r2 = 0, r3 = 0;
         Object.entries(stats.frequencies).forEach(([numStr, count]) => {
             const n = parseInt(numStr, 10);
@@ -58,15 +57,14 @@ export function StatisticsView() {
             else if (n % 3 === 1) r3 += count;
         });
         return [
-            { label: 'Row 3 (3,6,9...)', value: r1, colorClass: 'bg-primary/80' },
+            { label: 'Row 1 (1,4,7...)', value: r3, colorClass: 'bg-primary/80' },
             { label: 'Row 2 (2,5,8...)', value: r2, colorClass: 'bg-primary/80' },
-            { label: 'Row 1 (1,4,7...)', value: r3, colorClass: 'bg-primary/80' }
+            { label: 'Row 3 (3,6,9...)', value: r1, colorClass: 'bg-primary/80' }
         ];
     }, [stats]);
 
-    // 3. Dozens (3)
     const dozensData: HistogramDataPoint[] = useMemo(() => {
-        if (!stats) return [];
+        if (!stats?.frequencies) return [];
         let d1 = 0, d2 = 0, d3 = 0;
         Object.entries(stats.frequencies).forEach(([numStr, count]) => {
             const n = parseInt(numStr, 10);
@@ -82,9 +80,8 @@ export function StatisticsView() {
         ];
     }, [stats]);
 
-    // 4. Halves (2)
     const halvesData: HistogramDataPoint[] = useMemo(() => {
-        if (!stats) return [];
+        if (!stats?.frequencies) return [];
         let h1 = 0, h2 = 0;
         Object.entries(stats.frequencies).forEach(([numStr, count]) => {
             const n = parseInt(numStr, 10);
@@ -98,9 +95,8 @@ export function StatisticsView() {
         ];
     }, [stats]);
 
-    // 5. Colors (Red/Black)
     const colorsData: HistogramDataPoint[] = useMemo(() => {
-        if (!stats) return [];
+        if (!stats?.frequencies) return [];
         let red = 0, black = 0;
         Object.entries(stats.frequencies).forEach(([numStr, count]) => {
             const n = parseInt(numStr, 10);
@@ -114,9 +110,8 @@ export function StatisticsView() {
         ];
     }, [stats]);
 
-    // 6. Parity (Odd/Even)
     const parityData: HistogramDataPoint[] = useMemo(() => {
-        if (!stats) return [];
+        if (!stats?.frequencies) return [];
         let odd = 0, even = 0;
         Object.entries(stats.frequencies).forEach(([numStr, count]) => {
             const n = parseInt(numStr, 10);
@@ -150,58 +145,49 @@ export function StatisticsView() {
 
     return (
         <div className="animate-in fade-in slide-in-from-bottom-4 duration-700 max-w-7xl mx-auto space-y-12">
-            {/* Header */}
             <div className="text-center space-y-4">
                 <h1 className="text-4xl md:text-5xl font-extrabold tracking-tighter font-display uppercase">
                     GLOBAL <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">STATISTICS</span>
                 </h1>
                 <p className="text-gray-400 max-w-2xl mx-auto">
-                    A transparent record of every outcome rolled by Quantum BTC's provably fair entropy engine.
+                    A transparent record of every rolled outcome
                 </p>
             </div>
 
-            {/* Total Bets Banner */}
             <div className="bg-gradient-to-r from-primary/20 via-black to-secondary/20 border border-white/10 rounded-2xl p-8 text-center backdrop-blur-md shadow-2xl">
                 <h2 className="text-sm font-mono text-primary tracking-widest uppercase mb-2">Total Bets Played</h2>
                 <div className="text-6xl md:text-8xl font-black tracking-tighter text-white font-display drop-shadow-[0_0_15px_rgba(234,179,8,0.3)]">
                     {formatCompactNumber(totalBets)}
                 </div>
-                <div className="text-gray-500 mt-2 text-sm">Exact count: {totalBets.toLocaleString()}</div>
             </div>
 
-            {/* Main Long Histogram: Numbers */}
             <DualAxisHistogram
                 title="1. Frequency by Number (0-36)"
                 data={numbersData}
                 total={totalBets}
             />
 
-            {/* Grid for Smaller Histograms */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 <DualAxisHistogram
                     title="2. Frequency by Row"
                     data={rowsData}
                     total={totalBets}
                 />
-
                 <DualAxisHistogram
                     title="3. Frequency by Dozen"
                     data={dozensData}
                     total={totalBets}
                 />
-
                 <DualAxisHistogram
                     title="4. Frequency by Half"
                     data={halvesData}
                     total={totalBets}
                 />
-
                 <DualAxisHistogram
                     title="5. Frequency by Color"
                     data={colorsData}
                     total={totalBets}
                 />
-
                 <DualAxisHistogram
                     title="6. Parity (Odd/Even)"
                     data={parityData}

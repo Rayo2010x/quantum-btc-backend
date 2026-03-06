@@ -100,11 +100,6 @@ El resultado es el $final\_entropy \pmod{37}$.
 | **OpenNode** | Pasarela para cobro de facturas y ejecución de retiros salientes. |
 | **PostgreSQL** | Persistencia de apuestas, auditoría y tokens de retiro. |
 
-### 5.1 Ciclo de Vida del Premio (Claim TTL)
-* **Validez del QR de Cobro:** Los premios tienen un TTL de 24 horas.
-* **Gestión de Reserva:** Durante estas 24 horas, el monto se mantiene en reserved_sat.
-* **Expiración:** Si no se cobra, el monto vuelve al balance operativo, manteniendo el registro de la deuda.
-
 ### 5.2 Pestaña de Estadísticas (Statistics Tab)
 Para proveer transparencia sobre la recurrencia de los resultados, el sistema cuenta con una pestaña dedicada a métricas agregadas ("Statistics"), accesible permanentemente y ubicada junto a "Roulette".
 *   **Métrica Global:** Cantidad total de apuestas jugadas.

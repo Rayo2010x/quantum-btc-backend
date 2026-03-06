@@ -1,4 +1,4 @@
-import React from 'react';
+
 
 export interface HistogramDataPoint {
     label: string;
@@ -73,12 +73,12 @@ export function DualAxisHistogram({ title, data, total }: DualAxisHistogramProps
                         const percentageOfTotal = total > 0 ? ((point.value / total) * 100).toFixed(1) : '0.0';
 
                         return (
-                            <div key={idx} className="flex flex-col items-center justify-end h-full flex-1 group" style={{ minWidth: data.length > 20 ? '20px' : '40px' }}>
-                                {/* Tooltip on Hover */}
-                                <div className="opacity-0 group-hover:opacity-100 absolute -top-10 bg-black/90 border border-white/10 text-white text-xs px-2 py-1 rounded transition-opacity whitespace-nowrap z-20 pointer-events-none">
-                                    <span className="font-bold">{point.label}</span>: {formatCompactNumber(point.value)} ({percentageOfTotal}%)
-                                </div>
-
+                            <div
+                                key={idx}
+                                className="flex flex-col items-center justify-end h-full flex-1 group"
+                                style={{ minWidth: data.length > 20 ? '20px' : '40px' }}
+                                title={`${point.label}: ${formatCompactNumber(point.value)} (${percentageOfTotal}%)`}
+                            >
                                 {/* Bar */}
                                 <div
                                     className={`w-full rounded-t-sm transition-all duration-700 ease-out hover:brightness-125 hover:shadow-[0_0_10px_rgba(255,255,255,0.3)] ${barColor}`}
