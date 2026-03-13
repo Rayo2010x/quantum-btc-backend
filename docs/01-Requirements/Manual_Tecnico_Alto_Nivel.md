@@ -1,10 +1,10 @@
 # Manual Técnico de Alto Nivel: Proyecto Quantum BTC
 
 ---
-**Versión:** 2.10
+**Versión:** 2.12
 **Estado:** Vigente
-**Última Modificación:** 2026-03-06
-**Cambios:** Adición de la pestaña de Estadísticas (Statistics Tab) con distribución histórica de aciertos e inclusión de filtro 'Last Bets' (Últimas N jugadas).
+**Última Modificación:** 2026-03-12
+**Cambios:** Inclusión de Campaña "Quantum Genesis" con agrupación de aportaciones por dirección BTC/LN.
 ---
 
 ## 1. Resumen de Operación (MVP)
@@ -127,3 +127,11 @@ Para cumplir con normativas internacionales, el sistema implementa controles de 
     *   Unión Europea (UE)
 *   **Mecanismo:** Validación vía middleware en el backend. Se prioriza el uso de cabeceras de red perimetral (Edge Network Headers como `CF-IPCountry`) proporcionadas por proveedores como Cloudflare para una máxima precisión geográfica frente a redes Anycast/VPN. Como respaldo o para entornos locales, se utiliza una base de datos local de GeoIP (`geoip-lite`). El bloqueo retorna un error `403 Forbidden`.
 *   **Auditoría de Bloqueos:** Todo intento de acceso bloqueado es registrado permanentemente en la tabla `geo_block_logs` (IP, país y timestamp) para mantener la consistencia de auditoría y análisis de seguridad.
+
+## 8. Campaña "Quantum Genesis" (Recompensas Post-Quánticas)
+Como iniciativa de fomento a la investigación, los usuarios pueden registrar su sesión para calificar a potenciales recompensas futuras.
+
+*   **Identidad:** Se vincula el `sessionId` efímero con una dirección BTC o Lightning Address.
+*   **Ranking de Aportación:** Se calcula la contribución total agregada **por dirección**. Es decir, la suma del volumen (`sum(amount_sat)`) de todas las sesiones registradas bajo una misma dirección BTC/LN.
+*   **Prompt Proactivo:** El sistema verifica el estado de registro de la sesión al inicio y sugiere la asociación si se encuentra vacía, facilitando la continuidad del usuario y la acumulación de puntos.
+*   **Transparencia:** El registro es opcional y no afecta la probabilidad de acierto de la ruleta, la cual sigue regida estrictamente por las reglas de entropía cuántica del Capítulo 4.

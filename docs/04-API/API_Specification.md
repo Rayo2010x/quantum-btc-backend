@@ -1,8 +1,8 @@
 # API Specification - Quantum BTC
 
-> **Artifact ID:** 20260130_API_Specification_v1.6
-> **Version:** 1.6
-> **Date:** 2026-03-04
+> **Artifact ID:** 20260130_API_Specification_v1.8
+> **Version:** 1.8
+> **Date:** 2026-03-12
 > **Status:** Vigente
 
 ## 1. Base URL
@@ -77,6 +77,29 @@
     }
     ```
 
+### 2.3 Campaign Management
+**Register for Rewards** (Links session to address)
+*   **POST** `/v1/campaign/register`
+*   **Body:**
+    ```json
+    {
+      "sessionId": "uuid",
+      "rewardAddress": "bc1... or user@ln.address"
+    }
+    ```
+*   **Response:** `{ "message": "Registration successful", "registrationId": "uuid" }`
+*   **Notes:** A session can only be registered once.
+
+**Check Registration Status**
+*   **GET** `/v1/campaign/check?sessionId=uuid`
+*   **Response:**
+    ```json
+    {
+      "registered": true | false,
+      "rewardAddress": "...", // Only if true
+      "totalContributed": 12500 // Aggregated for this address
+    }
+    ```
 
 ## 3. LNURL-Withdraw Specification (LUD-03)
 
@@ -108,4 +131,6 @@
 *   **Content-Type:** `application/x-www-form-urlencoded`
 *   **Headers:** `x-signature: <HMAC>`
 *   **Body:**
+    ```
+    charge_id=...&status=paid&...
     ```

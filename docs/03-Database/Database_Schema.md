@@ -1,8 +1,8 @@
 # Database Schema - Quantum BTC
 
-> **Artifact ID:** 20260130_Database_Schema_v1.2
-> **Version:** 1.2
-> **Date:** 2026-03-03
+> **Artifact ID:** 20260130_Database_Schema_v1.4
+> **Version:** 1.4
+> **Date:** 2026-03-12
 > **Status:** Vigente
 
 ## 1. Entity-Relationship Diagram (ERD)
@@ -11,6 +11,7 @@
 erDiagram
     SESSION ||--o{ TRANSACTION : initiates
     SESSION ||--o{ BET : places
+    SESSION ||--o{ REWARD_REGISTRATION : identifies
     GEO_BLOCK_LOG {
         uuid id PK
         inet ip_address "Blocked IP"
@@ -53,6 +54,13 @@ erDiagram
         uuid consumed_by_bet_id FK
         timestamp created_at
     }
+    
+    REWARD_REGISTRATION {
+        uuid id PK
+        uuid session_id FK
+        string reward_address "BTC/LN Address"
+        timestamp created_at
+    }
 ```
 
 ## 2. Data Dictionary
@@ -83,6 +91,12 @@ Audit log for blocked IP addresses.
 *   **id:** UUID v4.
 *   **ip_address:** `INET`. The blocked client IP address.
 *   **country:** `VARCHAR(2)`. The 2-letter ISO country code of the blocked IP.
+*   **created_at:** Timestamp.
+
+### 2.5 Table: `reward_registrations`
+Links a session to a reward address.
+*   **session_id:** UUID (FK to `sessions`).
+*   **reward_address:** BTC Address or Lightning Address.
 *   **created_at:** Timestamp.
 
 ## 3. SQL Schema (schema.sql)
@@ -129,6 +143,13 @@ CREATE TABLE withdrawal_tokens (
   k1 VARCHAR(255) UNIQUE,
   amount_sat BIGINT,
   is_used BOOLEAN DEFAULT FALSE,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+CREATE TABLE reward_registrations (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  session_id UUID REFERENCES sessions(id) UNIQUE,
+  reward_address VARCHAR(255) NOT NULL,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 ```

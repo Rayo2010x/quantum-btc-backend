@@ -1,7 +1,7 @@
 # DOCUMENT INDEX - Quantum BTC Backend
 
 > **Master Index:** Single source of truth for all project documentation.
-> **Last Updated:** 2026-03-05
+> **Last Updated:** 2026-03-12
 
 ## 00-Meta (Process & Standards)
 | Artifact | Version | Status | Last Modified |
@@ -14,7 +14,7 @@
 ## 01-Requirements (Business Logic)
 | Artifact | Version | Status | Last Modified |
 | :--- | :--- | :--- | :--- |
-| [Manual Técnico de Alto Nivel](01-Requirements/Manual_Tecnico_Alto_Nivel.md) | 2.10 | **VIGENTE** | 2026-03-06 |
+| [Manual Técnico de Alto Nivel](01-Requirements/Manual_Tecnico_Alto_Nivel.md) | 2.12 | **VIGENTE** | 2026-03-12 |
 | [Transparency & Verification](01-Requirements/Transparency_and_Verification.md) | 1.0 | **APPROVED** | 2026-03-03 |
 | [Bankroll & Risk Analysis](01-Requirements/Bankroll_Risk_Analysis.md) | 1.0 | **DRAFT** | 2026-03-02 |
 | [Frontend Integration Plan](01-Requirements/Frontend_Integration_Plan.md) | 1.0 | **DRAFT** | 2026-03-02 |
@@ -31,13 +31,13 @@
 ## 03-Database (Persistence Layer)
 | Artifact | Version | Status | Last Modified |
 | :--- | :--- | :--- | :--- |
-| [Data Schema & Dictionary](03-Database/Database_Schema.md) | 1.2 | **VIGENTE** | 2026-03-03 |
+| [Data Schema & Dictionary](03-Database/Database_Schema.md) | 1.4 | **VIGENTE** | 2026-03-12 |
 | [State Transition Models](03-Database/State_Models.md) | 1.0 | **DRAFT** | 2026-01-30 |
 
 ## 04-API (Interfaces & Contracts)
 | Artifact | Version | Status | Last Modified |
 | :--- | :--- | :--- | :--- |
-| [API Specification (REST & LNURL)](04-API/API_Specification.md) | 1.6 | **VIGENTE** | 2026-03-04 |
+| [API Specification (REST & LNURL)](04-API/API_Specification.md) | 1.8 | **VIGENTE** | 2026-03-12 |
 
 ## 05-QA-Testing (Verification)
 | Artifact | Version | Status | Last Modified |
@@ -53,6 +53,11 @@
 | :--- | :--- | :--- | :--- |
 | [Operations Manual](06-Operations/Operations_Manual.md) | 1.1 | **VIGENTE** | 2026-02-02 |
 | [Manual de Procesos (Ciclo de Vida)](06-Operations/Manual_de_Procesos.html) | 1.1 | **VIGENTE** | 2026-02-03 |
+
+## 08-Campaigns (Marketing & Rewards)
+| Artifact | Version | Status | Last Modified |
+| :--- | :--- | :--- | :--- |
+| [Post-Quantum Genesis (Rewards)](08-Campaigns/Post_Quantum_Genesis.md) | 1.1 | **APPROVED** | 2026-03-12 |
 
 ## 07-Archive (Obsolete)
 | Artifact | Version | Status | Last Modified |
