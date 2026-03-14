@@ -1,8 +1,8 @@
 # Database Schema - Quantum BTC
 
-> **Artifact ID:** 20260130_Database_Schema_v1.4
-> **Version:** 1.4
-> **Date:** 2026-03-12
+> **Artifact ID:** 20260130_Database_Schema_v1.5
+> **Version:** 1.5
+> **Date:** 2026-03-13
 > **Status:** Vigente
 
 ## 1. Entity-Relationship Diagram (ERD)
@@ -21,6 +21,7 @@ erDiagram
     SESSION {
         uuid id PK
         inet ip_address "Client IP"
+        string country "Country Code"
         timestamp created_at
     }
 
@@ -69,6 +70,7 @@ erDiagram
 Typically ephemeral, mostly for audit/logging in non-custodial mode.
 *   **id:** UUID v4.
 *   **ip_address:** `INET`. Client IP address captured at session initialization for compliance and audit.
+*   **country:** `VARCHAR(2)`. The 2-letter ISO country code detected for the session IP.
 *   **created_at:** Timestamp.
 
 ### 2.2 Table: `bets`
@@ -107,6 +109,7 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 CREATE TABLE sessions (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   ip_address INET,
+  country VARCHAR(2),
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 

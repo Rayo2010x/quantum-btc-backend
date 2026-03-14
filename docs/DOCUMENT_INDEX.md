@@ -1,20 +1,20 @@
 # DOCUMENT INDEX - Quantum BTC Backend
 
 > **Master Index:** Single source of truth for all project documentation.
-> **Last Updated:** 2026-03-12
+> **Last Updated:** 2026-03-13
 
 ## 00-Meta (Process & Standards)
 | Artifact | Version | Status | Last Modified |
 | :--- | :--- | :--- | :--- |
 | [SOP: Control de Documentos](00-Meta/SOP_Document_Control.md) | 1.0 | **APPROVED** | 2026-02-03 |
 | [SOP: Change Management](00-Meta/SOP_Change_Management.md) | 1.1 | **APPROVED** | 2026-02-05 |
-| [Backlog & Roadmap](00-Meta/BACKLOG.md) | 1.1 | **ACTIVO** | 2026-03-03 |
+| [Backlog & Roadmap](00-Meta/BACKLOG.md) | 1.2 | **ACTIVO** | 2026-03-13 |
 
 
 ## 01-Requirements (Business Logic)
 | Artifact | Version | Status | Last Modified |
 | :--- | :--- | :--- | :--- |
-| [Manual Técnico de Alto Nivel](01-Requirements/Manual_Tecnico_Alto_Nivel.md) | 2.12 | **VIGENTE** | 2026-03-12 |
+| [Manual Técnico de Alto Nivel](01-Requirements/Manual_Tecnico_Alto_Nivel.md) | 2.13 | **VIGENTE** | 2026-03-13 |
 | [Transparency & Verification](01-Requirements/Transparency_and_Verification.md) | 1.0 | **APPROVED** | 2026-03-03 |
 | [Bankroll & Risk Analysis](01-Requirements/Bankroll_Risk_Analysis.md) | 1.0 | **DRAFT** | 2026-03-02 |
 | [Frontend Integration Plan](01-Requirements/Frontend_Integration_Plan.md) | 1.0 | **DRAFT** | 2026-03-02 |
@@ -31,7 +31,7 @@
 ## 03-Database (Persistence Layer)
 | Artifact | Version | Status | Last Modified |
 | :--- | :--- | :--- | :--- |
-| [Data Schema & Dictionary](03-Database/Database_Schema.md) | 1.4 | **VIGENTE** | 2026-03-12 |
+| [Data Schema & Dictionary](03-Database/Database_Schema.md) | 1.5 | **VIGENTE** | 2026-03-13 |
 | [State Transition Models](03-Database/State_Models.md) | 1.0 | **DRAFT** | 2026-01-30 |
 
 ## 04-API (Interfaces & Contracts)

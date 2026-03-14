@@ -1,10 +1,10 @@
 # Manual Técnico de Alto Nivel: Proyecto Quantum BTC
 
 ---
-**Versión:** 2.12
+**Versión:** 2.13
 **Estado:** Vigente
-**Última Modificación:** 2026-03-12
-**Cambios:** Inclusión de Campaña "Quantum Genesis" con agrupación de aportaciones por dirección BTC/LN.
+**Última Modificación:** 2026-03-13
+**Cambios:** Inclusión de Reino Unido (GB) en Geo-Bloqueo y registro de país en tabla de sesiones.
 ---
 
 ## 1. Resumen de Operación (MVP)
@@ -123,10 +123,11 @@ Para proveer transparencia sobre la recurrencia de los resultados, el sistema cu
 Para cumplir con normativas internacionales, el sistema implementa controles de acceso geográfico:
 *   **Registro de IP:** Se almacena la dirección IP de origen de cada sesión (`/session/init`) con fines de auditoría.
 *   **Restricción Regional:** Se bloquea el acceso a usuarios con direcciones IP provenientes de:
-    *   Estados Unidos (EE.UU.)
-    *   Unión Europea (UE)
+    *   EE.UU., Reino Unido (GB) y Unión Europea (UE).
 *   **Mecanismo:** Validación vía middleware en el backend. Se prioriza el uso de cabeceras de red perimetral (Edge Network Headers como `CF-IPCountry`) proporcionadas por proveedores como Cloudflare para una máxima precisión geográfica frente a redes Anycast/VPN. Como respaldo o para entornos locales, se utiliza una base de datos local de GeoIP (`geoip-lite`). El bloqueo retorna un error `403 Forbidden`.
-*   **Auditoría de Bloqueos:** Todo intento de acceso bloqueado es registrado permanentemente en la tabla `geo_block_logs` (IP, país y timestamp) para mantener la consistencia de auditoría y análisis de seguridad.
+*   **Auditoría de Bloqueos:** 
+    *   Todo intento de acceso bloqueado es registrado permanentemente en la tabla `geo_block_logs` (IP, país y timestamp).
+    *   **Trazabilidad Adicional:** La tabla `sessions` almacena tanto la `ip_address` como el `country` de origen para todas las conexiones permitidas, permitiendo auditorías de cumplimiento posteriores.
 
 ## 8. Campaña "Quantum Genesis" (Recompensas Post-Quánticas)
 Como iniciativa de fomento a la investigación, los usuarios pueden registrar su sesión para calificar a potenciales recompensas futuras.
