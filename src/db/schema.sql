@@ -9,8 +9,19 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 CREATE TABLE IF NOT EXISTS sessions (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   ip_address INET,
+  country VARCHAR(2),
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
+
+-- 1.2 REWARD REGISTRATIONS
+-- Links a session to a reward address for Quantum Genesis
+CREATE TABLE IF NOT EXISTS reward_registrations (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  session_id UUID UNIQUE REFERENCES sessions(id),
+  reward_address VARCHAR(255) NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
 
 -- 1.1 GEO BLOCK LOGS
 -- Tracks attempts to access the API from restricted regions

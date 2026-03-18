@@ -47,6 +47,7 @@ export async function geoBlockMiddleware(req: FastifyRequest, reply: FastifyRepl
 
             const blockedCountries = [
                 'US', // USA
+                'GB', // United Kingdom
                 // EU Members (partial list for MVP, should be comprehensive)
                 'AT', 'BE', 'BG', 'HR', 'CY', 'CZ', 'DK', 'EE', 'FI', 'FR', 'DE', 'GR', 'HU', 'IE', 'IT', 'LV', 'LT', 'LU', 'MT', 'NL', 'PL', 'PT', 'RO', 'SK', 'SI', 'ES', 'SE'
             ];

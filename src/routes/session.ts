@@ -1,6 +1,7 @@
-
 import { FastifyInstance } from "fastify";
 import { pool } from "../db/index.js";
+// @ts-ignore
+import geoip from 'geoip-lite';
 
 export async function sessionRoutes(app: FastifyInstance) {
     // POST /v1/session/init
@@ -14,6 +15,18 @@ export async function sessionRoutes(app: FastifyInstance) {
             let finalIp = Array.isArray(ipAddress) ? ipAddress[0] : ipAddress;
             if (typeof finalIp === 'string' && finalIp.includes(',')) {
                 finalIp = finalIp.split(',')[0].trim();
+            }
+
+            // Extract country for traceability
+            const cfCountry = req.headers['cf-ipcountry'] as string | undefined;
+            let country: string | null = null;
+            if (cfCountry && cfCountry.length === 2) {
+                country = cfCountry.toUpperCase();
+            } else if (finalIp && finalIp !== '127.0.0.1' && finalIp !== '::1') {
+                const geo = geoip.lookup(finalIp);
+                if (geo) {
+                    country = geo.country;
+                }
             }
 
             // Check if client claims an existing session
@@ -49,8 +62,8 @@ export async function sessionRoutes(app: FastifyInstance) {
 
             // Create NEW session (Default fall-through)
             const res = await pool.query(
-                "INSERT INTO sessions (ip_address) VALUES ($1) RETURNING id",
-                [finalIp]
+                "INSERT INTO sessions (ip_address, country) VALUES ($1, $2) RETURNING id",
+                [finalIp, country]
             );
 
             const session = res.rows[0];

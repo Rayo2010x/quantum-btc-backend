@@ -12,6 +12,7 @@ import { lnurlRoutes } from "./routes/lnurl.js";
 import { startEntropyWorker } from "./services/entropy_worker.js";
 import { startBankrollWorker } from "./services/bankroll_worker.js";
 import { sessionRoutes } from "./routes/session.js";
+import { campaignRoutes } from "./routes/campaign.js";
 import { gameStatusRoutes } from "./routes/game_status.js";
 import { historyRoutes } from "./routes/history.js";
 import { statisticsRoutes } from "./routes/statistics.js";
@@ -88,6 +89,7 @@ app.register(gameStatusRoutes);  // /v1/game/bet/:id/status
 app.register(historyRoutes);     // /v1/game/history
 app.register(statisticsRoutes);  // /v1/game/statistics
 app.register(sessionRoutes);     // /v1/session/init
+app.register(campaignRoutes);    // /v1/campaign
 app.register(webhookRoutes);     // /v1/webhooks
 app.register(lnurlRoutes);       // /v1/lnurl
 
