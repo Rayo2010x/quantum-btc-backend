@@ -68,7 +68,7 @@ export function FaqView() {
                             </button>
                             
                             <div 
-                                className={`overflow-hidden transition-all duration-300 ease-in-out ${isOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}
+                                className={`overflow-hidden transition-all duration-300 ease-in-out ${isOpen ? 'max-h-[1000px] opacity-100' : 'max-h-0 opacity-0'}`}
                             >
                                 <div className="px-6 pb-6 pt-2 text-gray-400 leading-relaxed font-body text-base whitespace-pre-wrap">
                                     {faq.a.split('**').map((part, i) => (
