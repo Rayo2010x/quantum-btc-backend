@@ -42,7 +42,12 @@ function App() {
   };
 
   return (
-    <Layout currentView={currentView} onViewChange={setCurrentView}>
+    <Layout 
+      currentView={currentView} 
+      onViewChange={setCurrentView}
+      isRegistered={isRegistered}
+      onRegisterClick={() => setIsModalOpen(true)}
+    >
 
       {currentView === 'whitepaper' && (
         <WhitePaperView />
@@ -75,7 +80,10 @@ function App() {
       )}
 
       {currentView === 'history' && (
-        <VerifyHistoryView sessionId={sessionId} />
+        <VerifyHistoryView 
+          sessionId={sessionId} 
+          onRegisterClick={() => setIsModalOpen(true)}
+        />
       )}
 
       {/* Campaign UI Flow */}

@@ -5,6 +5,7 @@ import { SovereignRankCard } from '../statistics/SovereignRankCard';
 
 interface VerifyHistoryViewProps {
     sessionId: string | null;
+    onRegisterClick?: () => void;
 }
 
 // Helper to hash using Web Crypto API
@@ -15,7 +16,7 @@ async function sha256(message: string) {
     return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
-export function VerifyHistoryView({ sessionId }: VerifyHistoryViewProps) {
+export function VerifyHistoryView({ sessionId, onRegisterClick }: VerifyHistoryViewProps) {
     // History State
     const [bets, setBets] = useState<any[]>([]);
     const [historyLoading, setHistoryLoading] = useState(true);
@@ -117,7 +118,10 @@ export function VerifyHistoryView({ sessionId }: VerifyHistoryViewProps) {
 
             {/* --- TOP SECTION: SOVEREIGN RANK --- */}
             <div className="mb-10">
-                <SovereignRankCard sessionId={sessionId} />
+                <SovereignRankCard 
+                    sessionId={sessionId} 
+                    onRegisterClick={onRegisterClick}
+                />
             </div>
 
             {/* --- MIDDLE SECTION: THE VERIFIER --- */}

@@ -6,9 +6,11 @@ interface LayoutProps {
     children: React.ReactNode;
     currentView?: ViewType;
     onViewChange?: (view: ViewType) => void;
+    isRegistered?: boolean;
+    onRegisterClick?: () => void;
 }
 
-export function Layout({ children, currentView = 'whitepaper', onViewChange }: LayoutProps) {
+export function Layout({ children, currentView = 'whitepaper', onViewChange, isRegistered = true, onRegisterClick }: LayoutProps) {
     return (
         <div className="min-h-screen flex flex-col">
             {/* Header */}
@@ -42,6 +44,17 @@ export function Layout({ children, currentView = 'whitepaper', onViewChange }: L
                         >
                             Verify (Fair) & History
                         </button>
+                        
+                        {!isRegistered && onRegisterClick && (
+                            <div className="pl-4 ml-2 border-l border-white/10 flex items-center">
+                                <button 
+                                    onClick={onRegisterClick}
+                                    className="text-xs font-bold text-black bg-primary px-3 py-1.5 rounded-full hover:bg-secondary transition-colors uppercase tracking-wider shadow-[0_0_10px_rgba(72,216,216,0.5)]"
+                                >
+                                    Link Session
+                                </button>
+                            </div>
+                        )}
                     </nav>
                 </div>
             </header>

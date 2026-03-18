@@ -3,9 +3,10 @@ import { GameApi } from '../../lib/api';
 
 interface RankCardProps {
     sessionId: string | null;
+    onRegisterClick?: () => void;
 }
 
-export function SovereignRankCard({ sessionId }: RankCardProps) {
+export function SovereignRankCard({ sessionId, onRegisterClick }: RankCardProps) {
     const [stv, setStv] = useState<number | null>(null);
     const [address, setAddress] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(true);
@@ -28,7 +29,29 @@ export function SovereignRankCard({ sessionId }: RankCardProps) {
     }, [sessionId]);
 
     if (isLoading) return null; // Or a small skeleton
-    if (stv === null) return null; // Not registered
+    
+    // Unregistered state UI
+    if (stv === null) {
+        if (!onRegisterClick) return null;
+        
+        return (
+            <div className="glass rounded-2xl p-6 relative border-primary/20 bg-primary/5 overflow-hidden mb-8 max-w-2xl mx-auto text-center border-dashed">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 blur-3xl rounded-full"></div>
+                <div className="absolute bottom-0 left-0 w-32 h-32 bg-secondary/10 blur-3xl rounded-full"></div>
+                
+                <h3 className="text-xl font-display font-bold text-white mb-2">Unregistered Session</h3>
+                <p className="text-sm text-gray-400 mb-6 max-w-md mx-auto">
+                    Your Stress-Test Volume (STV) is currently ephemeral. Link your session to a Sovereign Address (BTC/LN) to climb the ranks and preserve your history.
+                </p>
+                <button 
+                    onClick={onRegisterClick}
+                    className="btn btn-primary px-8 py-2 w-auto inline-flex"
+                >
+                    Register for PQ-Rewards
+                </button>
+            </div>
+        );
+    }
 
     let rankLabel = "Participant";
     let rankColor = "text-gray-400";
