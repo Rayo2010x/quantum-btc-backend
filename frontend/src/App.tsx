@@ -9,6 +9,7 @@ import { WhitePaperView } from './components/whitepaper/WhitePaperView';
 import { StatisticsView } from './components/statistics/StatisticsView';
 import { CampaignBanner } from './components/CampaignBanner';
 import { RegistrationModal } from './components/RegistrationModal';
+import { FaqView } from './components/faq/FaqView';
 
 function App() {
   const [sessionId, setSessionId] = useState<string | null>(null);
@@ -77,6 +78,10 @@ function App() {
 
       {currentView === 'statistics' && (
         <StatisticsView />
+      )}
+
+      {currentView === 'faq' && (
+        <FaqView />
       )}
 
       {currentView === 'history' && (

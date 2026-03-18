@@ -1,6 +1,6 @@
 
 import React from 'react';
-export type ViewType = 'whitepaper' | 'game' | 'statistics' | 'history';
+export type ViewType = 'whitepaper' | 'game' | 'statistics' | 'faq' | 'history';
 
 interface LayoutProps {
     children: React.ReactNode;
@@ -37,6 +37,12 @@ export function Layout({ children, currentView = 'whitepaper', onViewChange, isR
                             className={`transition-colors hover:text-primary ${currentView === 'statistics' ? 'text-primary font-bold' : ''}`}
                         >
                             Statistics
+                        </button>
+                        <button
+                            onClick={() => onViewChange?.('faq')}
+                            className={`transition-colors flex items-center gap-1 hover:text-primary ${currentView === 'faq' ? 'text-primary font-bold' : ''}`}
+                        >
+                            FAQ
                         </button>
                         <button
                             onClick={() => onViewChange?.('history')}

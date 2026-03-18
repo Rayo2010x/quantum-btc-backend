@@ -1,7 +1,7 @@
 # Campaign: Quantum Genesis (Post-Quantum BTC Registry)
 
 > **ID:** Post_Quantum_Genesis
-> **Version:** 1.2 (FAQ Strategic Overhaul)
+> **Version:** 1.3 (Added Tier FAQ)
 > **Date:** 2026-03-17
 > **Status:** STRATEGIC_ALIGNMENT_APPROVED
 
@@ -56,3 +56,11 @@ A: Unregistered sessions generate ephemeral entropy. Once your browser clears or
 
 **Q: Should I secure my rank using a Layer 1 (On-Chain) or a Lightning Network (LN) address?**
 A: While the entire stress-testing protocol operates at lightning speed on Layer 2, the Registry defines your historically permanent identity. For this reason, we highly recommend anchoring your session to a **Layer 1 "Vault" address** (ideally from cold storage). It is the most robust and indisputable cryptographic identity in the Bitcoin ecosystem with which to claim your future Genesis rewards.
+
+**Q: How are the Genesis Tiers calculated?**
+A: Your rank is determined by your total STV (Satoshis routed). 
+- **Quantum Scout:** 1,000 - 10,000 sats
+- **Sentinel:** 10,001 - 100,000 sats
+- **Guardian:** 100,001+ sats
+
+As your STV crosses these thresholds, your rank dynamically updates on the network, elevating your status in the Post-Quantum Citadel.
