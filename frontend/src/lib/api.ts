@@ -44,6 +44,18 @@ export interface StatisticsResponse {
     frequencies: Record<number, number>;
 }
 
+// Campaign Models
+export interface CampaignCheckResponse {
+    registered: boolean;
+    rewardAddress?: string;
+    totalContributed: number;
+}
+
+export interface CampaignRegisterResponse {
+    message: string;
+    registrationId: string;
+}
+
 // Session Management
 async function getOrCreateSession(): Promise<string> {
     let sessionId = localStorage.getItem('qb_sessionId');
@@ -122,6 +134,17 @@ export const GameApi = {
 
     initSession: async () => {
         return getOrCreateSession();
+    },
+
+    // Campaign Methods
+    checkCampaignStatus: async (sessionId: string) => {
+        const res = await api.get<CampaignCheckResponse>(`/campaign/check`, { params: { sessionId } });
+        return res.data;
+    },
+
+    registerCampaign: async (sessionId: string, rewardAddress: string) => {
+        const res = await api.post<CampaignRegisterResponse>(`/campaign/register`, { sessionId, rewardAddress });
+        return res.data;
     }
 };
 

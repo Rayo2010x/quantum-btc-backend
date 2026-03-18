@@ -7,16 +7,40 @@ import { GameApi } from './lib/api';
 import { VerifyHistoryView } from './components/history/VerifyHistoryView';
 import { WhitePaperView } from './components/whitepaper/WhitePaperView';
 import { StatisticsView } from './components/statistics/StatisticsView';
+import { CampaignBanner } from './components/CampaignBanner';
+import { RegistrationModal } from './components/RegistrationModal';
+import { SovereignRankCard } from './components/statistics/SovereignRankCard';
 
 function App() {
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [currentView, setCurrentView] = useState<ViewType>('whitepaper');
-  // Verify handling is now inside VerifyHistoryView
+  
+  // Campaign State
+  const [isRegistered, setIsRegistered] = useState(true); // Default true to hide banner while loading
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isBannerDismissed, setIsBannerDismissed] = useState(() => {
+    return localStorage.getItem('qb_campaign_dismissed') === 'true';
+  });
 
   useEffect(() => {
     // Init session on load
-    GameApi.initSession().then(id => setSessionId(id));
+    GameApi.initSession().then(async (id) => {
+        setSessionId(id);
+        // Check PQ-Rewards registration status
+        try {
+            const status = await GameApi.checkCampaignStatus(id);
+            setIsRegistered(status.registered);
+        } catch (error) {
+            console.error("Error checking campaign status:", error);
+        }
+    });
   }, []);
+
+  const handleRegisterCampaign = async (address: string) => {
+      if (!sessionId) return;
+      await GameApi.registerCampaign(sessionId, address);
+      setIsRegistered(true);
+  };
 
   return (
     <Layout currentView={currentView} onViewChange={setCurrentView}>
@@ -48,12 +72,32 @@ function App() {
       )}
 
       {currentView === 'statistics' && (
-        <StatisticsView />
+        <div className="space-y-4">
+            <SovereignRankCard sessionId={sessionId} />
+            <StatisticsView />
+        </div>
       )}
 
       {currentView === 'history' && (
         <VerifyHistoryView sessionId={sessionId} />
       )}
+
+      {/* Campaign UI Flow */}
+      {!isRegistered && !isBannerDismissed && (
+        <CampaignBanner 
+          onRegisterClick={() => setIsModalOpen(true)} 
+          onDismiss={() => {
+            setIsBannerDismissed(true);
+            localStorage.setItem('qb_campaign_dismissed', 'true');
+          }}
+        />
+      )}
+
+      <RegistrationModal 
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSubmit={handleRegisterCampaign}
+      />
 
     </Layout>
   );

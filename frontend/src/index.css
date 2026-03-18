@@ -21,3 +21,76 @@ body {
     radial-gradient(circle at 100% 100%, rgba(255, 0, 60, 0.08) 0%, transparent 50%);
   background-attachment: fixed;
 }
+
+/* Campaign Genensis UI */
+.campaign-banner {
+  @apply fixed bottom-5 right-5 z-50 glass rounded-xl p-4 max-w-sm animate-bounce cursor-pointer border-primary/50 hover:border-primary transition-colors duration-300;
+}
+
+.banner-content {
+  @apply flex items-center gap-4;
+}
+
+.banner-icon {
+  @apply text-3xl animate-spin-slow;
+}
+
+.banner-text h4 {
+  @apply font-display font-bold text-primary m-0 mb-1 text-sm;
+}
+
+.banner-text p {
+  @apply text-xs text-white/80 m-0 leading-tight;
+}
+
+.banner-btn {
+  @apply mt-2 w-full text-xs py-1.5;
+}
+
+.modal-overlay {
+  @apply fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4;
+}
+
+.modal-content {
+  @apply glass rounded-2xl p-6 max-w-md w-full relative border-white/20;
+}
+
+.close-btn {
+  @apply absolute top-4 right-4 text-white/50 hover:text-white text-2xl transition-colors bg-transparent border-none cursor-pointer;
+}
+
+.modal-content h2 {
+  @apply font-display text-2xl font-bold text-primary mb-4;
+}
+
+.modal-description {
+  @apply text-sm text-white/80 mb-4 leading-relaxed;
+}
+
+.privacy-notice {
+  @apply bg-surface/30 border border-white/10 rounded-lg p-3 text-xs text-white/70 mb-6;
+}
+
+.form-group {
+  @apply mb-4 text-left;
+}
+
+.form-group label {
+  @apply block text-xs font-semibold text-white/60 mb-2 uppercase tracking-wide;
+}
+
+.form-group input {
+  @apply w-full bg-surface/50 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-primary transition-colors;
+}
+
+.form-group input.input-error {
+  @apply border-red-500/50 bg-red-500/10;
+}
+
+.error-message {
+  @apply text-red-400 text-xs mt-2;
+}
+
+.full-width {
+  @apply w-full;
+}
