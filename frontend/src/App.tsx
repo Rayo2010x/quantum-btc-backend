@@ -9,7 +9,6 @@ import { WhitePaperView } from './components/whitepaper/WhitePaperView';
 import { StatisticsView } from './components/statistics/StatisticsView';
 import { CampaignBanner } from './components/CampaignBanner';
 import { RegistrationModal } from './components/RegistrationModal';
-import { SovereignRankCard } from './components/statistics/SovereignRankCard';
 
 function App() {
   const [sessionId, setSessionId] = useState<string | null>(null);
@@ -72,10 +71,7 @@ function App() {
       )}
 
       {currentView === 'statistics' && (
-        <div className="space-y-4">
-            <SovereignRankCard sessionId={sessionId} />
-            <StatisticsView />
-        </div>
+        <StatisticsView />
       )}
 
       {currentView === 'history' && (

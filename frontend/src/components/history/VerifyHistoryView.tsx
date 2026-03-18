@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { GameApi } from '../../lib/api';
 import { Loader2, ShieldCheck, Database, Network, Key, CheckCircle2, Copy, RotateCw, ArrowRight } from 'lucide-react';
+import { SovereignRankCard } from '../statistics/SovereignRankCard';
 
 interface VerifyHistoryViewProps {
     sessionId: string | null;
@@ -114,7 +115,12 @@ export function VerifyHistoryView({ sessionId }: VerifyHistoryViewProps) {
     return (
         <div className="w-full max-w-5xl mx-auto space-y-16 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-20">
 
-            {/* --- TOP SECTION: THE VERIFIER --- */}
+            {/* --- TOP SECTION: SOVEREIGN RANK --- */}
+            <div className="mb-10">
+                <SovereignRankCard sessionId={sessionId} />
+            </div>
+
+            {/* --- MIDDLE SECTION: THE VERIFIER --- */}
             <div className="space-y-10">
                 <div className="text-center space-y-4">
                     <div className="inline-flex items-center justify-center p-3 bg-primary/10 rounded-full mb-2">

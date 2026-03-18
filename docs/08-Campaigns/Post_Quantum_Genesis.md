@@ -1,8 +1,8 @@
 # Campaign: Quantum Genesis (Post-Quantum BTC Registry)
 
 > **ID:** Post_Quantum_Genesis
-> **Version:** 1.0 (Marketing Revised)
-> **Date:** 2026-03-12
+> **Version:** 1.1 (Unified History & Rank Relocation)
+> **Date:** 2026-03-17
 > **Status:** STRATEGIC_ALIGNMENT_APPROVED
 
 ## 1. The Hook: "Build the Post-Quantum Citadel"
@@ -39,7 +39,9 @@ A new table `reward_registrations` will store the mapping:
 
 ### 3.2 Security & Verification
 - **Anti-Sybil:** System monitors session initialization metadata to ensure authentic research data.
-- **Verification:** Users can verify their contribution and audit the Provably Fair hashes via the "Auditor" tab.
+- **Rank Verification:** The total volume (STV) and Tier status are visualized at the top of the "Verify & History" tab.
+- **Unified History:** For registered sessions, the bet history is unified across all sessions sharing the same `reward_address` (limited to the last 20 bets to optimize performance while accepting a minor information disclosure risk for UX simplicity).
+- **Hash Auditing:** Individual validation of Provably Fair hashes for each bet is done in the "Verify & History" tab.
 
 ## 4. FAQ (The Strategy)
 
