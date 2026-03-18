@@ -1,7 +1,7 @@
 # Campaign: Quantum Genesis (Post-Quantum BTC Registry)
 
 > **ID:** Post_Quantum_Genesis
-> **Version:** 1.1 (Unified History & Rank Relocation)
+> **Version:** 1.2 (FAQ Strategic Overhaul)
 > **Date:** 2026-03-17
 > **Status:** STRATEGIC_ALIGNMENT_APPROVED
 
@@ -45,14 +45,14 @@ A new table `reward_registrations` will store the mapping:
 
 ## 4. FAQ (The Strategy)
 
-**Q: What exactly is a "Post-Quantum Bitcoin"?**
-A: It is a cryptographic claim on our development fund. As we deploy our Post-Quantum protocols, these rewards represent your status as an early protector of the network.
+**Q: What exactly are the "Post-Quantum Rewards"?**
+A: They are verifiable cryptographic claims recognizing your role as an early protector of the network. As we finalize and deploy our Post-Quantum protocols, you aren't just earning a badge—you are securing prioritized access to our proprietary tools, early node deployments, and targeted airdrops from our development fund. Your rank dictates your standing in the new Citadel.
 
-**Q: Do I lose my sats by contributing?**
-A: No. You are interacting with the Lightning Network protocol as part of the stress-test. Your "contribution" is the volume of satoshis you process, regardless of individual settlement outcomes.
+**Q: How do I contribute?**
+A: Your standing is measured strictly by your **Stress-Test Volume (STV)**—the total throughput of Satoshis you route through our Lightning infrastructure. Whether you end your session with massive profits or take a loss, every single satoshi processed generates vital entropy and pushes our nodes to their limits. You are rewarded for the velocity and volume of your interactions, never for your losses.
 
-**Q: Why do I need to register?**
-A: Without registration, your research contribution is ephemeral. Registration locks your STV to your Sovereign Address, ensuring recognition and rewards when the Post-Quantum transition begins.
+**Q: If the protocol is provably fair and anonymous, why must I register an address?**
+A: Unregistered sessions generate ephemeral entropy. Once your browser clears or your session expires, your cryptographic proof of work vanishes. The **Quantum Genesis Registry** permanently anchors your accumulated STV to a Sovereign Address of your choosing. This ensures your legacy, rank, and future rewards are preserved immutably across devices and time.
 
-**Q: Should I use an L1 or LN address?**
-A: For day-to-day interaction, LN is faster. However, for a registry that marks your place in history (and rewards), we suggest using an address from your "Vault" (Cold Storage/L1) as it is the most permanent identity in the Bitcoin ecosystem.
+**Q: Should I secure my rank using a Layer 1 (On-Chain) or a Lightning Network (LN) address?**
+A: While the entire stress-testing protocol operates at lightning speed on Layer 2, the Registry defines your historically permanent identity. For this reason, we highly recommend anchoring your session to a **Layer 1 "Vault" address** (ideally from cold storage). It is the most robust and indisputable cryptographic identity in the Bitcoin ecosystem with which to claim your future Genesis rewards.
