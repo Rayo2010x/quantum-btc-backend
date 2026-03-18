@@ -20,7 +20,7 @@ const faqs = [
     },
     {
         q: 'How are the Genesis Ranks (Tiers) calculated?',
-        a: `Your rank is determined by your total STV (Satoshis routed).\n\n• **Participant:** 0 - 999 sats\n• **Quantum Scout:** 1,000 - 10,000 sats\n• **Sentinel:** 10,001 - 100,000 sats\n• **Guardian:** 100,001+ sats\n\nAs your STV crosses these thresholds, your rank dynamically updates on the network, elevating your status in the Post-Quantum Citadel.`
+        a: `Your rank is determined by your total STV (Satoshis routed).\n\n• **Participant (0 - 999 sats):** *Ephemeral Contributor.* Contributes to network entropy but holds no permanent rank or claim.\n• **Quantum Scout (1k - 10k sats):** *Access & Badging.* Secures a verifiable Genesis Badge and gains prioritized access to future Quantum BTC tools and beta-testing phases.\n• **Sentinel (10k - 100k sats):** *Development Fund Claim.* All Scout benefits PLUS a proportional claim to targeted BTC/LN airdrops distributed directly from our institutional development fund as milestones are reached.\n• **Guardian (100k+ sats):** *Infrastructure Priority.* All Sentinel benefits PLUS prioritized routing and early access to deploy our proprietary Post-Quantum Node software, cementing your place as a foundational pillar of the network.\n\nAs your STV crosses these thresholds, your rank dynamically updates on the network, elevating your status in the Post-Quantum Citadel.`
     }
 ];
 
