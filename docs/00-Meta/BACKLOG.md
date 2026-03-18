@@ -48,14 +48,14 @@ Este documento centraliza los pendientes técnicos, deuda técnica y roadmap del
 - [x] **Geo-Blocking Logging (Medium):** Registrar permanentemente el IP bloqueado en Supabase (evaluar si conviene crear una nueva tabla `geo_block_logs` o añadir una bandera booleana a la tabla de sesiones) para mantener consistencia de auditoría (Completado - 2026-03-03).
 - [x] **Geo-Blocking UX Fix (Medium):** Revisar la lógica y orden de ejecución (ej. CORS vs GeoBlock) para garantizar que el error *"403 Access Denied / Service not available in your region"* tenga prioridad y llegue correctamente al frontend, evitando que este último colapse prematuramente mostrando un genérico "Network Error".
 
-## 9. Próximos Pasos (Geobloqueo & Trazabilidad) - Pendiente
-- [ ] **Extensión de Restricción Regional (Reino Unido):** Incluir `GB` (Reino Unido) en la lista de países bloqueados por el middleware `geoBlock.ts` para cumplir con las normativas locales post-Brexit.
-- [ ] **Trazabilidad Geográfica en Sesiones:**
+## 9. Próximos Pasos (Geobloqueo & Trazabilidad) - Completado
+- [x] **Extensión de Restricción Regional (Reino Unido):** Incluir `GB` (Reino Unido) en la lista de países bloqueados por el middleware `geoBlock.ts` para cumplir con las normativas locales post-Brexit.
+- [x] **Trazabilidad Geográfica en Sesiones:**
     - Modificar la tabla `public.sessions` para añadir la columna `country` (varchar).
     - Actualizar la lógica de `/session/init` para que, al momento de registrar la IP, también se capture y almacene el código de país tal como se hace en la tabla `public.geo_block_logs`.
 
-## 10. Campañas & Recompensas (Pending)
-- [ ] **Implementación "Quantum Genesis":** Ejecutar el registro de recompensas post-quánticas según `Post_Quantum_Genesis.md`.
+## 10. Campañas & Recompensas (Completado)
+- [x] **Implementación "Quantum Genesis":** Ejecutar el registro de recompensas post-quánticas según `Post_Quantum_Genesis.md`.
     - **Backend (BD):** Crear tabla `reward_registrations` (`session_id` UNIQUE, `reward_address` NOT NULL).
     - **API Logic:**
         - Implementar `POST /v1/campaign/register` con validación de address (RegEx para BTC L1 y Lightning Address).
@@ -63,4 +63,4 @@ Este documento centraliza los pendientes técnicos, deuda técnica y roadmap del
     - **Frontend (UX):**
         - Hook de inicialización para detectar sesiones no registradas y disparar el banner de invitación.
         - Modal de registro con advertencia de privacidad.
-        - Indicador de "Status de Investigador" (Sovereign Rank) en la pestaña de Estadísticas/Auditoría basado en los Tiers de STV.
+        - Indicador de "Status de Investigador" (Sovereign Rank) en la pestaña de Estadísticas/Auditoría y FAQ basado en los Tiers de STV.
