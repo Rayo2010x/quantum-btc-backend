@@ -12,9 +12,8 @@ export async function campaignRoutes(app: FastifyInstance) {
             }
 
             // Basic Address Validation (BTC L1 or Lightning Address)
-            // RegEx for LN Address (user@domain.com) or BTC address (bc1...)
             const isLnAddress = /^[a-zA-Z0-9-._]+@[a-zA-Z0-9-.]+\.[a-zA-Z]{2,}$/.test(rewardAddress);
-            const isBtcAddress = /^(bc1|[13])[a-zA-HJ-NP-Za-km-z1-9]{25,90}$/.test(rewardAddress);
+            const isBtcAddress = /^(bc1|[13])[a-zA-Z0-9]{25,90}$/.test(rewardAddress);
 
             if (!isLnAddress && !isBtcAddress) {
                 return reply.status(400).send({ error: "Invalid reward address format" });
