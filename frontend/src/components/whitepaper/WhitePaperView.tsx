@@ -1,4 +1,4 @@
-import { AlertTriangle, BookOpen, ShieldCheck } from "lucide-react";
+import { AlertTriangle, BookOpen, ShieldCheck, ExternalLink } from "lucide-react";
 
 export function WhitePaperView() {
     return (
@@ -111,6 +111,25 @@ export function WhitePaperView() {
                         </p>
                     </div>
                 </div>
+            </div>
+
+            {/* Call to Action - Onboarding Portal */}
+            <div className="w-full mt-12 bg-primary/5 border border-primary/20 rounded-2xl p-8 text-center relative overflow-hidden group">
+                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-primary to-transparent opacity-50"></div>
+                
+                <h3 className="text-2xl font-display font-bold text-white mb-3">Join the Citadel</h3>
+                <p className="text-gray-400 max-w-xl mx-auto mb-6 text-base">
+                    New to Quantum BTC? Visit our comprehensive Onboarding Portal to dive deeper into the philosophy, explore recommended Lightning wallets, and begin your journey as a network protector.
+                </p>
+                
+                <a 
+                    href="https://learn.quantumbtc.dev/en" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 bg-primary text-black font-bold px-8 py-3 rounded-full hover:bg-primary/90 transition-all shadow-[0_0_20px_rgba(72,216,216,0.3)] hover:shadow-[0_0_30px_rgba(72,216,216,0.5)] hover:-translate-y-0.5"
+                >
+                    Learn More <ExternalLink size={18} />
+                </a>
             </div>
 
             {/* Regulatory Alert */}
