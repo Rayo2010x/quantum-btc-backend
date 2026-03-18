@@ -20,7 +20,7 @@ const faqs = [
     },
     {
         q: 'How are the Genesis Ranks (Tiers) calculated?',
-        a: `Your rank is determined by your total STV (Satoshis routed).\n\n• **Quantum Scout:** 1,000 - 10,000 sats\n• **Sentinel:** 10,001 - 100,000 sats\n• **Guardian:** 100,001+ sats\n\nAs your STV crosses these thresholds, your rank dynamically updates on the network, elevating your status in the Post-Quantum Citadel.`
+        a: `Your rank is determined by your total STV (Satoshis routed).\n\n• **Participant:** 0 - 999 sats\n• **Quantum Scout:** 1,000 - 10,000 sats\n• **Sentinel:** 10,001 - 100,000 sats\n• **Guardian:** 100,001+ sats\n\nAs your STV crosses these thresholds, your rank dynamically updates on the network, elevating your status in the Post-Quantum Citadel.`
     }
 ];
 

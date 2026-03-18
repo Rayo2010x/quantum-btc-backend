@@ -1,7 +1,7 @@
 # Campaign: Quantum Genesis (Post-Quantum BTC Registry)
 
 > **ID:** Post_Quantum_Genesis
-> **Version:** 1.3 (Added Tier FAQ)
+> **Version:** 1.4 (Added Participant Tier to FAQ)
 > **Date:** 2026-03-17
 > **Status:** STRATEGIC_ALIGNMENT_APPROVED
 
@@ -59,6 +59,7 @@ A: While the entire stress-testing protocol operates at lightning speed on Layer
 
 **Q: How are the Genesis Tiers calculated?**
 A: Your rank is determined by your total STV (Satoshis routed). 
+- **Participant:** 0 - 999 sats
 - **Quantum Scout:** 1,000 - 10,000 sats
 - **Sentinel:** 10,001 - 100,000 sats
 - **Guardian:** 100,001+ sats
