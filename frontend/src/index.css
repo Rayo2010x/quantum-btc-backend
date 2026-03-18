@@ -24,7 +24,7 @@ body {
 
 /* Campaign Genensis UI */
 .campaign-banner {
-  @apply fixed bottom-5 right-5 z-50 glass rounded-xl p-4 max-w-sm animate-bounce cursor-pointer border-primary/50 hover:border-primary transition-colors duration-300;
+  @apply fixed bottom-5 right-5 z-50 glass rounded-xl p-4 max-w-sm cursor-pointer border-primary/50 hover:border-primary transition-colors duration-300;
 }
 
 .banner-content {
