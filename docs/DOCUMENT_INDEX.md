@@ -8,7 +8,7 @@
 | :--- | :--- | :--- | :--- |
 | [SOP: Control de Documentos](00-Meta/SOP_Document_Control.md) | 1.0 | **APPROVED** | 2026-02-03 |
 | [SOP: Change Management](00-Meta/SOP_Change_Management.md) | 1.1 | **APPROVED** | 2026-02-05 |
-| [Backlog & Roadmap](00-Meta/BACKLOG.md) | 1.2 | **ACTIVO** | 2026-03-13 |
+| [Backlog & Roadmap](00-Meta/BACKLOG.md) | 1.2 | **ACTIVO** | 2026-03-20 |
 
 
 ## 01-Requirements (Business Logic)

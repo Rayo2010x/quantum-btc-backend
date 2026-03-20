@@ -64,3 +64,13 @@ Este documento centraliza los pendientes técnicos, deuda técnica y roadmap del
         - Hook de inicialización para detectar sesiones no registradas y disparar el banner de invitación.
         - Modal de registro con advertencia de privacidad.
         - Indicador de "Status de Investigador" (Sovereign Rank) en la pestaña de Estadísticas/Auditoría y FAQ basado en los Tiers de STV.
+
+## 11. Donaciones (Pendiente)
+- [ ] **Implementación de Donaciones:** Dar al usuario la posibilidad de donar a la plataforma.
+    - **Backend (BD):** Crear tabla `donations` con los siguientes campos: `id`, `amount_sat`, `address`, `created_at`.
+    - **Frontend (UX):**
+        - Al final de la pestaña "White Paper", despues de la "Regulatory Notice", agregar un botón que diga "Donate to the project" que abra un modal con un QR de donación.
+        - El usuario debe tener la opción de registrar su dirección de Bitcoin o LN (igual que en reward_address).
+
+## 12. EStadísticas para IPs Geo Bloqueados (Pendiente)
+- [ ] **Acceso a la pestaña "Statistics" para IPs Geo Bloqueados :** Dar al usuario la posibilidad de acceder a la pestaña "Statistics" aunque su IP esté bloqueada.
