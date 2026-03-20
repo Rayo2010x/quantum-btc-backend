@@ -1,7 +1,7 @@
 # DOCUMENT INDEX - Quantum BTC Backend
 
 > **Master Index:** Single source of truth for all project documentation.
-> **Last Updated:** 2026-03-13
+> **Last Updated:** 2026-03-20
 
 ## 00-Meta (Process & Standards)
 | Artifact | Version | Status | Last Modified |
@@ -51,7 +51,7 @@
 ## 06-Operations (Deployment & Maintenance)
 | Artifact | Version | Status | Last Modified |
 | :--- | :--- | :--- | :--- |
-| [Operations Manual](06-Operations/Operations_Manual.md) | 1.1 | **VIGENTE** | 2026-02-02 |
+| [Operations Manual](06-Operations/Operations_Manual.md) | 1.2 | **VIGENTE** | 2026-03-20 |
 | [Manual de Procesos (Ciclo de Vida)](06-Operations/Manual_de_Procesos.html) | 1.1 | **VIGENTE** | 2026-02-03 |
 
 ## 08-Campaigns (Marketing & Rewards)

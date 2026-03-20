@@ -1,9 +1,9 @@
 # Operations Manual - Quantum BTC
 
-> **Artifact ID:** 20260130_Operations_Manual_v1.0
-> **Version:** 1.0
-> **Date:** 2026-01-30
-> **Status:** Draft
+> **Artifact ID:** 20260320_Operations_Manual_v1.2
+> **Version:** 1.2
+> **Date:** 2026-03-20
+> **Status:** VIGENTE
 
 ## 1. Deployment Requirements
 *   **Node.js:** v18 LTS or higher.
@@ -54,3 +54,15 @@ If `OpenNode Balance` < `System Internal Balance`:
 ### 3.2 Scenario: OpenNode Outage
 1.  **Inbound:** Invoices will fail to generate. UI should show "Service Unavailable".
 2.  **Outbound:** Withdrawals will queue. Increase retry backoff to 1h.
+
+---
+
+## 4. Third-Party Integrations & Security Policies
+
+### 4.1 Principle of Least Privilege (GitHub & Vercel)
+To minimize the supply chain attack surface, the project follows a strict **Least Privilege** policy for third-party application permissions.
+
+*   **Vercel GitHub App:** As of March 2026, Vercel requested "Write" access to GitHub Workflows.
+*   **Decision:** The request was **DECLINED/IGNORED**.
+*   **Rationale:** The project does not currently utilize GitHub Actions for its core CI/CD pipeline, and granting write access to workflows poses an unnecessary security risk without immediate functional benefit.
+*   **Review Policy:** Any request for elevated permissions from third-party apps must be audited and documented before approval.
