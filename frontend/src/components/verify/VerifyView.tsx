@@ -87,7 +87,7 @@ export function VerifyView({ initialBetId }: VerifyViewProps) {
                     Verification <span className="text-primary">Laboratory</span>
                 </h2>
                 <p className="text-gray-400 max-w-2xl mx-auto text-lg pt-2">
-                    Quantum BTC operates on a "Don't Trust, Verify" model. Enter any Bett ID below to independently audit the cryptographic fairness of the round.
+                    QuantumBTC operates on a "Don't Trust, Verify" model. Enter any Bett ID below to independently audit the cryptographic fairness of the round.
                 </p>
             </div>
 

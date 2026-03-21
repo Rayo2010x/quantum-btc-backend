@@ -37,10 +37,11 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({ isOpen, on
         <div className="modal-overlay">
             <div className="modal-content">
                 <button className="close-btn" onClick={onClose}>×</button>
-                <h2>Quantum Genesis Registry</h2>
+                <h2>QuantumBTC Genesis Registry</h2>
+                <p style={{ textAlign: 'center', fontSize: '0.9rem', color: '#a0aec0', marginTop: '-10px', marginBottom: '15px' }}>This process is completely optional</p>
                 <div className="modal-body">
                     <p className="modal-description">
-                        Link your current session to a Sovereign Address (BTC L1 or Lightning).
+                        Link your current session to a Sovereign Address.
                         We will aggregate your Stress-Test Volume (STV) across all sessions using this address.
                     </p>
                     <div className="privacy-notice">
@@ -49,7 +50,7 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({ isOpen, on
                     
                     <form onSubmit={handleSubmit} className="registration-form">
                         <div className="form-group">
-                            <label htmlFor="address">Reward Address</label>
+                            <label htmlFor="address">BTC or LN Reward Address</label>
                             <input
                                 type="text"
                                 id="address"

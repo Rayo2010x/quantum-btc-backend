@@ -73,7 +73,7 @@ export function Layout({ children, currentView = 'whitepaper', onViewChange, isR
             {/* Footer */}
             <footer className="border-t border-white/5 py-8 mt-auto">
                 <div className="max-w-7xl mx-auto px-4 text-center text-gray-600 text-sm">
-                    <p>© 2026 Quantum BTC. Powered by the BTC Lightning Network.</p>
+                    <p>© 2026 QuantumBTC. Powered by the BTC Lightning Network.</p>
                 </div>
             </footer>
         </div>

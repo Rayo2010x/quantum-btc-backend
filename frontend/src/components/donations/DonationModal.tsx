@@ -94,7 +94,7 @@ export function DonationModal({ isOpen, onClose }: DonationModalProps) {
                     {step === "form" && (
                         <div className="space-y-6 animate-in slide-in-from-bottom-4">
                             <div className="text-center">
-                                <h2 className="text-2xl font-bold text-white mb-2 font-display">Support Quantum BTC</h2>
+                                <h2 className="text-2xl font-bold text-white mb-2 font-display">Support QuantumBTC</h2>
                                 <p className="text-gray-400 text-sm">Enter your donation amount below.</p>
                             </div>
 
@@ -121,7 +121,7 @@ export function DonationModal({ isOpen, onClose }: DonationModalProps) {
 
                                 <div>
                                     <label className="block text-sm font-medium text-gray-300 mb-1 flex items-center justify-between">
-                                        <span>BTC/LN Address</span> 
+                                        <span>BTC or LN Address</span> 
                                         <span className="text-gray-500 text-xs font-normal bg-white/5 py-0.5 px-2 rounded-full border border-white/5">(Optional)</span>
                                     </label>
                                     <input
@@ -185,7 +185,7 @@ export function DonationModal({ isOpen, onClose }: DonationModalProps) {
                             </div>
                             <h2 className="text-3xl font-display font-bold text-white mb-4">Thank You!</h2>
                             <p className="text-gray-400 font-light text-lg mb-8 leading-relaxed">
-                                Your donation has been received. We deeply appreciate your support for Quantum BTC.
+                                Your donation has been received. We deeply appreciate your support for QuantumBTC.
                             </p>
                             <button
                                 onClick={onClose}

@@ -13,7 +13,7 @@ export function WhitePaperView() {
                     <BookOpen className="w-8 h-8 text-primary" />
                 </div>
                 <h1 className="text-4xl md:text-6xl font-extrabold tracking-tighter font-display leading-tight">
-                    Quantum BTC <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary block md:inline">White Paper</span>
+                    QuantumBTC <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary block md:inline">White Paper</span>
                 </h1>
                 <p className="text-lg md:text-xl text-gray-400 font-light max-w-2xl mx-auto">
                     Securing Satoshi’s Vision in the Quantum Era
@@ -48,7 +48,7 @@ export function WhitePaperView() {
                 </p>
 
                 <p>
-                    The Quantum BTC project is already developing the robust protocols necessary to safeguard the Bitcoin network. We are pioneering the critical transition from the historically secure framework gifted by Satoshi, to a new, post-quantum cryptography paradigm, ensuring the survival of the Bitcoin idea for generations to come.
+                    The QuantumBTC project is already developing the robust protocols necessary to safeguard the Bitcoin network. We are pioneering the critical transition from the historically secure framework gifted by Satoshi, to a new, post-quantum cryptography paradigm, ensuring the survival of the Bitcoin idea for generations to come.
                 </p>
 
                 <p>
@@ -123,7 +123,7 @@ export function WhitePaperView() {
                 
                 <h3 className="text-2xl font-display font-bold text-white mb-3">Join the Citadel</h3>
                 <p className="text-gray-400 max-w-xl mx-auto mb-6 text-base">
-                    New to Quantum BTC? Visit our comprehensive Onboarding Portal to dive deeper into the philosophy, explore recommended Lightning wallets, and begin your journey as a network protector.
+                    New to QuantumBTC? Visit our comprehensive Onboarding Portal to dive deeper into the philosophy, explore recommended Lightning wallets, and begin your journey as a network protector.
                 </p>
                 
                 <a 
@@ -144,7 +144,7 @@ export function WhitePaperView() {
                     <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-200 to-yellow-500">Support the Project</span>
                 </h3>
                 <p className="text-gray-400 max-w-xl mx-auto mb-6 text-base leading-relaxed">
-                    Quantum BTC is a grassroots initiative maintained by independent researchers. Your donations help fund our infrastructure and development of post-quantum cryptography for the Lightning Network.
+                    QuantumBTC is a grassroots initiative maintained by independent researchers. Your donations help fund our infrastructure and development of post-quantum cryptography for the Lightning Network.
                 </p>
                 
                 <button 

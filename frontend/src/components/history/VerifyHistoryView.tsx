@@ -134,7 +134,7 @@ export function VerifyHistoryView({ sessionId, onRegisterClick }: VerifyHistoryV
                         Verification <span className="text-primary">Laboratory</span>
                     </h2>
                     <p className="text-gray-400 max-w-2xl mx-auto text-lg pt-2">
-                        Quantum BTC operates on a "Don't Trust, Verify" model. Audit the cryptographic fairness of your rounds here.
+                        QuantumBTC operates on a "Don't Trust, Verify" model. Audit the cryptographic fairness of your rounds here.
                     </p>
                 </div>
 
