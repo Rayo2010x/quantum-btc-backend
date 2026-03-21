@@ -3,7 +3,7 @@
 > **Fecha:** 2026-03-05
 > **Estado:** APPROVED
 
-# Quantum BTC White Paper:  Securing Satoshi’s Vision in the Quantum Era
+# QuantumBTC White Paper:  Securing Satoshi’s Vision in the Quantum Era
 
 A coalition of physicists specializing in Quantum Mechanics, mathematicians expert in Cryptography, and seasoned Blockchain developers have united under a shared conviction: the philosophy of Satoshi Nakamoto.
 
