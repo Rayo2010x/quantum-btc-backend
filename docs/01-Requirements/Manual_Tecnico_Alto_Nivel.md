@@ -1,10 +1,10 @@
 # Manual Técnico de Alto Nivel: Proyecto Quantum BTC
 
 ---
-**Versión:** 2.13
+**Versión:** 2.14
 **Estado:** Vigente
-**Última Modificación:** 2026-03-13
-**Cambios:** Inclusión de Reino Unido (GB) en Geo-Bloqueo y registro de país en tabla de sesiones.
+**Última Modificación:** 2026-03-21
+**Cambios:** Excepción de transparencia para /v1/game/statistics en Geo-Bloqueo.
 ---
 
 ## 1. Resumen de Operación (MVP)
@@ -125,6 +125,7 @@ Para cumplir con normativas internacionales, el sistema implementa controles de 
 *   **Restricción Regional:** Se bloquea el acceso a usuarios con direcciones IP provenientes de:
     *   EE.UU., Reino Unido (GB) y Unión Europea (UE).
 *   **Mecanismo:** Validación vía middleware en el backend. Se prioriza el uso de cabeceras de red perimetral (Edge Network Headers como `CF-IPCountry`) proporcionadas por proveedores como Cloudflare para una máxima precisión geográfica frente a redes Anycast/VPN. Como respaldo o para entornos locales, se utiliza una base de datos local de GeoIP (`geoip-lite`). El bloqueo retorna un error `403 Forbidden`.
+    *   **Excepción de Transparencia:** El endpoint `/v1/game/statistics` está explícitamente excluido del bloqueo. Esto garantiza que cualquier usuario, independientemente de su jurisdicción, pueda auditar las métricas históricas de la plataforma.
 *   **Auditoría de Bloqueos:** 
     *   Todo intento de acceso bloqueado es registrado permanentemente en la tabla `geo_block_logs` (IP, país y timestamp).
     *   **Trazabilidad Adicional:** La tabla `sessions` almacena tanto la `ip_address` como el `country` de origen para todas las conexiones permitidas, permitiendo auditorías de cumplimiento posteriores.

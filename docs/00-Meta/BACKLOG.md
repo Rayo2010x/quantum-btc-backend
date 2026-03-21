@@ -72,5 +72,5 @@ Este documento centraliza los pendientes técnicos, deuda técnica y roadmap del
         - Al final de la pestaña "White Paper", despues de la "Regulatory Notice", agregar un botón que diga "Donate to the project" que abra un modal con un QR de donación.
         - El usuario debe tener la opción de registrar su dirección de Bitcoin o LN (igual que en reward_address).
 
-## 12. EStadísticas para IPs Geo Bloqueados (Pendiente)
-- [ ] **Acceso a la pestaña "Statistics" para IPs Geo Bloqueados :** Dar al usuario la posibilidad de acceder a la pestaña "Statistics" aunque su IP esté bloqueada.
+## 12. Estadísticas para IPs Geo Bloqueados (Completado)
+- [x] **Acceso a la pestaña "Statistics" para IPs Geo Bloqueados :** Dar al usuario la posibilidad de acceder a la pestaña "Statistics" aunque su IP esté bloqueada.
