@@ -13,7 +13,8 @@ export async function geoBlockMiddleware(req: FastifyRequest, reply: FastifyRepl
         req.url.startsWith('/v1/webhooks') || 
         req.url === '/health' || 
         req.url === '/db-ping' || 
-        req.url.startsWith('/v1/game/statistics')
+        req.url.startsWith('/v1/game/statistics') ||
+        req.url.startsWith('/v1/donations')
     ) {
         return;
     }

@@ -16,6 +16,7 @@ import { campaignRoutes } from "./routes/campaign.js";
 import { gameStatusRoutes } from "./routes/game_status.js";
 import { historyRoutes } from "./routes/history.js";
 import { statisticsRoutes } from "./routes/statistics.js";
+import { donationRoutes } from "./routes/donations.js";
 import cors from "@fastify/cors";
 import formbody from "@fastify/formbody";
 import websocket from "@fastify/websocket";
@@ -92,6 +93,7 @@ app.register(sessionRoutes);     // /v1/session/init
 app.register(campaignRoutes);    // /v1/campaign
 app.register(webhookRoutes);     // /v1/webhooks
 app.register(lnurlRoutes);       // /v1/lnurl
+app.register(donationRoutes);    // /v1/donations
 
 // Start
 const port = env.PORT;

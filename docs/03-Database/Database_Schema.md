@@ -1,8 +1,8 @@
 # Database Schema - Quantum BTC
 
-> **Artifact ID:** 20260130_Database_Schema_v1.5
-> **Version:** 1.5
-> **Date:** 2026-03-13
+> **Artifact ID:** 20260130_Database_Schema_v1.6
+> **Version:** 1.6
+> **Date:** 2026-03-21
 > **Status:** Vigente
 
 ## 1. Entity-Relationship Diagram (ERD)
@@ -12,6 +12,7 @@ erDiagram
     SESSION ||--o{ TRANSACTION : initiates
     SESSION ||--o{ BET : places
     SESSION ||--o{ REWARD_REGISTRATION : identifies
+    DONATION ||--o{ OPENNODE : "fulfilled via"
     GEO_BLOCK_LOG {
         uuid id PK
         inet ip_address "Blocked IP"
@@ -62,6 +63,15 @@ erDiagram
         string reward_address "BTC/LN Address"
         timestamp created_at
     }
+
+    DONATION {
+        uuid id PK
+        string charge_id "OpenNode ID"
+        bigint amount_sat
+        string address "Optional BTC/LN"
+        string status "pending/paid"
+        timestamp created_at
+    }
 ```
 
 ## 2. Data Dictionary
@@ -99,6 +109,15 @@ Audit log for blocked IP addresses.
 Links a session to a reward address.
 *   **session_id:** UUID (FK to `sessions`).
 *   **reward_address:** BTC Address or Lightning Address.
+*   **created_at:** Timestamp.
+
+### 2.6 Table: `donations`
+Registra las contribuciones voluntarias de los usuarios. Puede ser anónima o estar asociada a una dirección.
+*   **id:** UUID v4.
+*   **charge_id:** `VARCHAR`. Link to OpenNode Charge for webhook verification.
+*   **amount_sat:** `BIGINT`. The donation amount.
+*   **address:** `VARCHAR`. User's provided BTC/LN address (Optional).
+*   **status:** 'pending' or 'paid'.
 *   **created_at:** Timestamp.
 
 ## 3. SQL Schema (schema.sql)
@@ -153,6 +172,15 @@ CREATE TABLE reward_registrations (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   session_id UUID REFERENCES sessions(id) UNIQUE,
   reward_address VARCHAR(255) NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+CREATE TABLE donations (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  charge_id VARCHAR(100) UNIQUE NOT NULL,
+  amount_sat BIGINT NOT NULL,
+  address VARCHAR(255),
+  status VARCHAR(20) DEFAULT 'pending',
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 ```

@@ -1,10 +1,10 @@
 # Manual Técnico de Alto Nivel: Proyecto Quantum BTC
 
 ---
-**Versión:** 2.14
+**Versión:** 2.15
 **Estado:** Vigente
 **Última Modificación:** 2026-03-21
-**Cambios:** Excepción de transparencia para /v1/game/statistics en Geo-Bloqueo.
+**Cambios:** Inclusión de Arquitectura del Módulo de Donaciones (In-App Modal & Facturas dinámicas).
 ---
 
 ## 1. Resumen de Operación (MVP)
@@ -137,3 +137,9 @@ Como iniciativa de fomento a la investigación, los usuarios pueden registrar su
 *   **Ranking de Aportación:** Se calcula la contribución total agregada **por dirección**. Es decir, la suma del volumen (`sum(amount_sat)`) de todas las sesiones registradas bajo una misma dirección BTC/LN.
 *   **Prompt Proactivo:** El sistema verifica el estado de registro de la sesión al inicio y sugiere la asociación si se encuentra vacía, facilitando la continuidad del usuario y la acumulación de puntos.
 *   **Transparencia:** El registro es opcional y no afecta la probabilidad de acierto de la ruleta, la cual sigue regida estrictamente por las reglas de entropía cuántica del Capítulo 4.
+
+## 9. Módulo de Donaciones
+El sistema permite a cualquier usuario (incluyendo IPs geobloqueadas) realizar contribuciones voluntarias para apoyar el desarrollo de Quantum BTC.
+*   **Generación de Facturas (In-App):** Se utiliza un modal nativo en el Frontend donde el usuario especifica el monto deseado en satoshis. El backend genera una factura dinámica (`charge_id`) llamando a OpenNode de forma transparente, evitando así las redirecciones a plantillas externas y asegurando una experiencia sin fricción (siempre en la unidad SAT y en el idioma nativo de la app).
+*   **Registro Opcional:** El usuario tiene la opción de registrar su dirección BTC L1 o Lightning Address al momento de crear la factura. Este campo es estrictamente opcional y se almacena directamente en la base de datos junto al registro de la donación.
+*   **Seguimiento:** El pago de la donación se confirma de manera asíncrona mediante los mismos webhooks (`charge:paid` via OpenNode), cambiando el estado de la donación a completada, lo que se refleja en tiempo real en la UI del donante.

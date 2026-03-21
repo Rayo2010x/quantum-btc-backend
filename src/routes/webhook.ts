@@ -51,6 +51,19 @@ export async function webhookRoutes(app: FastifyInstance) {
       let drandRandomnessVal = drandData ? drandData.randomness : `DRAND_UNAVAILABLE_${Date.now()}`;
 
       await withTx(async (client) => {
+        // 1.5 Check if it's a Donation
+        const donationRes = await client.query("SELECT * FROM donations WHERE charge_id = $1 FOR UPDATE", [id]);
+        if ((donationRes.rowCount || 0) > 0) {
+          const donation = donationRes.rows[0];
+          if (donation.status === 'pending') {
+            console.log(`💖 Donation ${donation.id} paid!`);
+            await client.query("UPDATE donations SET status = 'paid' WHERE id = $1", [donation.id]);
+          } else {
+            console.log(`ℹ️ Donation ${donation.id} already paid.`);
+          }
+          return { ok: true, type: "donation" };
+        }
+
         // 2. Find Associated Bet
         const betRes = await client.query("SELECT * FROM bets WHERE invoice_id = $1 FOR UPDATE", [id]);
 

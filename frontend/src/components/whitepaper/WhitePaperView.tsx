@@ -1,6 +1,10 @@
 import { AlertTriangle, BookOpen, ShieldCheck, ExternalLink } from "lucide-react";
+import { useState } from "react";
+import { DonationModal } from "../donations/DonationModal";
 
 export function WhitePaperView() {
+    const [isDonationModalOpen, setIsDonationModalOpen] = useState(false);
+
     return (
         <div className="flex flex-col items-center justify-start min-h-[80vh] text-left space-y-12 max-w-4xl mx-auto pb-16 animate-fade-in">
             {/* Header Section */}
@@ -132,6 +136,25 @@ export function WhitePaperView() {
                 </a>
             </div>
 
+            {/* Call to Action - Donate */}
+            <div className="w-full mt-8 bg-zinc-900/50 border border-white/10 rounded-2xl p-8 text-center relative overflow-hidden group">
+                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
+                
+                <h3 className="text-2xl font-display font-bold text-white mb-3 flex items-center justify-center gap-2">
+                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-200 to-yellow-500">Support the Project</span>
+                </h3>
+                <p className="text-gray-400 max-w-xl mx-auto mb-6 text-base leading-relaxed">
+                    Quantum BTC is a grassroots initiative maintained by independent researchers. Your donations help fund our infrastructure and development of post-quantum cryptography for the Lightning Network.
+                </p>
+                
+                <button 
+                    onClick={() => setIsDonationModalOpen(true)}
+                    className="inline-flex items-center gap-2 bg-white text-black font-bold px-8 py-3 rounded-full hover:bg-gray-200 transition-all shadow-lg hover:-translate-y-0.5"
+                >
+                    Donate via Lightning
+                </button>
+            </div>
+
             {/* Regulatory Alert */}
             <div className="w-full mt-12 bg-red-950/20 border border-red-500/20 rounded-2xl p-8 relative overflow-hidden">
                 <div className="absolute top-0 left-0 w-1 h-full bg-red-500/50"></div>
@@ -147,6 +170,9 @@ export function WhitePaperView() {
                     </div>
                 </div>
             </div>
+
+            {/* Donation Modal */}
+            <DonationModal isOpen={isDonationModalOpen} onClose={() => setIsDonationModalOpen(false)} />
         </div>
     );
 }

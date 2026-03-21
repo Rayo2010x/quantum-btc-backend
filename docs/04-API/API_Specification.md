@@ -1,8 +1,8 @@
 # API Specification - Quantum BTC
 
-> **Artifact ID:** 20260130_API_Specification_v1.8
-> **Version:** 1.8
-> **Date:** 2026-03-12
+> **Artifact ID:** 20260130_API_Specification_v1.9
+> **Version:** 1.9
+> **Date:** 2026-03-21
 > **Status:** Vigente
 
 ## 1. Base URL
@@ -98,6 +98,34 @@
       "registered": true | false,
       "rewardAddress": "...", // Only if true
       "totalContributed": 12500 // Aggregated for this address
+    }
+    ```
+
+### 2.4 Donations Management
+**Create Donation Invoice**
+*   **POST** `/v1/donations/create`
+*   **Body:**
+    ```json
+    {
+      "amountSat": 10000,
+      "address": "bc1... or user@ln.address" // Optional
+    }
+    ```
+*   **Response:**
+    ```json
+    {
+      "id": "uuid",
+      "paymentRequest": "lnbc1...",
+      "chargeId": "opennode_id"
+    }
+    ```
+
+**Check Donation Status**
+*   **GET** `/v1/donations/:id/status`
+*   **Response:**
+    ```json
+    {
+      "status": "pending | paid"
     }
     ```
 

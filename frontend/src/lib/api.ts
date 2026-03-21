@@ -148,6 +148,17 @@ export const GameApi = {
     }
 };
 
+export const DonationsApi = {
+    createDonation: async (amountSat: number, address?: string) => {
+        const res = await api.post<{id: string, paymentRequest: string, chargeId: string}>('/donations/create', { amountSat, address });
+        return res.data;
+    },
+    checkStatus: async (id: string) => {
+        const res = await api.get<{status: string}>(`/donations/${id}/status`);
+        return res.data;
+    }
+};
+
 function arrIsSessionError(err: any): boolean {
     const msg = err.response?.data?.error;
     return msg === "Session not found" || msg === "Invalid Session";
