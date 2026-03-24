@@ -1,8 +1,8 @@
 ---
 Type: Core Documentation
 Title: UI/UX & Frontend Design Guidelines
-Version: 1.2
-Last Updated: 2026-03-03
+Version: 1.3
+Last Updated: 2026-03-23
 Status: DRAFT
 ---
 
@@ -60,6 +60,11 @@ Como referencia fundamental para la diagramación del Frontend (la mesa de apues
     - Usar insignias de "Verificado" en verde cuando un cálculo se valida localmente.
     - Proveer enlaces profundos a exploradores externos (drand) para demostrar la ausencia de colusión.
 - **Experiencia de Copiado:** Garantizar que todos los strings hexadecimales tengan funcionalidad de "Click to Copy" con feedback visual sutil.
+
+### 4.6. Unified Social Footer
+- **Consistencia de Marca:** Todos los proyectos satélite y aplicaciones web asociadas a QuantumBTC (incluyendo `quantumbtc.dev` y `learn.quantumbtc.dev`) deben implementar un pie de página unificado.
+- **Estructura Estándar:** El footer debe exhibir el texto de copyright a la izquierda ("© 2026 QuantumBTC...") y un bloque de enlaces sociales de investigación a la derecha con el texto "You can contact us and/or follow our research at:" acompañado por cinco iconos vectoriales interactivos: Nostr, X, Discord, Telegram y GitHub.
+- **Objetivo:** Reforzar la visibilidad cruzada de nuestra investigación sin importar el portal de entrada del usuario.
 
 ## 5. Proceso de Implementación y Definición de Terminado
 
