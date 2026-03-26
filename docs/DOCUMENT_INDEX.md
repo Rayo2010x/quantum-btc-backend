@@ -18,7 +18,7 @@
 | [Transparency & Verification](01-Requirements/Transparency_and_Verification.md) | 1.0 | **APPROVED** | 2026-03-03 |
 | [Bankroll & Risk Analysis](01-Requirements/Bankroll_Risk_Analysis.md) | 1.0 | **DRAFT** | 2026-03-02 |
 | [Frontend Integration Plan](01-Requirements/Frontend_Integration_Plan.md) | 1.0 | **DRAFT** | 2026-03-02 |
-| [Lineamientos UI/UX y Frontend](01-Requirements/UI_UX_Guidelines.md) | 1.3 | **DRAFT** | 2026-03-23 |
+| [Lineamientos UI/UX y Frontend](01-Requirements/UI_UX_Guidelines.md) | 1.4 | **DRAFT** | 2026-03-25 |
 | [White Paper](01-Requirements/White_Paper.md) | 0.3 | **APPROVED** | 2026-03-05 |
 
 ## 02-Architecture (System Design)

@@ -1,8 +1,8 @@
 ---
 Type: Core Documentation
 Title: UI/UX & Frontend Design Guidelines
-Version: 1.3
-Last Updated: 2026-03-23
+Version: 1.4
+Last Updated: 2026-03-25
 Status: DRAFT
 ---
 
@@ -65,6 +65,10 @@ Como referencia fundamental para la diagramación del Frontend (la mesa de apues
 - **Consistencia de Marca:** Todos los proyectos satélite y aplicaciones web asociadas a QuantumBTC (incluyendo `quantumbtc.dev` y `learn.quantumbtc.dev`) deben implementar un pie de página unificado.
 - **Estructura Estándar:** El footer debe exhibir el texto de copyright a la izquierda ("© 2026 QuantumBTC...") y un bloque de enlaces sociales de investigación a la derecha con el texto "You can contact us and/or follow our research at:" acompañado por cinco iconos vectoriales interactivos: Nostr, X, Discord, Telegram y GitHub.
 - **Objetivo:** Reforzar la visibilidad cruzada de nuestra investigación sin importar el portal de entrada del usuario.
+
+### 4.7. SEO Técnico y Meta-etiquetas (Technical SEO)
+- **Canonicalización:** Para evitar errores de contenido duplicado ("Duplicate without user-selected canonical" en consolas de búsqueda), la página de entrada principal y cualquier otra ruta estática generada DEBEN declarar explícitamente su URL canónica.
+- **Implementación del Home:** Para la raíz de la Single Page Application (SPA), la URL canónica estricta es `<link rel="canonical" href="https://quantumbtc.dev/" />`.
 
 ## 5. Proceso de Implementación y Definición de Terminado
 
