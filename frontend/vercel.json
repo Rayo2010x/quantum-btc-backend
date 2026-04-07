@@ -1,8 +1,9 @@
 {
+    "buildCommand": "npm run build:seo",
     "rewrites": [
         {
             "source": "/(.*)",
             "destination": "/"
         }
     ]
-}
+}
