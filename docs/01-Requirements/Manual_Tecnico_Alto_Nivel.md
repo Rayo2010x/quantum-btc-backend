@@ -1,10 +1,10 @@
 # Manual Técnico de Alto Nivel: Proyecto Quantum BTC
 
 ---
-**Versión:** 2.15
+**Versión:** 2.16
 **Estado:** Vigente
-**Última Modificación:** 2026-03-21
-**Cambios:** Inclusión de Arquitectura del Módulo de Donaciones (In-App Modal & Facturas dinámicas).
+**Última Modificación:** 2026-04-07
+**Cambios:** v2.16 — Inclusión de Sección 10: Arquitectura SEO (Pre-rendering Estático). Decisión técnica para resolver la no-indexación del frontend SPA en motores de búsqueda.
 ---
 
 ## 1. Resumen de Operación (MVP)
@@ -143,3 +143,77 @@ El sistema permite a cualquier usuario (incluyendo IPs geobloqueadas) realizar c
 *   **Generación de Facturas (In-App):** Se utiliza un modal nativo en el Frontend donde el usuario especifica el monto deseado en satoshis. El backend genera una factura dinámica (`charge_id`) llamando a OpenNode de forma transparente, evitando así las redirecciones a plantillas externas y asegurando una experiencia sin fricción (siempre en la unidad SAT y en el idioma nativo de la app).
 *   **Registro Opcional:** El usuario tiene la opción de registrar su dirección BTC L1 o Lightning Address al momento de crear la factura. Este campo es estrictamente opcional y se almacena directamente en la base de datos junto al registro de la donación.
 *   **Seguimiento:** El pago de la donación se confirma de manera asíncrona mediante los mismos webhooks (`charge:paid` via OpenNode), cambiando el estado de la donación a completada, lo que se refleja en tiempo real en la UI del donante.
+
+## 10. Arquitectura SEO: Pre-rendering Estático del Frontend
+
+### 10.1 Contexto y Problema
+El frontend de QuantumBTC está implementado como una **Single Page Application (SPA)** construida con Vite + React. Si bien esto provee una experiencia de usuario fluida, presenta un problema estructural crítico para el posicionamiento en motores de búsqueda:
+
+Cuando Googlebot (o cualquier crawler) visita `https://quantumbtc.dev/`, el servidor responde con un documento HTML que contiene únicamente `<div id="root"></div>`. El contenido real (hero, propuesta de valor, keywords, headings) reside íntegramente en el bundle de JavaScript del cliente, el cual los crawlers no ejecutan de forma confiable.
+
+**Consecuencia directa (confirmada vía Google Search Console):**
+- Google indexó la URL pero sin contenido textual relevante.
+- La página no rankea para ningún término de búsqueda, incluyendo la keyword de marca "quantum btc".
+- Core Web Vitals reporta "Sin datos" (Google no pudo evaluar el rendering).
+
+### 10.2 Decisión Arquitectónica: `vite-plugin-prerender`
+
+Se adopta la estrategia de **Server-Side Generation (SSG) / Pre-rendering estático** mediante el plugin `vite-plugin-prerender` (o equivalente `vite-ssg`). Esta decisión se toma sobre la alternativa de migrar a Next.js por las siguientes razones:
+
+| Criterio | Pre-rendering (Vite) | Migrar a Next.js |
+| :--- | :--- | :--- |
+| Tiempo de implementación | ~1-2 horas | ~8-16 horas |
+| Riesgo de regresión | Bajo (no cambia el framework) | Alto (reescritura total) |
+| Mantenibilidad futura | Alta (misma base de código) | Alta (Next.js es estándar) |
+| Resolución del problema SEO | ✅ Completa | ✅ Completa |
+| Aplica para landing page estática | ✅ Ideal | Sobre-engineering |
+
+**Veredicto:** Para una landing page de marketing sin rutas dinámicas server-rendered, el pre-rendering estático en Vite es la solución óptima. Si en el futuro el frontend evoluciona a un portal con autenticación por sesión y contenido dinámico por usuario, se reconsiderará la migración a Next.js.
+
+### 10.3 Mecanismo de Pre-rendering
+
+En el proceso de `build`, el plugin lanza un entorno de renderizado headless (Puppeteer/JSDOM) que ejecuta la SPA, captura el HTML generado por React, e incrusta ese HTML estático directamente en el `index.html` de salida. El resultado es que la página desplegada en Vercel sirve HTML real:
+
+```
+Build SPA (Vite)
+    ↓
+Plugin ejecuta headless browser
+    ↓
+Captura el DOM renderizado de cada ruta
+    ↓
+Genera index.html con contenido HTML completo
+    ↓
+Vercel sirve HTML estático pre-renderizado
+    ↓
+Googlebot lee contenido real → Indexación correcta
+```
+
+### 10.4 Rutas a Pre-renderizar (Fase 1)
+
+En la primera fase, solo existe una ruta pública estática que requiere pre-rendering:
+
+| Ruta | Prioridad | Nota |
+| :--- | :--- | :--- |
+| `/` (Home / Landing) | 🔴 Crítica | Página principal de marketing |
+
+Si en el futuro se agregan rutas estáticas adicionales (`/about`, `/whitepaper`, `/verify`), deberán añadirse a la configuración del plugin y al `sitemap.xml`.
+
+### 10.5 Ficheros Afectados y Correcciones Adicionales
+
+Además del pre-rendering, se corrigen los siguientes problemas de SEO detectados durante la auditoría:
+
+| Archivo | Problema | Corrección |
+| :--- | :--- | :--- |
+| `index.html` | Favicon apunta a `/vite.svg` (logo del framework) | Reemplazar por `/favicon.ico` o `/favicon.svg` propio |
+| `index.html` | `og:image` referencia `/og-image.png` que no existe en `/public/` | Crear y agregar el archivo `og-image.png` (1200×630px) |
+| `sitemap.xml` | `lastmod` desactualizado (2026-03-23) | Actualizar fecha al último build |
+| `package.json` | No existe script `prerender` separado del `build` | Agregar scripts dedicados |
+
+### 10.6 Restricción de Seguridad (No Pre-renderizar)
+
+Las siguientes rutas **NO deben ser pre-renderizadas** ni expuestas a crawlers:
+- Cualquier ruta del juego activo (`/game`, `/play`, etc.) — protegida por geo-blocking.
+- Endpoints de API (`/v1/*`) — no son rutas de frontend.
+- Rutas de administración o internas.
+
+El archivo `robots.txt` debe mantenerse con `Allow: /` para la landing, pero agregar `Disallow` explícito si se crean rutas de juego con paths separados en el futuro.
