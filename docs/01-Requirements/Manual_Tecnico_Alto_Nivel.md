@@ -1,10 +1,10 @@
 # Manual Técnico de Alto Nivel: Proyecto QuantumBTC
 
 ---
-**Versión:** 2.16
+**Versión:** 2.17
 **Estado:** Vigente
-**Última Modificación:** 2026-04-07
-**Cambios:** v2.16 — Inclusión de Sección 10: Arquitectura SEO (Pre-rendering Estático). Decisión técnica para resolver la no-indexación del frontend SPA en motores de búsqueda.
+**Última Modificación:** 2026-04-08
+**Cambios:** v2.17 — Corrección de Sección 10: §10.2 refleja la decisión real (script SSR personalizado, no `vite-plugin-prerender`); §10.3 corrige el mecanismo técnico (react-dom/server + renderToString, no Puppeteer/JSDOM); §10.5 actualiza la tabla de archivos con paths y nombres reales.
 ---
 
 ## 1. Resumen de Operación
@@ -156,37 +156,45 @@ Cuando Googlebot (o cualquier crawler) visita `https://quantumbtc.dev/`, el serv
 - La página no rankea para ningún término de búsqueda, incluyendo la keyword de marca "quantum btc".
 - Core Web Vitals reporta "Sin datos" (Google no pudo evaluar el rendering).
 
-### 10.2 Decisión Arquitectónica: `vite-plugin-prerender`
+### 10.2 Decisión Arquitectónica: Script SSR Personalizado (`react-dom/server`)
 
-Se adopta la estrategia de **Server-Side Generation (SSG) / Pre-rendering estático** mediante el plugin `vite-plugin-prerender` (o equivalente `vite-ssg`). Esta decisión se toma sobre la alternativa de migrar a Next.js por las siguientes razones:
+Se adopta la estrategia de **Pre-rendering estático post-build** mediante un script personalizado basado en Vite SSR + `react-dom/server`. Esta solución fue seleccionada después de descartar las alternativas existentes:
 
-| Criterio | Pre-rendering (Vite) | Migrar a Next.js |
-| :--- | :--- | :--- |
-| Tiempo de implementación | ~1-2 horas | ~8-16 horas |
-| Riesgo de regresión | Bajo (no cambia el framework) | Alto (reescritura total) |
-| Mantenibilidad futura | Alta (misma base de código) | Alta (Next.js es estándar) |
-| Resolución del problema SEO | ✅ Completa | ✅ Completa |
-| Aplica para landing page estática | ✅ Ideal | Sobre-engineering |
+| Criterio | Script SSR Personalizado ✅ | `vite-plugin-prerender` ❌ | Migrar a Next.js |
+| :--- | :--- | :--- | :--- |
+| Compatibilidad con Vite 7 | ✅ Total | ❌ Incompatible (usa `require()` CommonJS) | ✅ Nativo |
+| Tiempo de implementación | ~2-3 horas | N/A (descartado) | ~8-16 horas |
+| Riesgo de regresión | Bajo (no cambia el framework) | — | Alto (reescritura total) |
+| Dependencias externas | Ninguna (react-dom ya incluido) | Puppeteer o JSDOM | — |
+| Mantenibilidad | Alta (script propio, sin magia) | — | Alta (Next.js es estándar) |
+| Resolución del problema SEO | ✅ Completa | — | ✅ Completa |
 
-**Veredicto:** Para una landing page de marketing sin rutas dinámicas server-rendered, el pre-rendering estático en Vite es la solución óptima. Si en el futuro el frontend evoluciona a un portal con autenticación por sesión y contenido dinámico por usuario, se reconsiderará la migración a Next.js.
+**Veredicto:** `vite-plugin-prerender` fue descartado por incompatibilidad con el ecosistema ESM de Vite 7 (intenta ejecutar `require()` en un contexto de módulo). La solución de script personalizado resuelve el problema sin añadir dependencias ni cambiar el framework, siendo la opción más pragmática para una landing page estática. Si en el futuro el frontend evoluciona a un portal con autenticación y contenido dinámico por usuario, se reconsiderará la migración a Next.js.
 
 ### 10.3 Mecanismo de Pre-rendering
 
-En el proceso de `build`, el plugin lanza un entorno de renderizado headless (Puppeteer/JSDOM) que ejecuta la SPA, captura el HTML generado por React, e incrusta ese HTML estático directamente en el `index.html` de salida. El resultado es que la página desplegada en Vercel sirve HTML real:
+El script `scripts/prerender.mjs` se ejecuta como paso post-build. Utiliza **Vite en modo SSR** para compilar un bundle de servidor a partir de `src/entry-server.tsx`, y luego usa `react-dom/server` para renderizar el árbol de React a una cadena HTML estática en Node.js. **No se utiliza ningún navegador headless (Puppeteer/JSDOM/Playwright)**.
 
 ```
-Build SPA (Vite)
+npm run build:seo
     ↓
-Plugin ejecuta headless browser
+[1] tsc -b && vite build → genera dist/ (bundle del cliente)
     ↓
-Captura el DOM renderizado de cada ruta
+[2] node scripts/prerender.mjs
     ↓
-Genera index.html con contenido HTML completo
+    ├─ Vite SSR build de src/entry-server.tsx → genera dist-ssr/entry-server.js
+    ├─ Parchea globals del navegador (localStorage, window) en Node.js
+    ├─ Importa dist-ssr/entry-server.js → llama a render()
+    ├─ react-dom/server.renderToString(<App />) → appHtml (string)
+    ├─ Inyecta appHtml en dist/index.html reemplazando <div id="root"></div>
+    └─ Elimina dist-ssr/ (artefactos temporales SSR)
     ↓
-Vercel sirve HTML estático pre-renderizado
+Vercel recibe dist/index.html con HTML real en el body
     ↓
 Googlebot lee contenido real → Indexación correcta
 ```
+
+**Nota de seguridad:** `renderToString()` **no ejecuta `useEffect`**, por lo tanto ninguna llamada al backend de la API ocurre durante el proceso de pre-rendering. El HTML generado corresponde exclusivamente al estado inicial de la UI (la vista WhitePaperView, que es la vista por defecto de la landing).
 
 ### 10.4 Rutas a Pre-renderizar (Fase 1)
 
@@ -200,14 +208,18 @@ Si en el futuro se agregan rutas estáticas adicionales (`/about`, `/whitepaper`
 
 ### 10.5 Ficheros Afectados y Correcciones Adicionales
 
-Además del pre-rendering, se corrigen los siguientes problemas de SEO detectados durante la auditoría:
+Además del pre-rendering, se listan todos los archivos creados o modificados durante la implementación:
 
-| Archivo | Problema | Corrección |
+| Archivo | Estado | Descripción |
 | :--- | :--- | :--- |
-| `index.html` | Favicon apunta a `/vite.svg` (logo del framework) | Reemplazar por `/favicon.ico` o `/favicon.svg` propio |
-| `index.html` | `og:image` referencia `/og-image.png` que no existe en `/public/` | Crear y agregar el archivo `og-image.png` (1200×630px) |
-| `sitemap.xml` | `lastmod` desactualizado (2026-03-23) | Actualizar fecha al último build |
-| `package.json` | No existe script `prerender` separado del `build` | Agregar scripts dedicados |
+| `src/entry-server.tsx` | **NUEVO** | Entry point SSR. Exporta `render(): string` usando `react-dom/server.renderToString(<App />)`. |
+| `scripts/prerender.mjs` | **NUEVO** | Script post-build de 4 pasos: build SSR → patch globals → renderToString → inject HTML. |
+| `vercel.json` | MODIFICADO | `buildCommand` cambiado a `npm run build:seo` para ejecutar el pre-rendering en cada deploy. |
+| `package.json` | MODIFICADO | Scripts `prerender` (`node scripts/prerender.mjs`) y `build:seo` (`npm run build && npm run prerender`) añadidos. |
+| `public/favicon.png` | **NUEVO** | Favicon oficial de QuantumBTC (PNG, logo circular atómico de `07_Brand_Assets`). Reemplaza la referencia incorrecta al `/vite.svg` del framework. |
+| `public/og-image.png` | **NUEVO** | Imagen Open Graph oficial (banner panorámico de `07_Brand_Assets`, formato 1200×630px). Resuelve la referencia rota que existía en los meta tags. |
+| `index.html` | MODIFICADO | Actualizado: referencia de favicon a `/favicon.png`, `og:image` y `twitter:image` a `/og-image.png`, corrección de naming "Quantum BTC" → "QuantumBTC" en todos los meta tags, y actualización de `meta description` con keyword natural "Quantum BTC". |
+| `public/sitemap.xml` | MODIFICADO | `lastmod` actualizado a `2026-04-07`. |
 
 ### 10.6 Restricción de Seguridad (No Pre-renderizar)
 

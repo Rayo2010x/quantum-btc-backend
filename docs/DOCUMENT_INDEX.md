@@ -14,7 +14,7 @@
 ## 01-Requirements (Business Logic)
 | Artifact | Version | Status | Last Modified |
 | :--- | :--- | :--- | :--- |
-| [Manual Técnico de Alto Nivel](01-Requirements/Manual_Tecnico_Alto_Nivel.md) | 2.16 | **VIGENTE** | 2026-04-07 |
+| [Manual Técnico de Alto Nivel](01-Requirements/Manual_Tecnico_Alto_Nivel.md) | 2.17 | **VIGENTE** | 2026-04-08 |
 | [Transparency & Verification](01-Requirements/Transparency_and_Verification.md) | 1.0 | **APPROVED** | 2026-03-03 |
 | [Bankroll & Risk Analysis](01-Requirements/Bankroll_Risk_Analysis.md) | 1.0 | **DRAFT** | 2026-03-02 |
 | [Frontend Integration Plan](01-Requirements/Frontend_Integration_Plan.md) | 1.0 | **DRAFT** | 2026-03-02 |
