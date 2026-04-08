@@ -1,4 +1,4 @@
-# Manual Técnico de Alto Nivel: Proyecto Quantum BTC
+# Manual Técnico de Alto Nivel: Proyecto QuantumBTC
 
 ---
 **Versión:** 2.16
