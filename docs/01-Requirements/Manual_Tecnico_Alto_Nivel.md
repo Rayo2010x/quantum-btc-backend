@@ -7,8 +7,8 @@
 **Cambios:** v2.16 — Inclusión de Sección 10: Arquitectura SEO (Pre-rendering Estático). Decisión técnica para resolver la no-indexación del frontend SPA en motores de búsqueda.
 ---
 
-## 1. Resumen de Operación (MVP)
-Quantum BTC es una plataforma de ruleta europea clásica que opera íntegramente sobre Lightning Network con unidades en satoshis.
+## 1. Resumen de Operación
+Quantum Fair es una plataforma de juego que opera íntegramente sobre Lightning Network con unidades en satoshis.
 
 * **Sin Cuentas (Non-custodial operativo):** No se gestionan balances de usuario; cada ronda es una transacción independiente.
 * **Flujo de Entrada:** El usuario paga una factura BOLT11 generada por el backend.
@@ -44,7 +44,7 @@ Para una integración segura entre la API y el Front-End de Quantum BTC, se apli
 -   **HTTP 400 Bad Request (Límite de Exposición):** Si una apuesta supera el cálculo establecido por el límite elástico (`MaxBet`), usualmente si el pago total rompe el umbral dinámico (aprox > 2% del Bankroll), el servidor rechazará la solicitud indicando `400 Bad Request`. El Frontend debe capturar este error y mostrar una alerta o Toast visual explicando que se superó el límite máximo de pago por jugada.
 -   **HTTP 503 Service Unavailable (Alerta Roja):** Si el Bankroll cae a niveles críticos (e.g., `< 20,000 Sats`), el sistema entra en modo de protección de liquidez. El backend responderá con `503 Service Unavailable`. El Frontend debe bloquear todo control de apuestas (Disable) y mostrar un cartel/overlay de "Mantenimiento de Liquidez".
 
-## 3. Mecánica del Juego: Ruleta Europea
+## 3. Mecánica de la Ruleta Europea
 Se utiliza el modelo estándar de 37 números (0-36). El cero siempre favorece a la casa en apuestas externas.
 
 El sistema soporta apuestas simples y complejas (Outside Bets, Dozens, Splits) mediante la evaluación de un **Arreglo de Números**.
