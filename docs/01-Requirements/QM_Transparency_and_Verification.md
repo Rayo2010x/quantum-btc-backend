@@ -1,15 +1,12 @@
----
-Type: Technical Specification
-Title: Transparency & Provably Fair Verification
-Version: 1.0
-Last Updated: 2026-03-03
-Status: APPROVED
----
-
 # Transparency & Provably Fair Verification
 
+> **ID:** QM_Transparency_and_Verification
+> **Version:** 1.1
+> **Last Updated:** 2026-04-08
+> **Status:** APPROVED
+
 ## 1. Introduction
-Quantum BTC is built on the principle of "Don't Trust, Verify". This document specifies the mechanisms that allow players to independently verify that every spin of the roulette is mathematically fair, unpredictable, and unbiasable.
+QuantumBTC is built on the principle of "Don't Trust, Verify". This document specifies the mechanisms that allow players to independently verify that every spin of the roulette is mathematically fair, unpredictable, and unbiasable.
 
 ## 2. The Verification Model
 We utilize a **Hybrid Quantum-Public Entropy** model. This ensures that even if the casino were compromised, it cannot manipulate the outcome because the final result depends on external, verifiable data sources.

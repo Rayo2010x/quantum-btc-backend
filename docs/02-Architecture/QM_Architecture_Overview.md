@@ -1,13 +1,13 @@
-# Architecture Overview - Quantum BTC
+# Architecture Overview - QuantumBTC
 
-> **Artifact ID:** 20260130_Architecture_Overview_v1.0
-> **Version:** 1.0
-> **Date:** 2026-01-30
-> **Status:** Draft
+> **ID:** QM_Architecture_Overview
+> **Version:** 1.1
+> **Last Updated:** 2026-04-08
+> **Status:** DRAFT
 
 ## 1. High-Level System Architecture
 
-The Quantum BTC backend is a monolithic high-performance Node.js application (Fastify) integrated with external services for Lightning payments and entropy generation.
+The QuantumBTC backend is a monolithic high-performance Node.js application (Fastify) integrated with external services for Lightning payments and entropy generation.
 
 ```mermaid
 graph TD
@@ -87,4 +87,3 @@ sequenceDiagram
     API->>OpenNode: Pay Invoice
     API->>DB: Mark Token USED
 ```
-

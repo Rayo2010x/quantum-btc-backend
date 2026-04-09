@@ -1,9 +1,9 @@
-> **ID:** White_Paper
-> **Versión:** 0.3
-> **Fecha:** 2026-03-05
-> **Estado:** APPROVED
+# QuantumBTC White Paper: Securing Satoshi’s Vision in the Quantum Era
 
-# QuantumBTC White Paper:  Securing Satoshi’s Vision in the Quantum Era
+> **ID:** QM_White_Paper
+> **Version:** 0.4
+> **Last Updated:** 2026-04-08
+> **Status:** APPROVED
 
 A coalition of physicists specializing in Quantum Mechanics, mathematicians expert in Cryptography, and seasoned Blockchain developers have united under a shared conviction: the philosophy of Satoshi Nakamoto.
 
@@ -15,7 +15,7 @@ Conservative estimates predict that within a decade, quantum computers will reac
 
 While institutions worldwide are urgently racing to develop quantum-resistant systems, Bitcoin faces a unique paradox. Its greatest strength—its profound decentralization—is also its most significant hurdle when it comes to upgrading its core security protocols. Achieving a global consensus to implement post-quantum cryptography requires the coordinated agreement of developers driven by pure ethos and miners distributed across the globe.
 
-The Quantum BTC project is already developing the robust protocols necessary to safeguard the Bitcoin network. We are pioneering the critical transition from the historically secure framework gifted by Satoshi, to a new, post-quantum cryptography paradigm, ensuring the survival of the Bitcoin idea for generations to come.
+The QuantumBTC project is already developing the robust protocols necessary to safeguard the Bitcoin network. We are pioneering the critical transition from the historically secure framework gifted by Satoshi, to a new, post-quantum cryptography paradigm, ensuring the survival of the Bitcoin idea for generations to come.
 
 This platform (quantumbtc.dev) is launched as a grassroots funding initiative to support the research and development of this new system. True to Satoshi’s original philosophy, we are starting small—reminiscent of Bitcoin's value 15 years ago—and offer the following core features:
 

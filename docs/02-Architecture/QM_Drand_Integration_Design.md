@@ -1,13 +1,12 @@
 # Drand Integration Design
 
----
-**Version:** 1.0
-**Status:** DRAFT
-**Last Modified:** 2026-03-02
----
+> **ID:** QM_Drand_Integration_Design
+> **Version:** 1.1
+> **Last Updated:** 2026-04-08
+> **Status:** DRAFT
 
 ## 1. Introduction
-This document defines the architecture and integration strategy for consuming public randomness from the `drand` network (Distributed Randomness Beacon) into the Quantum BTC Roulette MVP. 
+This document defines the architecture and integration strategy for consuming public randomness from the `drand` network (Distributed Randomness Beacon) into the QuantumBTC Roulette MVP. 
 
 The goal is to provide **Provably Fair** outcomes by mixing our local quantum entropy (ANU QRNG) with a publicly verifiable, unbiasable, and unpredictable randomness beacon.
 
@@ -19,7 +18,7 @@ We will utilize the public HTTP APIs provided by the League of Entropy (e.g., `h
 *   **Network:** `default` (chained randomness, fast).
 
 ### 2.2 Data Flow & Mixing
-As per the `Manual_Tecnico_Alto_Nivel.md`, the final entropy is calculated as:
+As per the `QM_High_Level_Technical_Manual.md`, the final entropy is calculated as:
 `final_entropy = SHA256(server_seed || client_seed || drand_randomness || cached_anu_bytes || bet_id)`
 
 #### Sequence Diagram
@@ -61,7 +60,7 @@ sequenceDiagram
 Relying on a third-party public API introduces latency and availability risks. The Lightning Network user experience demands instant resolution (under 3 seconds visual delay).
 
 ### 3.1 Timeout Strategy
-*   **Drand Fetch Timeout:** The HTTP request to the `drand` API will have a strict **restriced timeout of 1500ms (1.5 segundos)**.
+*   **Drand Fetch Timeout:** The HTTP request to the `drand` API will have a strict **restriced timeout of 1500ms (1.5 seconds)**.
 
 ### 3.2 Degradation (Fallback)
 If the `drand` request times out, fails (5xx), or the response is malformed:
