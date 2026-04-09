@@ -1,4 +1,3 @@
-import { BookOpen } from "lucide-react";
 import { useState } from "react";
 import { DonationModal } from "../donations/DonationModal";
 
@@ -6,21 +5,54 @@ export function WhitePaperView() {
     const [isDonationModalOpen, setIsDonationModalOpen] = useState(false);
     return (
         <div className="flex flex-col items-center justify-start min-h-[80vh] text-left space-y-12 max-w-4xl mx-auto pb-16 animate-fade-in">
-            {/* Header Section */}
-            <div className="space-y-6 pt-8 text-center border-b border-white/5 pb-12 w-full">
-                <div className="inline-flex items-center justify-center p-3 bg-white/5 rounded-2xl mb-4 border border-white/10 shadow-xl shadow-black/50">
-                    <BookOpen className="w-8 h-8 text-primary" />
+            {/* Brand Hero Section */}
+            <div className="w-full pt-6 text-center border-b border-white/5 pb-12 space-y-0">
+
+                {/* Banner Image */}
+                <div className="relative w-full rounded-2xl overflow-hidden mb-0 shadow-[0_0_60px_rgba(72,216,216,0.15)]">
+                    <img
+                        src="/og-image.png"
+                        alt="QuantumBTC — Securing Satoshi's Vision in the Quantum Era"
+                        className="w-full object-cover rounded-2xl"
+                        style={{ maxHeight: "320px", objectPosition: "center" }}
+                    />
+                    {/* Subtle dark gradient overlay at the bottom for logo blending */}
+                    <div
+                        className="absolute bottom-0 left-0 w-full"
+                        style={{
+                            height: "60%",
+                            background: "linear-gradient(to bottom, transparent, rgba(9,9,11,0.85))",
+                        }}
+                    />
                 </div>
-                <h1 className="text-4xl md:text-6xl font-extrabold tracking-tighter font-display leading-tight">
-                    QuantumBTC <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary block md:inline">White Paper</span>
-                </h1>
-                <p className="text-lg md:text-xl text-gray-400 font-light max-w-2xl mx-auto">
-                    Securing Satoshi's Vision in the Quantum Era
-                </p>
-                <div className="flex items-center justify-center gap-4 text-xs font-mono text-gray-500 pt-4">
-                    <span className="bg-white/5 px-3 py-1 rounded-full border border-white/5">Version: 0.5</span>
-                    <span className="bg-white/5 px-3 py-1 rounded-full border border-white/5">Date: 2026-04-09</span>
-                    <span className="bg-emerald-500/10 text-emerald-400 px-3 py-1 rounded-full border border-emerald-500/20">Status: APPROVED</span>
+
+                {/* Logo — centered, overlapping the banner bottom edge */}
+                <div className="flex justify-center" style={{ marginTop: "-52px", position: "relative", zIndex: 10 }}>
+                    <div className="p-1.5 rounded-2xl bg-zinc-950/80 border border-white/10 shadow-[0_0_40px_rgba(72,216,216,0.25)] backdrop-blur-sm">
+                        <img
+                            src="/favicon.png"
+                            alt="QuantumBTC Logo"
+                            className="w-24 h-24 rounded-xl object-contain"
+                        />
+                    </div>
+                </div>
+
+                {/* Title */}
+                <div className="pt-5 space-y-3">
+                    <h1 className="text-4xl md:text-6xl font-extrabold tracking-tighter font-display leading-tight">
+                        QuantumBTC&nbsp;
+                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary block md:inline">
+                            White Paper
+                        </span>
+                    </h1>
+                    <p className="text-lg md:text-xl text-gray-400 font-light max-w-2xl mx-auto">
+                        Securing Satoshi's Vision in the Quantum Era
+                    </p>
+                    <div className="flex items-center justify-center gap-4 text-xs font-mono text-gray-500 pt-4">
+                        <span className="bg-white/5 px-3 py-1 rounded-full border border-white/5">Version: 0.5</span>
+                        <span className="bg-white/5 px-3 py-1 rounded-full border border-white/5">Date: 2026-04-09</span>
+                        <span className="bg-emerald-500/10 text-emerald-400 px-3 py-1 rounded-full border border-emerald-500/20">Status: APPROVED</span>
+                    </div>
                 </div>
             </div>
 
