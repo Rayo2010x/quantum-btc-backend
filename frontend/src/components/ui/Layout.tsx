@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-export type ViewType = 'whitepaper' | 'game' | 'statistics' | 'faq' | 'history';
+export type ViewType = 'whitepaper' | 'features' | 'game' | 'statistics' | 'faq' | 'history';
 
 interface LayoutProps {
     children: React.ReactNode;
@@ -12,6 +12,7 @@ interface LayoutProps {
 
 const NAV_ITEMS: { view: ViewType; label: string }[] = [
     { view: 'whitepaper', label: 'White Paper' },
+    { view: 'features',   label: 'Features' },
     { view: 'game',       label: 'Roulette' },
     { view: 'statistics', label: 'Statistics' },
     { view: 'faq',        label: 'FAQ' },

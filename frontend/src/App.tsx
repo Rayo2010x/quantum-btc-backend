@@ -6,6 +6,7 @@ import { BetControls } from './components/game/BetControls';
 import { GameApi } from './lib/api';
 import { VerifyHistoryView } from './components/history/VerifyHistoryView';
 import { WhitePaperView } from './components/whitepaper/WhitePaperView';
+import { FeaturesView } from './components/features/FeaturesView';
 import { StatisticsView } from './components/statistics/StatisticsView';
 import { CampaignBanner } from './components/CampaignBanner';
 import { RegistrationModal } from './components/RegistrationModal';
@@ -52,6 +53,10 @@ function App() {
 
       {currentView === 'whitepaper' && (
         <WhitePaperView />
+      )}
+
+      {currentView === 'features' && (
+        <FeaturesView />
       )}
 
       {currentView === 'game' && (
