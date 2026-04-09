@@ -1,8 +1,8 @@
 # UI/UX & Frontend Design Guidelines
 
 > **ID:** QM_UI_UX_Guidelines
-> **Version:** 1.5
-> **Last Updated:** 2026-04-08
+> **Version:** 1.6
+> **Last Updated:** 2026-04-09
 > **Status:** DRAFT
 
 ## 1. Purpose and Scope
@@ -62,6 +62,16 @@ As a fundamental reference for Frontend layout (the betting table, the placement
 - **Brand Consistency:** All satellite projects and web applications associated with QuantumBTC (including `quantumbtc.dev` and `learn.quantumbtc.dev`) must implement a unified footer.
 - **Standard Structure:** The footer must display the copyright text on the left ("© 2026 QuantumBTC...") and a block of research social links on the right with the text "You can contact us and/or follow our research at:" accompanied by five interactive vector icons: Nostr, X, Discord, Telegram, and GitHub.
 - **Objective:** Reinforce cross-visibility of our research regardless of the user's entry portal.
+
+### 4.9. Responsive Navigation
+- **Desktop (≥768px):** Render a horizontal tab bar with all five navigation items visible inline: White Paper, Roulette, Statistics, FAQ, Verify (Fair) & History.
+- **Mobile (<768px):** The tab bar collapses into a hamburger button (☰) anchored to the right side of the header. Tapping it toggles a full-width vertical dropdown panel showing all five navigation items as stacked buttons.
+- **Implementation Constraints:**
+  - All navigation items MUST remain as `<button>` elements in the DOM at all times (never use `<select>`) to preserve crawlability and accessibility.
+  - The dropdown must close automatically when any item is selected.
+  - Keyboard accessibility: the hamburger button must be reachable via `Tab` and activatable via `Enter`/`Space`.
+  - The active view must be visually differentiated in both desktop and mobile states using the `text-primary` colour token.
+- **SEO:** No negative SEO impact; all navigation buttons remain rendered in the DOM.
 
 ### 4.8. Technical SEO and Meta-tags
 - **Canonicalization:** To avoid duplicate content errors ("Duplicate without user-selected canonical" in search consoles), the main landing page and any other generated static route MUST explicitly declare their canonical URL.

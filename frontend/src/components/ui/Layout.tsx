@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 export type ViewType = 'whitepaper' | 'game' | 'statistics' | 'faq' | 'history';
 
 interface LayoutProps {
@@ -10,7 +10,21 @@ interface LayoutProps {
     onRegisterClick?: () => void;
 }
 
+const NAV_ITEMS: { view: ViewType; label: string }[] = [
+    { view: 'whitepaper', label: 'White Paper' },
+    { view: 'game',       label: 'Roulette' },
+    { view: 'statistics', label: 'Statistics' },
+    { view: 'faq',        label: 'FAQ' },
+    { view: 'history',    label: 'Verify (Fair) & History' },
+];
+
 export function Layout({ children, currentView = 'whitepaper', onViewChange, isRegistered = true, onRegisterClick }: LayoutProps) {
+    const [menuOpen, setMenuOpen] = useState(false);
+
+    const handleNavClick = (view: ViewType) => {
+        onViewChange?.(view);
+        setMenuOpen(false);
+    };
     return (
         <div className="min-h-screen flex flex-col">
             {/* Header */}
@@ -19,41 +33,21 @@ export function Layout({ children, currentView = 'whitepaper', onViewChange, isR
                     <div className="flex items-center gap-2 cursor-pointer" onClick={() => onViewChange?.('game')}>
                     </div>
 
-                    <nav className="flex gap-6 text-sm font-medium text-gray-400">
-                        <button
-                            onClick={() => onViewChange?.('whitepaper')}
-                            className={`transition-colors hover:text-primary ${currentView === 'whitepaper' ? 'text-primary font-bold' : ''}`}
-                        >
-                            White Paper
-                        </button>
-                        <button
-                            onClick={() => onViewChange?.('game')}
-                            className={`transition-colors hover:text-primary ${currentView === 'game' ? 'text-primary font-bold' : ''}`}
-                        >
-                            Roulette
-                        </button>
-                        <button
-                            onClick={() => onViewChange?.('statistics')}
-                            className={`transition-colors hover:text-primary ${currentView === 'statistics' ? 'text-primary font-bold' : ''}`}
-                        >
-                            Statistics
-                        </button>
-                        <button
-                            onClick={() => onViewChange?.('faq')}
-                            className={`transition-colors flex items-center gap-1 hover:text-primary ${currentView === 'faq' ? 'text-primary font-bold' : ''}`}
-                        >
-                            FAQ
-                        </button>
-                        <button
-                            onClick={() => onViewChange?.('history')}
-                            className={`transition-colors hover:text-primary flex items-center gap-2 ${currentView === 'history' ? 'text-primary font-bold' : ''}`}
-                        >
-                            Verify (Fair) & History
-                        </button>
-                        
+                    {/* Desktop nav — hidden on mobile */}
+                    <nav className="hidden md:flex gap-6 text-sm font-medium text-gray-400">
+                        {NAV_ITEMS.map(({ view, label }) => (
+                            <button
+                                key={view}
+                                onClick={() => handleNavClick(view)}
+                                className={`transition-colors hover:text-primary ${currentView === view ? 'text-primary font-bold' : ''}`}
+                            >
+                                {label}
+                            </button>
+                        ))}
+
                         {!isRegistered && onRegisterClick && (
                             <div className="pl-4 ml-2 border-l border-white/10 flex items-center">
-                                <button 
+                                <button
                                     onClick={onRegisterClick}
                                     className="text-xs font-bold text-black bg-primary px-3 py-1.5 rounded-full hover:bg-secondary transition-colors uppercase tracking-wider shadow-[0_0_10px_rgba(72,216,216,0.5)]"
                                 >
@@ -62,7 +56,47 @@ export function Layout({ children, currentView = 'whitepaper', onViewChange, isR
                             </div>
                         )}
                     </nav>
+
+                    {/* Hamburger button — visible only on mobile */}
+                    <button
+                        aria-label="Open navigation menu"
+                        aria-expanded={menuOpen}
+                        onClick={() => setMenuOpen(prev => !prev)}
+                        className="md:hidden flex flex-col justify-center items-center w-9 h-9 gap-1.5 rounded-md text-gray-400 hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary/50"
+                    >
+                        <span className={`block h-0.5 w-5 bg-current transition-all duration-300 ${menuOpen ? 'rotate-45 translate-y-2' : ''}`} />
+                        <span className={`block h-0.5 w-5 bg-current transition-all duration-300 ${menuOpen ? 'opacity-0' : ''}`} />
+                        <span className={`block h-0.5 w-5 bg-current transition-all duration-300 ${menuOpen ? '-rotate-45 -translate-y-2' : ''}`} />
+                    </button>
                 </div>
+
+                {/* Mobile dropdown — collapses when closed */}
+                {menuOpen && (
+                    <div className="md:hidden border-t border-white/10 bg-black/80 backdrop-blur-md">
+                        <nav className="flex flex-col px-4 py-2 gap-1 text-sm font-medium text-gray-400">
+                            {NAV_ITEMS.map(({ view, label }) => (
+                                <button
+                                    key={view}
+                                    onClick={() => handleNavClick(view)}
+                                    className={`w-full text-left py-3 px-2 rounded-md transition-colors hover:text-primary hover:bg-white/5 ${currentView === view ? 'text-primary font-bold' : ''}`}
+                                >
+                                    {label}
+                                </button>
+                            ))}
+
+                            {!isRegistered && onRegisterClick && (
+                                <div className="pt-2 pb-3 border-t border-white/10 mt-1">
+                                    <button
+                                        onClick={() => { onRegisterClick(); setMenuOpen(false); }}
+                                        className="text-xs font-bold text-black bg-primary px-3 py-1.5 rounded-full hover:bg-secondary transition-colors uppercase tracking-wider shadow-[0_0_10px_rgba(72,216,216,0.5)]"
+                                    >
+                                        Link Session
+                                    </button>
+                                </div>
+                            )}
+                        </nav>
+                    </div>
+                )}
             </header>
 
             {/* Main Content */}
