@@ -1,9 +1,9 @@
-# API Specification - Quantum BTC
+# API Specification - QuantumBTC
 
-> **Artifact ID:** 20260130_API_Specification_v1.9
-> **Version:** 1.9
-> **Date:** 2026-03-21
-> **Status:** Vigente
+> **ID:** QM_API_Specification
+> **Version:** 2.0
+> **Last Updated:** 2026-04-08
+> **Status:** APPROVED
 
 ## 1. Base URL
 `https://api.quantumbtc.io` (Production)
@@ -139,7 +139,7 @@
       "tag": "withdrawRequest",
       "callback": "https://api.quantumbtc.io/v1/lnurl/callback",
       "k1": "...",
-      "defaultDescription": "Quantum BTC Winnings",
+      "defaultDescription": "QuantumBTC Winnings",
       "minWithdrawable": 1000,
       "maxWithdrawable": 1000000
     }

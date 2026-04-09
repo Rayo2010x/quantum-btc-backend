@@ -1,9 +1,9 @@
-# Database Schema - Quantum BTC
+# Database Schema - QuantumBTC
 
-> **Artifact ID:** 20260130_Database_Schema_v1.6
-> **Version:** 1.6
-> **Date:** 2026-03-21
-> **Status:** Vigente
+> **ID:** QM_Database_Schema
+> **Version:** 1.7
+> **Last Updated:** 2026-04-08
+> **Status:** APPROVED
 
 ## 1. Entity-Relationship Diagram (ERD)
 
@@ -112,7 +112,7 @@ Links a session to a reward address.
 *   **created_at:** Timestamp.
 
 ### 2.6 Table: `donations`
-Registra las contribuciones voluntarias de los usuarios. Puede ser anónima o estar asociada a una dirección.
+Records voluntary user contributions. Can be anonymous or associated with an address.
 *   **id:** UUID v4.
 *   **charge_id:** `VARCHAR`. Link to OpenNode Charge for webhook verification.
 *   **amount_sat:** `BIGINT`. The donation amount.

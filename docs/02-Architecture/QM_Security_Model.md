@@ -1,9 +1,9 @@
-# Security Model - Quantum BTC
+# Security Model - QuantumBTC
 
-> **Artifact ID:** 20260130_Security_Model_v1.0
-> **Version:** 1.0
-> **Date:** 2026-01-30
-> **Status:** Draft
+> **ID:** QM_Security_Model
+> **Version:** 1.1
+> **Last Updated:** 2026-04-08
+> **Status:** DRAFT
 
 ## 1. API Security & Authentication
 

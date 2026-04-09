@@ -1,9 +1,9 @@
-# State Transition Models - Quantum BTC
+# State Transition Models - QuantumBTC
 
-> **Artifact ID:** 20260130_State_Models_v1.0
-> **Version:** 1.0
-> **Date:** 2026-01-30
-> **Status:** Draft
+> **ID:** QM_State_Models
+> **Version:** 1.1
+> **Last Updated:** 2026-04-08
+> **Status:** DRAFT
 
 ## 1. Betting & Payment Lifecycle (Pay-Per-Spin)
 
