@@ -1,13 +1,12 @@
 # Security Audit Report
 
----
-**Version:** 1.0
-**Status:** DRAFT
-**Last Modified:** 2026-03-02
----
+> **ID:** QM_Security_Audit_Report
+> **Version:** 1.1
+> **Last Updated:** 2026-04-08
+> **Status:** DRAFT
 
 ## 1. Scope & Objectives
-This document audits the Quantum BTC Backend focusing on critical security domains per the **Global Security Directive**.
+This document audits the QuantumBTC Backend focusing on critical security domains per the **Global Security Directive**.
 The audit scope includes:
 1. **Dependency Vulnerability Analysis:** Scanning `package.json` and `package-lock.json` for known CVEs.
 2. **Secrets Management:** Verifying the isolation of environment variables (`.env`) and preventing accidental credential leakage.

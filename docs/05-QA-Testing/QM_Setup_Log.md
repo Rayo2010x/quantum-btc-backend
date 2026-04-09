@@ -1,7 +1,9 @@
 # Project Setup Walkthrough & Verification Log
-> **Artifact ID:** 20260130_Setup_Log_v1.0
-> **Date:** 2026-01-30
-> **Status:** VERIFIED
+
+> **ID:** QM_Setup_Log
+> **Version:** 1.1
+> **Last Updated:** 2026-04-08
+> **Status:** APPROVED
 
 ## Completed Steps
 - **Environment Configuration**: 
@@ -22,7 +24,7 @@
 - **Logs**:
   ```
   Server listening at http://0.0.0.0:3000
-  🚀 Quantum BTC Backend running on port 3000
+  🚀 QuantumBTC Backend running on port 3000
   ```
 - **Database Smoke Test**:
   - Script: `scripts/smoke-test-db.ts`

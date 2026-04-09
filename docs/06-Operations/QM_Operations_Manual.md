@@ -1,9 +1,9 @@
-# Operations Manual - Quantum BTC
+# Operations Manual - QuantumBTC
 
-> **Artifact ID:** 20260320_Operations_Manual_v1.2
-> **Version:** 1.2
-> **Date:** 2026-03-20
-> **Status:** VIGENTE
+> **ID:** QM_Operations_Manual
+> **Version:** 1.3
+> **Last Updated:** 2026-04-08
+> **Status:** APPROVED
 
 ## 1. Deployment Requirements
 *   **Node.js:** v18 LTS or higher.

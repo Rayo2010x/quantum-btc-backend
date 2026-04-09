@@ -1,7 +1,9 @@
 # Transaction Flow Verification Log
-> **Artifact ID:** 20260131_Transaction_Verification_Log_v1.0
-> **Date:** 2026-01-31
-> **Status:** PASSED
+
+> **ID:** QM_Transaction_Verification_Log
+> **Version:** 1.1
+> **Last Updated:** 2026-04-08
+> **Status:** APPROVED
 
 ## Summary
 Executed `scripts/smoke-test-transactions.ts` to verify the core transaction lifecycle and populate the database.

@@ -1,9 +1,9 @@
-# Test Strategy - Quantum BTC
+# Test Strategy - QuantumBTC
 
-> **Artifact ID:** 20260130_Test_Strategy_v1.0
-> **Version:** 1.0
-> **Date:** 2026-01-30
-> **Status:** Draft
+> **ID:** QM_Test_Strategy
+> **Version:** 1.1
+> **Last Updated:** 2026-04-08
+> **Status:** DRAFT
 
 ## 1. Testing Philosophy
 "Trust but Verify". Given the financial nature of the application, testing priorities are:

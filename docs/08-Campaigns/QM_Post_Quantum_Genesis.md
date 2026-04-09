@@ -1,13 +1,13 @@
 # Campaign: Quantum Genesis (Post-Quantum BTC Registry)
 
-> **ID:** Post_Quantum_Genesis
-> **Version:** 1.5 (Clarified Tier Rewards)
-> **Date:** 2026-03-17
-> **Status:** STRATEGIC_ALIGNMENT_APPROVED
+> **ID:** QM_Post_Quantum_Genesis
+> **Version:** 1.6
+> **Last Updated:** 2026-04-08
+> **Status:** APPROVED
 
 ## 1. The Hook: "Build the Post-Quantum Citadel"
 
-The Quantum Threat isn't just a prediction; it's a countdown. At Quantum BTC, we aren't just HODLing; we are fortifying. We invite our early contributors to join the **Quantum Genesis** registry.
+The Quantum Threat isn't just a prediction; it's a countdown. At QuantumBTC, we aren't just HODLing; we are fortifying. We invite our early contributors to join the **Quantum Genesis** registry.
 
 **Message:** "Initialize your session, contribute entropy to our stress-test protocols, and secure your place in the first generation of Post-Quantum Bitcoin rewards."
 
@@ -26,7 +26,7 @@ Recognition is based on the total entropy volume (Satoshis) processed through th
 | Status | Contribution (Total Sats) | Reward Potential | Status |
 | :--- | :--- | :--- | :--- |
 | **Participant** | 0 - 999 | *Ephemeral Contributor.* Contributes to network entropy but holds no permanent rank or claim. | Active |
-| **Quantum Scout** | 1,000 - 10,000 | *Access & Badging.* Secures a verifiable Genesis Badge and gains prioritized access to future Quantum BTC tools and beta-testing phases. | Active |
+| **Quantum Scout** | 1,000 - 10,000 | *Access & Badging.* Secures a verifiable Genesis Badge and gains prioritized access to future QuantumBTC tools and beta-testing phases. | Active |
 | **Sentinel** | 10,001 - 100,000 | *Development Fund Claim.* All Scout benefits PLUS a proportional claim to targeted BTC/LN airdrops distributed directly from our institutional development fund as milestones are reached. | Active |
 | **Guardian** | 100,001+ | *Infrastructure Priority.* All Sentinel benefits PLUS prioritized routing and early access to deploy our proprietary Post-Quantum Node software, cementing your place as a foundational pillar of the network. | Active |
 
@@ -61,7 +61,7 @@ A: While the entire stress-testing protocol operates at lightning speed on Layer
 **Q: How are the Genesis Tiers calculated?**
 A: Your rank is determined by your total STV (Satoshis routed). 
 - **Participant (0 - 999 sats):** *Ephemeral Contributor.* Contributes to network entropy but holds no permanent rank or claim.
-- **Quantum Scout (1k - 10k sats):** *Access & Badging.* Secures a verifiable Genesis Badge and gains prioritized access to future Quantum BTC tools and beta-testing phases.
+- **Quantum Scout (1k - 10k sats):** *Access & Badging.* Secures a verifiable Genesis Badge and gains prioritized access to future QuantumBTC tools and beta-testing phases.
 - **Sentinel (10k - 100k sats):** *Development Fund Claim.* All Scout benefits PLUS a proportional claim to targeted BTC/LN airdrops.
 - **Guardian (100k+ sats):** *Infrastructure Priority.* All Sentinel benefits PLUS prioritized routing and early access to deploy our proprietary Post-Quantum Node software.
 
