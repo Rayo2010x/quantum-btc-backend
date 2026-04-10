@@ -11,7 +11,7 @@ export function WhitePaperView() {
                 {/* Banner Image */}
                 <div className="relative w-full rounded-2xl overflow-hidden mb-0 shadow-[0_0_60px_rgba(72,216,216,0.15)]">
                     <img
-                        src="/og-image.png"
+                        src="/og-image.webp"
                         alt="QuantumBTC — Securing Satoshi's Vision in the Quantum Era"
                         className="w-full object-cover rounded-2xl"
                         style={{ maxHeight: "320px", objectPosition: "center" }}
