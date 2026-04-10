@@ -95,7 +95,7 @@ export function FeaturesView() {
                 </p>
 
                 <a
-                    href="https://learn.quantumbtc.dev/en"
+                    href="https://learn.quantumbtc.dev/"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-2 bg-primary text-black font-bold px-8 py-3 rounded-full hover:bg-primary/90 transition-all shadow-[0_0_20px_rgba(72,216,216,0.3)] hover:shadow-[0_0_30px_rgba(72,216,216,0.5)] hover:-translate-y-0.5"
