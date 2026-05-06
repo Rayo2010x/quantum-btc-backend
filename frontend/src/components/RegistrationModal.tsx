@@ -38,7 +38,7 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({ isOpen, on
             <div className="modal-content">
                 <button className="close-btn" onClick={onClose}>×</button>
                 <h2>QuantumBTC Genesis Registry</h2>
-                <p style={{ textAlign: 'center', fontSize: '0.9rem', color: '#a0aec0', marginTop: '-10px', marginBottom: '15px' }}>This process is completely optional</p>
+                <p style={{ textAlign: 'center', fontSize: '0.9rem', color: '#a0aec0', marginTop: '-10px', marginBottom: '15px' }}>Register your session for PQ-Rewards today to secure your place in history. Registration is optional, but worth it.</p>
                 <div className="modal-body">
                     <p className="modal-description">
                         Link your current session to a Sovereign Address.
