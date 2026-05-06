@@ -8,7 +8,7 @@ import { VerifyHistoryView } from './components/history/VerifyHistoryView';
 import { WhitePaperView } from './components/whitepaper/WhitePaperView';
 import { FeaturesView } from './components/features/FeaturesView';
 import { StatisticsView } from './components/statistics/StatisticsView';
-import { CampaignBanner } from './components/CampaignBanner';
+
 import { RegistrationModal } from './components/RegistrationModal';
 import { FaqView } from './components/faq/FaqView';
 
@@ -19,9 +19,7 @@ function App() {
   // Campaign State
   const [isRegistered, setIsRegistered] = useState(true); // Default true to hide banner while loading
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isBannerDismissed, setIsBannerDismissed] = useState(() => {
-    return localStorage.getItem('qb_campaign_dismissed') === 'true';
-  });
+
 
   useEffect(() => {
     // Init session on load
@@ -97,15 +95,7 @@ function App() {
       )}
 
       {/* Campaign UI Flow */}
-      {!isRegistered && !isBannerDismissed && (
-        <CampaignBanner 
-          onRegisterClick={() => setIsModalOpen(true)} 
-          onDismiss={() => {
-            setIsBannerDismissed(true);
-            localStorage.setItem('qb_campaign_dismissed', 'true');
-          }}
-        />
-      )}
+
 
       <RegistrationModal 
         isOpen={isModalOpen}

@@ -57,7 +57,7 @@
 ## 08-Campaigns (Marketing & Rewards)
 | Artifact | Version | Status | Last Modified |
 | :--- | :--- | :--- | :--- |
-| [Post-Quantum Genesis (Rewards)](08-Campaigns/QM_Post_Quantum_Genesis.md) | 1.1 | **APPROVED** | 2026-03-12 |
+| [Post-Quantum Genesis (Rewards)](08-Campaigns/QM_Post_Quantum_Genesis.md) | 1.7 | **APPROVED** | 2026-05-06 |
 
 ## 07-Archive (Obsolete)
 | Artifact | Version | Status | Last Modified |

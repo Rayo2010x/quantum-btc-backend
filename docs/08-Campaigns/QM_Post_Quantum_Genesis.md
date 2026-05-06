@@ -1,8 +1,8 @@
 # Campaign: Quantum Genesis (Post-Quantum BTC Registry)
 
 > **ID:** QM_Post_Quantum_Genesis
-> **Version:** 1.6
-> **Last Updated:** 2026-04-08
+> **Version:** 1.7
+> **Last Updated:** 2026-05-06
 > **Status:** APPROVED
 
 ## 1. The Hook: "Build the Post-Quantum Citadel"
@@ -15,7 +15,7 @@ The Quantum Threat isn't just a prediction; it's a countdown. At QuantumBTC, we 
 
 ### 2.1 The Post-Quantum Registry
 To ensure contributors are recognized and progress is preserved:
-- **Registry Prompt:** Upon session initialization, the frontend will check if the `Session ID` has an associated address. If not, a subtle non-intrusive banner will offer to "Register for PQ-Rewards".
+- **Registry Prompt:** Users can manually link their session to an address via the "LINK SESSION" button in the main navigation. This initiates the registration for PQ-Rewards.
 - **Contribution Aggregation:** Users can link different sessions to the same **Sovereign Address (L1 or LN)**. The system will aggregate the **Stress-Test Volume (STV)** across all sessions linked to that specific address.
 - **Privacy First:** Users are informed that linking a session associates their interaction history with the provided address. No KYC, no email—just cryptographic proof of participation.
 - **Sovereignty Tip:** We recommend using a Layer 1 (On-Chain) address for the registry if you intend to hold your rewards for the long term (The Vault), while utilizing your LN wallet for the stress-test itself (The Pocket).
