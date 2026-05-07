@@ -17,7 +17,7 @@ export function PlinkoBoard({ isDropping, targetSlot, risk, onDropFinish }: Plin
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const [path, setPath] = useState<number[]>([]);
     const [dropState, setDropState] = useState<'idle' | 'quantum' | 'falling'>('idle');
-    const quantumTimerRef = useRef<NodeJS.Timeout | null>(null);
+    const quantumTimerRef = useRef<number | null>(null);
     
     // Generate a physics path when drop starts
     useEffect(() => {
@@ -119,7 +119,6 @@ export function PlinkoBoard({ isDropping, targetSlot, risk, onDropFinish }: Plin
                 ctx.shadowBlur = 0;
             } else if (dropState === 'quantum') {
                 // Quantum superposition effect (vibrating/glitching)
-                const time = Date.now();
                 
                 // Draw multiple ghost balls
                 for(let i = 0; i < 5; i++) {
