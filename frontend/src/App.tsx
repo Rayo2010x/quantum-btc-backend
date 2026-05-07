@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { Layout } from './components/ui/Layout';
 import type { ViewType } from './components/ui/Layout';
 import { BetControls } from './components/game/BetControls';
+import { PlinkoGame } from './components/game/PlinkoGame';
 import { GameApi } from './lib/api';
 import { VerifyHistoryView } from './components/history/VerifyHistoryView';
 import { WhitePaperView } from './components/whitepaper/WhitePaperView';
@@ -77,6 +78,10 @@ function App() {
             Session ID: {sessionId || 'Initializing...'}
           </div>
         </div>
+      )}
+
+      {currentView === 'plinko' && (
+        <PlinkoGame sessionId={sessionId} isMaintenance={false} />
       )}
 
       {currentView === 'statistics' && (

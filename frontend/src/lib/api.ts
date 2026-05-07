@@ -83,8 +83,8 @@ async function getOrCreateSession(): Promise<string> {
 }
 
 export const GameApi = {
-    // `bets` is now pre-formatted by the UI as an array of objects matching the backend MultiBetSchema
-    placeBet: async (betsArray: { numbers: number[], amount: number }[], clientSeed: string) => {
+    // `bets` is now an array of objects matching either Roulette or Plinko schemas
+    placeBet: async (betsArray: any[], clientSeed: string, gameType: 'roulette' | 'plinko' = 'roulette') => {
         let sessionId = await getOrCreateSession();
 
         if (betsArray.length === 0) throw new Error("No bets placed");
@@ -92,6 +92,7 @@ export const GameApi = {
         try {
             const response = await api.post<PlaceBetResponse>('/game/bet', {
                 sessionId,
+                gameType,
                 bets: betsArray,
                 clientSeed,
             });
@@ -102,6 +103,7 @@ export const GameApi = {
                 sessionId = await getOrCreateSession();
                 const response = await api.post<PlaceBetResponse>('/game/bet', {
                     sessionId,
+                    gameType,
                     bets: betsArray,
                     clientSeed,
                 });
