@@ -35,6 +35,7 @@ export async function historyRoutes(app: FastifyInstance) {
                         payout_sat, 
                         status, 
                         final_result as outcome, 
+                        game_type,
                         created_at
                      FROM bets 
                      WHERE session_id IN (
@@ -53,6 +54,7 @@ export async function historyRoutes(app: FastifyInstance) {
                         payout_sat, 
                         status, 
                         final_result as outcome, 
+                        game_type,
                         created_at
                      FROM bets 
                      WHERE session_id = $1
@@ -69,6 +71,7 @@ export async function historyRoutes(app: FastifyInstance) {
                 payoutSat: Number(row.payout_sat),
                 status: row.status,
                 outcome: row.outcome,
+                gameType: row.game_type,
                 createdAt: row.created_at
             }));
 

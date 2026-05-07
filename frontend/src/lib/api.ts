@@ -17,6 +17,7 @@ export interface PlaceBetResponse {
 export interface BetStatusResponse {
     status: 'WAITING_PAYMENT' | 'WON' | 'LOST' | 'PROCESSING';
     outcome?: number;
+    gameType?: string;
     payoutSat?: number;
     serverSeedReveal?: string;
     clientSeed?: string;
@@ -35,6 +36,7 @@ export interface BetHistoryResponse {
         payoutSat: number;
         status: string;
         outcome: number;
+        gameType?: string;
         createdAt: string;
     }[];
 }
@@ -128,8 +130,10 @@ export const GameApi = {
         return res.data;
     },
 
-    getStatistics: async (limit?: number | string) => {
-        const params = limit ? { limit } : {};
+    getStatistics: async (limit?: number | string, gameType?: string) => {
+        const params: any = {};
+        if (limit) params.limit = limit;
+        if (gameType) params.gameType = gameType;
         const res = await api.get<StatisticsResponse>(`/game/statistics`, { params });
         return res.data;
     },

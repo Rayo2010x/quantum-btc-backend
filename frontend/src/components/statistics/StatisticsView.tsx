@@ -21,10 +21,11 @@ export function StatisticsView() {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [selectedLimit, setSelectedLimit] = useState<string>("200");
+    const [gameType, setGameType] = useState<'roulette' | 'plinko'>('roulette');
 
     useEffect(() => {
         setIsLoading(true);
-        GameApi.getStatistics(selectedLimit)
+        GameApi.getStatistics(selectedLimit, gameType)
             .then(data => {
                 setStats(data);
                 setIsLoading(false);
@@ -34,7 +35,7 @@ export function StatisticsView() {
                 setError("Failed to load statistics");
                 setIsLoading(false);
             });
-    }, [selectedLimit]);
+    }, [selectedLimit, gameType]);
 
     const numbersData: HistogramDataPoint[] = useMemo(() => {
         if (!stats?.frequencies) return [];
@@ -43,10 +44,10 @@ export function StatisticsView() {
             return {
                 label: numStr,
                 value: count,
-                colorClass: getNumberColorClass(n)
+                colorClass: gameType === 'roulette' ? getNumberColorClass(n) : 'bg-primary/80'
             };
         });
-    }, [stats]);
+    }, [stats, gameType]);
 
     const rowsData: HistogramDataPoint[] = useMemo(() => {
         if (!stats?.frequencies) return [];
@@ -165,7 +166,24 @@ export function StatisticsView() {
                 </div>
             </div>
 
-            <div className="flex justify-center -mt-6 relative z-10">
+            <div className="flex justify-center -mt-6 relative z-10 gap-4">
+                {/* Game Type Toggle */}
+                <div className="flex items-center bg-black/60 p-1.5 rounded-xl border border-white/10 backdrop-blur-md shadow-lg">
+                    <button
+                        onClick={() => setGameType('roulette')}
+                        className={`px-4 py-2 rounded-lg text-sm font-bold font-sans tracking-wide transition-all ${gameType === 'roulette' ? 'bg-primary text-black' : 'text-gray-400 hover:text-white'}`}
+                    >
+                        Roulette
+                    </button>
+                    <button
+                        onClick={() => setGameType('plinko')}
+                        className={`px-4 py-2 rounded-lg text-sm font-bold font-sans tracking-wide transition-all ${gameType === 'plinko' ? 'bg-primary text-black' : 'text-gray-400 hover:text-white'}`}
+                    >
+                        Plinko
+                    </button>
+                </div>
+
+                {/* Limit Dropdown */}
                 <div className="flex items-center space-x-3 bg-black/60 p-2 rounded-xl border border-white/10 backdrop-blur-md shadow-lg">
                     <span className="text-xs font-mono text-gray-400 uppercase tracking-widest ml-2">Show:</span>
                     <select
@@ -187,38 +205,40 @@ export function StatisticsView() {
             </div>
 
             <DualAxisHistogram
-                title="1. Frequency by Number (0-36)"
+                title={gameType === 'roulette' ? "1. Frequency by Number (0-36)" : "Frequency by Target Slot (0-16)"}
                 data={numbersData}
                 total={totalBets}
             />
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <DualAxisHistogram
-                    title="2. Frequency by Row"
-                    data={rowsData}
-                    total={totalBets}
-                />
-                <DualAxisHistogram
-                    title="3. Frequency by Dozen"
-                    data={dozensData}
-                    total={totalBets}
-                />
-                <DualAxisHistogram
-                    title="4. Frequency by Half"
-                    data={halvesData}
-                    total={totalBets}
-                />
-                <DualAxisHistogram
-                    title="5. Frequency by Color"
-                    data={colorsData}
-                    total={totalBets}
-                />
-                <DualAxisHistogram
-                    title="6. Parity (Odd/Even)"
-                    data={parityData}
-                    total={totalBets}
-                />
-            </div>
+            {gameType === 'roulette' && (
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <DualAxisHistogram
+                        title="2. Frequency by Row"
+                        data={rowsData}
+                        total={totalBets}
+                    />
+                    <DualAxisHistogram
+                        title="3. Frequency by Dozen"
+                        data={dozensData}
+                        total={totalBets}
+                    />
+                    <DualAxisHistogram
+                        title="4. Frequency by Half"
+                        data={halvesData}
+                        total={totalBets}
+                    />
+                    <DualAxisHistogram
+                        title="5. Frequency by Color"
+                        data={colorsData}
+                        total={totalBets}
+                    />
+                    <DualAxisHistogram
+                        title="6. Parity (Odd/Even)"
+                        data={parityData}
+                        total={totalBets}
+                    />
+                </div>
+            )}
         </div>
     );
 }

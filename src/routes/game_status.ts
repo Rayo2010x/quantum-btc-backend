@@ -11,7 +11,7 @@ export async function gameStatusRoutes(app: FastifyInstance) {
 
         try {
             const res = await pool.query(
-                `SELECT b.status, b.final_result, b.payout_sat, b.server_seed_reveal, b.bet_details,
+                `SELECT b.status, b.final_result, b.game_type, b.payout_sat, b.server_seed_reveal, b.bet_details,
                         b.client_seed, b.drand_round, b.drand_randomness, b.drand_signature,
                         wt.k1, wt.is_used 
                  FROM bets b
@@ -28,7 +28,7 @@ export async function gameStatusRoutes(app: FastifyInstance) {
 
             // If still waiting, valid response, just status is WAITING
             if (bet.status === 'WAITING_PAYMENT') {
-                return { status: 'WAITING_PAYMENT' };
+                return { status: 'WAITING_PAYMENT', gameType: bet.game_type };
             }
 
             // If finished
@@ -43,6 +43,7 @@ export async function gameStatusRoutes(app: FastifyInstance) {
             return {
                 status: bet.status,
                 outcome: bet.final_result,
+                gameType: bet.game_type,
                 payoutSat: Number(bet.payout_sat),
                 serverSeedReveal: bet.server_seed_reveal,
                 clientSeed: bet.client_seed,

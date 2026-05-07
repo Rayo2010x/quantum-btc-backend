@@ -21,6 +21,8 @@ export function BetControls() {
     const [betStatus, setBetStatus] = useState<BetStatusResponse | null>(null);
     const [pollingBetId, setPollingBetId] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
+    const [clientSeed, setClientSeed] = useState<string>('');
+    const [showSettings, setShowSettings] = useState(false);
 
     // Animation State
     const [isSpinning, setIsSpinning] = useState(false);
@@ -142,7 +144,14 @@ export function BetControls() {
         setShowResultOverlay(false);
 
         try {
-            const clientSeed = "client-seed-" + Math.random().toString(36).substring(7);
+            let finalSeed = clientSeed.trim();
+            if (!finalSeed) {
+                // Generate a secure 16-byte hex string
+                const array = new Uint8Array(16);
+                window.crypto.getRandomValues(array);
+                finalSeed = Array.from(array).map(b => b.toString(16).padStart(2, '0')).join('');
+                setClientSeed(finalSeed); // Update UI so user sees what was generated
+            }
 
             // Map the frontend Group IDs into actual number arrays for the backend
             const payloadArray: { numbers: number[], amount: number }[] = Object.entries(bets).map(([key, amount]) => {
@@ -153,7 +162,7 @@ export function BetControls() {
                 }
             });
 
-            const res = await GameApi.placeBet(payloadArray, clientSeed);
+            const res = await GameApi.placeBet(payloadArray, finalSeed, 'roulette');
             setCurrentBet(res);
             setPollingBetId(res.betId);
         } catch (err: any) {
@@ -410,6 +419,30 @@ export function BetControls() {
                     >
                         <Trash2 size={20} />
                     </button>
+                </div>
+                
+                <div className="flex-1 max-w-sm ml-4">
+                    <button 
+                        onClick={() => setShowSettings(!showSettings)}
+                        className="text-xs font-bold text-gray-500 hover:text-primary transition-colors flex items-center gap-1 uppercase tracking-wider mb-2"
+                    >
+                        <AlertCircle size={14} /> Provably Fair Settings
+                    </button>
+                    
+                    {showSettings && (
+                        <div className="animate-in slide-in-from-top-2 fade-in duration-200 text-left">
+                            <input 
+                                type="text" 
+                                value={clientSeed} 
+                                onChange={(e) => setClientSeed(e.target.value)}
+                                placeholder="Auto-generated if empty"
+                                className="w-full bg-black/50 border border-white/20 rounded-md px-3 py-2 text-white font-mono text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                            />
+                            <p className="text-[10px] text-gray-500 mt-1 leading-tight">
+                                Provide your own entropy. Leave blank to auto-generate securely.
+                            </p>
+                        </div>
+                    )}
                 </div>
 
                 <button

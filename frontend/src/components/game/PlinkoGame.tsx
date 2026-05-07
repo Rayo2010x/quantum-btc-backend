@@ -10,6 +10,8 @@ export function PlinkoGame({ sessionId, isMaintenance }: { sessionId: string | n
     const [risk, setRisk] = useState<'low' | 'medium' | 'high'>('medium');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [clientSeed, setClientSeed] = useState<string>('');
+    const [showSettings, setShowSettings] = useState(false);
 
     // Non-Custodial States
     const [currentBet, setCurrentBet] = useState<PlaceBetResponse | null>(null);
@@ -69,10 +71,18 @@ export function PlinkoGame({ sessionId, isMaintenance }: { sessionId: string | n
         setShowResultOverlay(false);
 
         try {
-            const clientSeed = "plinko-seed-" + Math.random().toString(36).substring(7);
+            let finalSeed = clientSeed.trim();
+            if (!finalSeed) {
+                // Generate a secure 16-byte hex string
+                const array = new Uint8Array(16);
+                window.crypto.getRandomValues(array);
+                finalSeed = Array.from(array).map(b => b.toString(16).padStart(2, '0')).join('');
+                setClientSeed(finalSeed); // Update UI so user sees what was generated
+            }
+            
             const payload = [{ rows: 16, risk, amount: wager }];
             
-            const res = await GameApi.placeBet(payload, clientSeed, 'plinko');
+            const res = await GameApi.placeBet(payload, finalSeed, 'plinko');
             setCurrentBet(res);
             setPollingBetId(res.betId);
         } catch (err: any) {
@@ -144,6 +154,32 @@ export function PlinkoGame({ sessionId, isMaintenance }: { sessionId: string | n
                                     </button>
                                 ))}
                             </div>
+                        </div>
+
+                        {/* Provably Fair Settings Toggle */}
+                        <div className="pt-2 text-left">
+                            <button 
+                                onClick={() => setShowSettings(!showSettings)}
+                                className="text-xs font-bold text-gray-500 hover:text-primary transition-colors flex items-center gap-1 uppercase tracking-wider"
+                            >
+                                <AlertCircle size={14} /> Provably Fair Settings
+                            </button>
+                            
+                            {showSettings && (
+                                <div className="mt-3 space-y-2 animate-in slide-in-from-top-2 fade-in duration-200">
+                                    <label className="text-xs font-bold text-gray-400 uppercase tracking-wider">Client Seed</label>
+                                    <input 
+                                        type="text" 
+                                        value={clientSeed} 
+                                        onChange={(e) => setClientSeed(e.target.value)}
+                                        placeholder="Auto-generated if empty"
+                                        className="w-full bg-black/50 border border-white/20 rounded-md px-3 py-2 text-white font-mono text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                                    />
+                                    <p className="text-[10px] text-gray-500 leading-tight">
+                                        Provide your own entropy to guarantee the casino cannot predict the outcome. Leave blank to auto-generate securely.
+                                    </p>
+                                </div>
+                            )}
                         </div>
 
                         {/* Action Button */}

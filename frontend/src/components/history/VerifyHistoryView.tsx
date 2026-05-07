@@ -82,7 +82,8 @@ export function VerifyHistoryView({ sessionId, onRegisterClick }: VerifyHistoryV
                 drandRound: data.drandRound || 0,
                 drandRandomness: data.drandRandomness,
                 anuBytes: data.serverSeedReveal, // ANU entropy was used as the server seed base in our latest route implementation
-                finalOutcome: data.outcome
+                finalOutcome: data.outcome,
+                gameType: data.gameType || 'roulette'
             };
             setVerificationData(mockData);
 
@@ -95,9 +96,19 @@ export function VerifyHistoryView({ sessionId, onRegisterClick }: VerifyHistoryV
 
             setCalculatedHash(hash);
 
-            const hexPrefix = hash.substring(0, 8);
-            const decimalVal = parseInt(hexPrefix, 16);
-            setCalculatedOutcome(decimalVal % 37);
+            if (mockData.gameType === 'plinko') {
+                let slot = 0;
+                for (let i = 0; i < 16; i++) {
+                    const hexChar = hash.charAt(i);
+                    const intVal = parseInt(hexChar, 16);
+                    slot += intVal % 2;
+                }
+                setCalculatedOutcome(slot);
+            } else {
+                const hexPrefix = hash.substring(0, 8);
+                const decimalVal = parseInt(hexPrefix, 16);
+                setCalculatedOutcome(decimalVal % 37);
+            }
 
         } catch (error) {
             console.error(error);
@@ -207,7 +218,17 @@ export function VerifyHistoryView({ sessionId, onRegisterClick }: VerifyHistoryV
                                     &nbsp;&nbsp;<span className="text-purple-400">drand_randomness</span> <br />
                                     );<br />
                                     <br />
-                                    <span className="text-primary">const</span> result = parseInt(final_entropy.slice(0,8), 16) % 37;
+                                    {verificationData.gameType === 'plinko' ? (
+                                        <>
+                                            <span className="text-primary">let</span> result = 0;<br/>
+                                            <span className="text-primary">for</span> (<span className="text-primary">let</span> i = 0; i &lt; 16; i++) {'{'}<br/>
+                                            &nbsp;&nbsp;<span className="text-primary">const</span> hex = final_entropy.charAt(i);<br/>
+                                            &nbsp;&nbsp;result += parseInt(hex, 16) % 2;<br/>
+                                            {'}'}
+                                        </>
+                                    ) : (
+                                        <><span className="text-primary">const</span> result = parseInt(final_entropy.slice(0,8), 16) % 37;</>
+                                    )}
                                 </div>
 
                                 {/* Hash Result */}
@@ -298,8 +319,9 @@ export function VerifyHistoryView({ sessionId, onRegisterClick }: VerifyHistoryV
                                                 </td>
                                                 <td className="px-6 py-4 text-center">
                                                     {isFinished ? (
-                                                        <span className={`inline-flex items-center justify-center w-8 h-8 rounded-full font-bold
-                                                        ${bet.outcome === 0 ? 'bg-green-500/20 text-green-400 border border-green-500/30' :
+                                                        <span className={`inline-flex items-center justify-center min-w-[2rem] px-2 h-8 rounded-full font-bold
+                                                        ${bet.gameType === 'plinko' ? 'bg-primary/20 text-primary border border-primary/30' :
+                                                                bet.outcome === 0 ? 'bg-green-500/20 text-green-400 border border-green-500/30' :
                                                                 bet.outcome % 2 !== 0 ? 'bg-red-500/20 text-red-400 border border-red-500/30' :
                                                                     'bg-white/10 text-white border border-white/20'}`}
                                                         >

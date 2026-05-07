@@ -2,17 +2,21 @@ import { FastifyInstance } from "fastify";
 import { pool } from "../db/index.js";
 
 export async function statisticsRoutes(app: FastifyInstance) {
-    app.get<{ Querystring: { limit?: string } }>("/v1/game/statistics", async (req, reply) => {
+    app.get<{ Querystring: { limit?: string; gameType?: string } }>("/v1/game/statistics", async (req, reply) => {
         try {
             const limitParam = req.query.limit;
+            const gameType = req.query.gameType || 'roulette';
+            
             let limitQuery = "";
-            let queryParams: any[] = [];
+            let queryParams: any[] = [gameType];
+            let paramCounter = 2;
 
             if (limitParam && limitParam.toLowerCase() !== 'all') {
                 const limitNum = parseInt(limitParam, 10);
                 if (!isNaN(limitNum) && limitNum > 0) {
-                    limitQuery = "ORDER BY created_at DESC LIMIT $1";
+                    limitQuery = `ORDER BY created_at DESC LIMIT $${paramCounter}`;
                     queryParams.push(limitNum);
+                    paramCounter++;
                 }
             }
 
@@ -22,6 +26,7 @@ export async function statisticsRoutes(app: FastifyInstance) {
                     SELECT final_result
                     FROM bets
                     WHERE final_result IS NOT NULL
+                    AND game_type = $1
                     ${limitQuery}
                 )
             `;
@@ -43,9 +48,10 @@ export async function statisticsRoutes(app: FastifyInstance) {
                 queryParams
             );
 
-            // Default frequencies object from 0 to 36
+            // Default frequencies object depending on game type
             const frequencies: Record<number, number> = {};
-            for (let i = 0; i <= 36; i++) {
+            const maxSlot = gameType === 'plinko' ? 16 : 36;
+            for (let i = 0; i <= maxSlot; i++) {
                 frequencies[i] = 0;
             }
 
