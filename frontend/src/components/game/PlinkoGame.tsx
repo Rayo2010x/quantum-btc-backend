@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { GameApi, type PlaceBetResponse, type BetStatusResponse } from '../../lib/api';
 import { Loader2, AlertCircle, X, CheckCircle } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';

@@ -1,5 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { cn } from './BetControls';
+import { useEffect, useRef, useState } from 'react';
 
 export const MULTIPLIERS = {
     low: [16, 9, 2, 1.4, 1.4, 1.2, 1.1, 1, 0.5, 1, 1.1, 1.2, 1.4, 1.4, 2, 9, 16],
@@ -91,7 +90,7 @@ export function PlinkoBoard({ isDropping, targetSlot, risk, onDropFinish }: Plin
                 ctx.roundRect(mx - colWidth/2 + 2, my - 15, colWidth - 4, 30, 4);
                 ctx.fill();
                 
-                ctx.fillStyle = isActive ? '#000' : getMultiplierColor(multipliers[i], risk);
+                ctx.fillStyle = isActive ? '#000' : getMultiplierColor(multipliers[i]);
                 ctx.fillText(`${multipliers[i]}x`, mx, my);
             }
 
@@ -172,7 +171,7 @@ export function PlinkoBoard({ isDropping, targetSlot, risk, onDropFinish }: Plin
     );
 }
 
-function getMultiplierColor(val: number, risk: string) {
+function getMultiplierColor(val: number) {
     if (val <= 1) return '#9ca3af'; // gray-400
     if (val <= 3) return '#4ade80'; // green-400
     if (val <= 10) return '#fbbf24'; // amber-400
