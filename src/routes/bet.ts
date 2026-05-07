@@ -46,18 +46,29 @@ export async function betRoutes(app: FastifyInstance) {
     }
   }, async (req, reply) => {
     const MultiBetSchema = z.object({
-      sessionId: z.string().uuid(), // Still keep session for grouping/history
+      sessionId: z.string().uuid(),
+      gameType: z.enum(["roulette", "plinko"]).optional().default("roulette"),
       clientSeed: z.string().min(10),
-      bets: z.array(z.object({
-        numbers: z.array(z.number().min(0).max(36)).min(1).max(18),
-        amount: z.number().int().positive()
-      })).min(1).max(37).refine((bets) => {
-        // Enforce that length is a perfect divisor of 36 to avoid fractional satoshis
-        return bets.every(b => 36 % b.numbers.length === 0);
-      }, { message: "Invalid bet combination. The array length must perfectly divide 36." })
+      bets: z.array(z.any()).min(1)
+    }).superRefine((data, ctx) => {
+      if (data.gameType === "roulette") {
+        data.bets.forEach((b, i) => {
+          if (!b.numbers || !Array.isArray(b.numbers) || b.numbers.length < 1 || b.numbers.length > 18 || b.amount <= 0) {
+            ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Invalid roulette bet format", path: ["bets", i] });
+          } else if (36 % b.numbers.length !== 0) {
+            ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Invalid array length. Must divide 36.", path: ["bets", i] });
+          }
+        });
+      } else if (data.gameType === "plinko") {
+        data.bets.forEach((b, i) => {
+          if (typeof b.rows !== "number" || b.rows !== 16 || !["low", "medium", "high"].includes(b.risk) || b.amount <= 0) {
+            ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Invalid plinko bet format. Requires rows=16, risk='low'|'medium'|'high'", path: ["bets", i] });
+          }
+        });
+      }
     });
 
-    const { sessionId, bets, clientSeed } = MultiBetSchema.parse(req.body);
+    const { sessionId, gameType, bets, clientSeed } = MultiBetSchema.parse(req.body);
     const totalBetAmount = bets.reduce((sum, b) => sum + b.amount, 0);
 
     // Dynamic Bankroll Risk Management (Kelly Criterion)
@@ -67,10 +78,19 @@ export async function betRoutes(app: FastifyInstance) {
 
     // Calculate total potential exposure
     let maxPotentialPayout = 0;
-    bets.forEach(b => {
-      const multiplier = 36 / b.numbers.length;
-      maxPotentialPayout += b.amount * multiplier;
-    });
+    if (gameType === "roulette") {
+      bets.forEach((b: any) => {
+        const multiplier = 36 / b.numbers.length;
+        maxPotentialPayout += b.amount * multiplier;
+      });
+    } else if (gameType === "plinko") {
+      bets.forEach((b: any) => {
+        let maxMultiplier = 16;
+        if (b.risk === "medium") maxMultiplier = 110;
+        if (b.risk === "high") maxMultiplier = 1000;
+        maxPotentialPayout += b.amount * maxMultiplier;
+      });
+    }
 
     if (maxPotentialPayout > maxPayoutAllowed) {
       return reply.status(400).send({
@@ -123,16 +143,16 @@ export async function betRoutes(app: FastifyInstance) {
 
         // Flatten all selected numbers across all bets for the high-level selected_numbers column 
         // useful for simple DB queries, but actual payout logic will parse `bet_details` JSON.
-        const selectedNumbers = Array.from(new Set(bets.flatMap(b => b.numbers)));
+        const selectedNumbers = gameType === "roulette" ? Array.from(new Set(bets.flatMap((b: any) => b.numbers))) : [];
 
         const insert = await client.query(
           `INSERT INTO bets (
-                    session_id, amount_sat, payout_sat, selected_numbers, 
+                    session_id, game_type, amount_sat, payout_sat, selected_numbers, 
                     client_seed, server_seed_hash, server_seed_reveal, 
                     final_result, status, entropy_id, bet_details, invoice_id
-                ) VALUES ($1, $2, 0, $3, $4, $5, NULL, NULL, 'WAITING_PAYMENT', $6, $7, $8) RETURNING id`,
+                ) VALUES ($1, $2, $3, 0, $4, $5, $6, NULL, NULL, 'WAITING_PAYMENT', $7, $8, $9) RETURNING id`,
           [
-            sessionId, Number(totalBetAmount), selectedNumbers,
+            sessionId, gameType, Number(totalBetAmount), selectedNumbers,
             clientSeed, serverSeedHash,
             entropyId, JSON.stringify(bets), charge.id
           ]

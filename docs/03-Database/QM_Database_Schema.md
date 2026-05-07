@@ -1,8 +1,8 @@
 # Database Schema - QuantumBTC
 
 > **ID:** QM_Database_Schema
-> **Version:** 1.7
-> **Last Updated:** 2026-04-08
+> **Version:** 1.8
+> **Last Updated:** 2026-05-07
 > **Status:** APPROVED
 
 ## 1. Entity-Relationship Diagram (ERD)
@@ -39,6 +39,7 @@ erDiagram
     BET {
         uuid id PK
         uuid session_id FK
+        string game_type "roulette|plinko"
         bigint amount_sat
         int selected_number "0-36"
         string client_seed
@@ -85,6 +86,7 @@ Typically ephemeral, mostly for audit/logging in non-custodial mode.
 
 ### 2.2 Table: `bets`
 The core ledger of gameplay.
+*   **game_type:** `VARCHAR(20)`. Type of game ('roulette', 'plinko'). Defaults to 'roulette'.
 *   **amount_sat:** `BIGINT`. The wager (from Invoice).
 *   **payout_sat:** `BIGINT`. The win amount (0 if lost).
 *   **invoice_id:** `VARCHAR`. Link to OpenNode Charge.
@@ -150,6 +152,7 @@ CREATE TABLE entropy_buffer (
 CREATE TABLE bets (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   session_id UUID REFERENCES sessions(id),
+  game_type VARCHAR(20) DEFAULT 'roulette',
   amount_sat BIGINT NOT NULL,
   payout_sat BIGINT DEFAULT 0,
   invoice_id VARCHAR(100),

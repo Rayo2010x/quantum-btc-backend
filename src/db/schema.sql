@@ -53,6 +53,7 @@ CREATE INDEX IF NOT EXISTS idx_entropy_buffer_available ON entropy_buffer (creat
 CREATE TABLE IF NOT EXISTS bets (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   session_id UUID NOT NULL REFERENCES sessions(id),
+  game_type VARCHAR(20) DEFAULT 'roulette',
   amount_sat BIGINT NOT NULL CHECK (amount_sat > 0),
   payout_sat BIGINT NOT NULL DEFAULT 0 CHECK (payout_sat >= 0),
   

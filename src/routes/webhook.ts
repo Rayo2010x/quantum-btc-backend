@@ -18,6 +18,7 @@ import crypto from "node:crypto";
 import { broadcastGameResult } from "../services/websocket.js";
 import { fetchDrandLatest } from "../services/drand.js";
 import { syncBankrollBalance } from "../services/bankroll_worker.js";
+import { calculatePlinkoOutcome } from "../services/plinkoService.js";
 
 export async function webhookRoutes(app: FastifyInstance) {
   app.post("/v1/webhooks/opennode", {
@@ -106,36 +107,33 @@ export async function webhookRoutes(app: FastifyInstance) {
         // Drand Public Randomness already fetched outside of transaction
 
 
-        // Server Reveal = entropyData
-        // Calculate Outcome
-        // Need: server_seed (entropy), client_seed, drand_randomness
-
-        // Re-implement calculateOutcome helper here or reuse
-        const combined = crypto
-          .createHash("sha256")
-          .update(entropyData)
-          .update(bet.client_seed)
-          .update(drandRandomnessVal)
-          .digest("hex");
-        const intValue = parseInt(combined.substring(0, 8), 16);
-        const outcome = intValue % 37;
-
-        // Check Win
-        const betsList = bet.bet_details; // JSONB
+        let outcome = 0;
         let totalPayout = 0n;
 
-        // betsList is array of { numbers: number[], amount: number }
-        if (Array.isArray(betsList)) {
-          for (const b of betsList) {
-            // Because MVP originally used `number: number`, handle both for backwards compatibility
-            // if legacy records exist, though DB was wiped/migrated ideally.
-            const targetNumbers: number[] = b.numbers || (b.number !== undefined ? [b.number] : []);
+        if (bet.game_type === 'plinko') {
+          const b = bet.bet_details[0];
+          const plinkoRes = calculatePlinkoOutcome(entropyData, bet.client_seed + drandRandomnessVal, b.rows, b.risk);
+          outcome = plinkoRes.slot;
+          totalPayout = BigInt(Math.floor(b.amount * plinkoRes.multiplier));
+        } else {
+          // Roulette Logic
+          const combined = crypto
+            .createHash("sha256")
+            .update(entropyData)
+            .update(bet.client_seed)
+            .update(drandRandomnessVal)
+            .digest("hex");
+          const intValue = parseInt(combined.substring(0, 8), 16);
+          outcome = intValue % 37;
 
-            if (targetNumbers.includes(outcome)) {
-              // Calculate dynamic multiplier based on the spread of numbers
-              // e.g., Straight (1 number) = 36x, Red (18 numbers) = 2x, Dozen (12 numbers) = 3x
-              const multiplier = BigInt(Math.floor(36 / targetNumbers.length));
-              totalPayout += BigInt(b.amount) * multiplier;
+          const betsList = bet.bet_details; // JSONB
+          if (Array.isArray(betsList)) {
+            for (const b of betsList) {
+              const targetNumbers: number[] = b.numbers || (b.number !== undefined ? [b.number] : []);
+              if (targetNumbers.includes(outcome)) {
+                const multiplier = BigInt(Math.floor(36 / targetNumbers.length));
+                totalPayout += BigInt(b.amount) * multiplier;
+              }
             }
           }
         }

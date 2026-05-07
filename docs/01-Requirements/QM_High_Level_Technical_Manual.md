@@ -1,8 +1,8 @@
 # High-Level Technical Manual: QuantumBTC Project
 
 > **ID:** QM_High_Level_Technical_Manual
-> **Version:** 2.18
-> **Last Updated:** 2026-04-08
+> **Version:** 2.19
+> **Last Updated:** 2026-05-07
 > **Status:** APPROVED
 
 ## 1. Operation Summary
@@ -42,7 +42,9 @@ For a secure integration between the API and the QuantumBTC Front-End, the follo
 -   **HTTP 400 Bad Request (Exposure Limit):** If a bet exceeds the calculation established by the elastic limit (`MaxBet`), usually if the total payout breaks the dynamic threshold (approx > 2% of the Bankroll), the server will reject the request indicating `400 Bad Request`. The Frontend must capture this error and show a visual Toast or alert explaining that the maximum payout limit per play was exceeded.
 -   **HTTP 503 Service Unavailable (Red Alert):** If the Bankroll drops to critical levels (e.g., `< 20,000 Sats`), the system enters a liquidity protection mode. The backend will respond with `503 Service Unavailable`. The Frontend must lock all betting controls (Disable) and display a "Liquidity Maintenance" overlay/banner.
 
-## 3. European Roulette Mechanics
+## 3. Game Mechanics
+
+### 3.1 European Roulette
 The standard 37-number model (0-36) is used. Zero always favors the house in outside bets.
 
 The system supports simple and complex bets (Outside Bets, Dozens, Splits) by evaluating an **Array of Numbers**.
@@ -73,6 +75,19 @@ To maintain the "Premium" experience, the system must not immediately show the n
 *   **Winner (Pending Claim):** The LNURL-withdraw QR code is shown. A "Play Again" button should not be displayed below the QR.
 *   **Winner (Prize Claimed):** Once the player successfully scans and claims the LNURL (detected via polling of the token status or webhook), the QR must be hidden and replaced with the message "Prize transferred. Congrats!".
 *   **Prize Loss Prevention:** If the player attempts to press "SPIN" for a new play while a winning prize exists that has **not** been claimed, the front-end must intercept the action with an explicit warning dialog to prevent them from losing sight of the claiming QR. Emit the message: *"Warning: You haven't claimed your prize yet! If you continue without claiming, you might lose it. Do you want to continue?"*
+
+### 3.2 Plinko Mechanics
+Plinko is a game where a ball drops through a pegboard of $N$ rows, bouncing left or right at each peg until it lands in a multiplier slot at the bottom.
+
+The API receives a `risk` level (low, medium, high) and `rows` (e.g., 16).
+The multiplier table is determined by the `risk` and `rows` configuration.
+
+**Entropy Resolution (Provably Fair)**
+The `final_entropy` hash (SHA256) provides 256 bits of randomness. Since a 16-row Plinko requires 16 binary choices (Left = 0, Right = 1), we use the first 16 bits of the hash to determine the path.
+
+$$Slot = \sum_{i=1}^{Rows} bit_i$$
+
+Where $Slot$ determines the final index in the multiplier array. The system ensures perfect 50/50 probability for each bounce. The visual result matches the mathematical calculation performed by the backend.
 
 ## 4. Provably Fair and Entropy Buffer
 The engine uses a hybrid Commit-Reveal scheme to ensure transparency and eliminate latency.

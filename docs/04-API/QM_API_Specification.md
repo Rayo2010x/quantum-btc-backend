@@ -1,8 +1,8 @@
 # API Specification - QuantumBTC
 
 > **ID:** QM_API_Specification
-> **Version:** 2.0
-> **Last Updated:** 2026-04-08
+> **Version:** 2.1
+> **Last Updated:** 2026-05-07
 > **Status:** APPROVED
 
 ## 1. Base URL
@@ -24,12 +24,23 @@
     ```json
     {
       "sessionId": "uuid",
+      "gameType": "roulette", // Optional, defaults to "roulette"
       "bets": [
         { "numbers": [0], "amount": 100 },
         { "numbers": [1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36], "amount": 500 }
       ],
       "clientSeed": "user_provided_entropy"
     }
+
+    // Example for Plinko:
+    // {
+    //   "sessionId": "uuid",
+    //   "gameType": "plinko",
+    //   "bets": [
+    //     { "risk": "high", "rows": 16, "amount": 100 }
+    //   ],
+    //   "clientSeed": "user_provided_entropy"
+    // }
     ```
 *   **Response:**
     ```json
