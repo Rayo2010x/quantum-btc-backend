@@ -73,8 +73,8 @@ export function PlinkoBoard({ isDropping, targetSlot, risk, onDropFinish }: Plin
             
             // Draw Pegs
             ctx.fillStyle = '#4b5563';
-            for (let r = 2; r <= rows; r++) {
-                const cols = r + 1;
+            for (let r = 1; r <= rows; r++) {
+                const cols = r;
                 const startX = (width - (cols - 1) * colWidth) / 2;
                 for (let c = 0; c < cols; c++) {
                     ctx.beginPath();
@@ -153,8 +153,8 @@ export function PlinkoBoard({ isDropping, targetSlot, risk, onDropFinish }: Plin
                         const move = path[currentRow]; // 0 or 1
                         
                         // Calculate start X/Y for this row
-                        let currentCols = currentRow + 2;
-                        let startXRow = (width - (currentCols - 1) * colWidth) / 2;
+                        let startCols = currentRow + 1;
+                        let startXRow = (width - (startCols - 1) * colWidth) / 2;
                         
                         // Count previous rights to know current column index
                         let currentC = 0;
@@ -164,7 +164,7 @@ export function PlinkoBoard({ isDropping, targetSlot, risk, onDropFinish }: Plin
                         let startYPos = (currentRow + 1) * rowHeight;
                         
                         // Calculate end X/Y for next row
-                        let nextCols = currentRow + 3;
+                        let nextCols = currentRow + 2;
                         let nextStartXRow = (width - (nextCols - 1) * colWidth) / 2;
                         let nextC = currentC + move;
                         
