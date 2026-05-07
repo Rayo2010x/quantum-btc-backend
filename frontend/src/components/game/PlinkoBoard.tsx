@@ -16,10 +16,14 @@ interface PlinkoBoardProps {
 export function PlinkoBoard({ isDropping, targetSlot, risk, onDropFinish }: PlinkoBoardProps) {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const [path, setPath] = useState<number[]>([]);
+    const [dropState, setDropState] = useState<'idle' | 'quantum' | 'falling'>('idle');
+    const quantumTimerRef = useRef<NodeJS.Timeout | null>(null);
     
     // Generate a physics path when drop starts
     useEffect(() => {
         if (isDropping && targetSlot !== null) {
+            setDropState('quantum');
+
             // targetSlot is 0-16. This means we need exactly `targetSlot` Right moves out of 16.
             const moves = Array(16).fill(0); // 0 = Left, 1 = Right
             for (let i = 0; i < targetSlot; i++) moves[i] = 1;
@@ -30,6 +34,15 @@ export function PlinkoBoard({ isDropping, targetSlot, risk, onDropFinish }: Plin
                 [moves[i], moves[j]] = [moves[j], moves[i]];
             }
             setPath(moves);
+
+            // Wait 1.5s in quantum superposition before collapsing into a path
+            if (quantumTimerRef.current) clearTimeout(quantumTimerRef.current);
+            quantumTimerRef.current = setTimeout(() => {
+                setDropState('falling');
+            }, 1500);
+        } else {
+            setDropState('idle');
+            if (quantumTimerRef.current) clearTimeout(quantumTimerRef.current);
         }
     }, [isDropping, targetSlot]);
 
@@ -94,8 +107,40 @@ export function PlinkoBoard({ isDropping, targetSlot, risk, onDropFinish }: Plin
                 ctx.fillText(`${multipliers[i]}x`, mx, my);
             }
 
-            // Draw Ball if dropping
-            if (isDropping && path.length > 0) {
+            // Draw Ball based on state
+            if (dropState === 'idle') {
+                // Static ball waiting at the top
+                ctx.fillStyle = '#00f0ff';
+                ctx.shadowColor = '#00f0ff';
+                ctx.shadowBlur = 10;
+                ctx.beginPath();
+                ctx.arc(width / 2, 20, ballRadius, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.shadowBlur = 0;
+            } else if (dropState === 'quantum') {
+                // Quantum superposition effect (vibrating/glitching)
+                const time = Date.now();
+                
+                // Draw multiple ghost balls
+                for(let i = 0; i < 5; i++) {
+                    const offsetX = (Math.random() - 0.5) * 12;
+                    const offsetY = (Math.random() - 0.5) * 12;
+                    
+                    ctx.fillStyle = `rgba(0, 240, 255, ${Math.random() * 0.4 + 0.1})`;
+                    ctx.beginPath();
+                    ctx.arc(width / 2 + offsetX, 20 + offsetY, ballRadius, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+                
+                // Core ball with pulsating glow
+                ctx.fillStyle = '#00f0ff';
+                ctx.shadowColor = '#00f0ff';
+                ctx.shadowBlur = 15 + Math.random() * 15;
+                ctx.beginPath();
+                ctx.arc(width / 2, 20, ballRadius, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.shadowBlur = 0;
+            } else if (dropState === 'falling' && path.length > 0) {
                 // Animate ball
                 if (currentRow < 16) {
                     progress += 0.08; // speed
@@ -147,7 +192,8 @@ export function PlinkoBoard({ isDropping, targetSlot, risk, onDropFinish }: Plin
                 ctx.shadowBlur = 0;
             }
 
-            if (isDropping) {
+            // Continue animation loop if not idle
+            if (dropState !== 'idle') {
                 animationFrameId = requestAnimationFrame(render);
             }
         };
@@ -157,7 +203,7 @@ export function PlinkoBoard({ isDropping, targetSlot, risk, onDropFinish }: Plin
         return () => {
             if (animationFrameId) cancelAnimationFrame(animationFrameId);
         };
-    }, [isDropping, path, risk, targetSlot]);
+    }, [dropState, path, risk, targetSlot]);
 
     return (
         <div className="w-full flex justify-center py-8">
