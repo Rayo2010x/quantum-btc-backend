@@ -10,13 +10,15 @@ interface PlinkoBoardProps {
     isDropping: boolean;
     targetSlot: number | null;
     risk: 'low' | 'medium' | 'high';
+    wager: number;
     onDropFinish: () => void;
 }
 
-export function PlinkoBoard({ isDropping, targetSlot, risk, onDropFinish }: PlinkoBoardProps) {
+export function PlinkoBoard({ isDropping, targetSlot, risk, wager, onDropFinish }: PlinkoBoardProps) {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const [path, setPath] = useState<number[]>([]);
     const [dropState, setDropState] = useState<'idle' | 'quantum' | 'falling'>('idle');
+    const [hoveredSlot, setHoveredSlot] = useState<number | null>(null);
     const quantumTimerRef = useRef<number | null>(null);
     
     // Generate a physics path when drop starts
@@ -103,8 +105,42 @@ export function PlinkoBoard({ isDropping, targetSlot, risk, onDropFinish }: Plin
                 ctx.roundRect(mx - colWidth/2 + 2, my - 15, colWidth - 4, 30, 4);
                 ctx.fill();
                 
+                // If hovered, draw an outline
+                if (hoveredSlot === i && !isDropping) {
+                    ctx.strokeStyle = '#00f0ff';
+                    ctx.lineWidth = 2;
+                    ctx.stroke();
+                }
+                
                 ctx.fillStyle = isActive ? '#000' : getMultiplierColor(multipliers[i]);
                 ctx.fillText(`${multipliers[i]}x`, mx, my);
+                
+                // Draw Tooltip for hovered slot
+                if (hoveredSlot === i && !isDropping) {
+                    const prize = Math.floor(wager * multipliers[i]);
+                    const tipText = `${prize} SATS`;
+                    ctx.font = 'bold 12px font-display';
+                    const textWidth = ctx.measureText(tipText).width;
+                    
+                    const tipX = mx;
+                    const tipY = my - 35;
+                    
+                    // Tooltip background
+                    ctx.fillStyle = '#000000';
+                    ctx.beginPath();
+                    ctx.roundRect(tipX - textWidth/2 - 8, tipY - 14, textWidth + 16, 28, 4);
+                    ctx.fill();
+                    ctx.strokeStyle = '#00f0ff';
+                    ctx.lineWidth = 1;
+                    ctx.stroke();
+                    
+                    // Tooltip text
+                    ctx.fillStyle = prize > wager ? '#4ade80' : prize < wager ? '#ef4444' : '#fbbf24';
+                    ctx.fillText(tipText, tipX, tipY);
+                    
+                    // Restore font
+                    ctx.font = 'bold 12px monospace';
+                }
             }
 
             // Draw Ball based on state
@@ -202,7 +238,49 @@ export function PlinkoBoard({ isDropping, targetSlot, risk, onDropFinish }: Plin
         return () => {
             if (animationFrameId) cancelAnimationFrame(animationFrameId);
         };
-    }, [dropState, path, risk, targetSlot]);
+    }, [dropState, path, risk, targetSlot, hoveredSlot, wager]);
+
+    // Handle hover
+    const handleMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
+        if (isDropping) {
+            setHoveredSlot(null);
+            return;
+        }
+        
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+        
+        const rect = canvas.getBoundingClientRect();
+        const scaleX = canvas.width / rect.width;
+        const scaleY = canvas.height / rect.height;
+        
+        const mouseX = (e.clientX - rect.left) * scaleX;
+        const mouseY = (e.clientY - rect.top) * scaleY;
+        
+        // Check if mouse is in the bottom area where slots are
+        if (mouseY > canvas.height - 40 && mouseY < canvas.height) {
+            const rows = 16;
+            const colWidth = canvas.width / (rows + 2);
+            const startX = (canvas.width - (17 - 1) * colWidth) / 2;
+            
+            // Find which slot we are hovering
+            let found = null;
+            for (let i = 0; i < 17; i++) {
+                const mx = startX + i * colWidth;
+                if (Math.abs(mouseX - mx) <= colWidth / 2) {
+                    found = i;
+                    break;
+                }
+            }
+            setHoveredSlot(found);
+        } else {
+            setHoveredSlot(null);
+        }
+    };
+    
+    const handleMouseLeave = () => {
+        setHoveredSlot(null);
+    };
 
     return (
         <div className="w-full flex justify-center py-8">
@@ -210,6 +288,8 @@ export function PlinkoBoard({ isDropping, targetSlot, risk, onDropFinish }: Plin
                 ref={canvasRef} 
                 width={800} 
                 height={600} 
+                onMouseMove={handleMouseMove}
+                onMouseLeave={handleMouseLeave}
                 className="max-w-full h-auto bg-black/20 rounded-xl border border-white/5 shadow-2xl"
             />
         </div>

@@ -3,7 +3,7 @@ import { GameApi, type PlaceBetResponse, type BetStatusResponse } from '../../li
 import { Loader2, AlertCircle, X, CheckCircle } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import { cn } from './BetControls';
-import { PlinkoBoard } from './PlinkoBoard';
+import { PlinkoBoard, MULTIPLIERS } from './PlinkoBoard';
 
 export function PlinkoGame({ sessionId, isMaintenance }: { sessionId: string | null; isMaintenance: boolean }) {
     const [wager, setWager] = useState<number>(100);
@@ -129,12 +129,15 @@ export function PlinkoGame({ sessionId, isMaintenance }: { sessionId: string | n
                                 <input 
                                     type="number" 
                                     value={wager} 
-                                    onChange={(e) => setWager(Math.max(1, parseInt(e.target.value) || 0))}
+                                    onChange={(e) => setWager(parseInt(e.target.value) || 0)}
                                     className="w-full bg-black/50 border border-white/20 rounded-md px-4 py-3 text-white font-mono text-xl focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
                                 />
-                                <button onClick={() => setWager(Math.floor(wager / 2))} className="bg-white/10 hover:bg-white/20 px-4 rounded-md font-bold transition-colors">/2</button>
+                                <button onClick={() => setWager(Math.max(5, Math.floor(wager / 2)))} className="bg-white/10 hover:bg-white/20 px-4 rounded-md font-bold transition-colors">/2</button>
                                 <button onClick={() => setWager(wager * 2)} className="bg-white/10 hover:bg-white/20 px-4 rounded-md font-bold transition-colors">x2</button>
                             </div>
+                            {wager < 5 && (
+                                <p className="text-red-400 text-[10px] uppercase font-bold mt-1">Minimum bet is 5 sats to prevent fractional dust loss.</p>
+                            )}
                         </div>
 
                         {/* Risk Selector */}
@@ -185,10 +188,10 @@ export function PlinkoGame({ sessionId, isMaintenance }: { sessionId: string | n
                         {/* Action Button */}
                         <button
                             onClick={handleDrop}
-                            disabled={loading || wager <= 0 || isMaintenance || isDropping}
+                            disabled={loading || wager < 5 || isMaintenance || isDropping}
                             className={cn(
                                 "w-full py-5 rounded-xl font-bold text-2xl uppercase tracking-widest transition-all font-display mt-auto",
-                                loading || wager <= 0 || isMaintenance || isDropping
+                                loading || wager < 5 || isMaintenance || isDropping
                                     ? "bg-gray-800 text-gray-500 cursor-not-allowed"
                                     : "bg-primary text-black hover:bg-primary/90 shadow-[0_0_20px_rgba(0,240,255,0.3)] hover:shadow-[0_0_30px_rgba(0,240,255,0.5)] active:scale-95"
                             )}
@@ -224,6 +227,7 @@ export function PlinkoGame({ sessionId, isMaintenance }: { sessionId: string | n
                             isDropping={isDropping} 
                             targetSlot={betStatus?.outcome ?? null} 
                             risk={risk}
+                            wager={wager}
                             onDropFinish={handleDropFinish}
                         />
                     </div>
@@ -240,7 +244,7 @@ export function PlinkoGame({ sessionId, isMaintenance }: { sessionId: string | n
                         <div className="flex flex-wrap justify-center gap-12 mb-6">
                             <div>
                                 <span className="text-gray-500 block text-xs uppercase">Multiplier</span>
-                                <span className="font-mono text-3xl text-white">x{(betStatus.payoutSat! / wager).toFixed(2)}</span>
+                                <span className="font-mono text-3xl text-white">x{betStatus.outcome !== undefined ? (MULTIPLIERS as any)[risk][betStatus.outcome].toFixed(2) : "0.00"}</span>
                             </div>
                             <div>
                                 <span className="text-gray-500 block text-xs uppercase">Prize</span>

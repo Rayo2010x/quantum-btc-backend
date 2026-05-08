@@ -61,8 +61,8 @@ export async function betRoutes(app: FastifyInstance) {
         });
       } else if (data.gameType === "plinko") {
         data.bets.forEach((b, i) => {
-          if (typeof b.rows !== "number" || b.rows !== 16 || !["low", "medium", "high"].includes(b.risk) || b.amount <= 0) {
-            ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Invalid plinko bet format. Requires rows=16, risk='low'|'medium'|'high'", path: ["bets", i] });
+          if (typeof b.rows !== "number" || b.rows !== 16 || !["low", "medium", "high"].includes(b.risk) || b.amount < 5) {
+            ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Invalid plinko bet. Requires rows=16, risk='low'|'medium'|'high', and min amount 5 sats", path: ["bets", i] });
           }
         });
       }
