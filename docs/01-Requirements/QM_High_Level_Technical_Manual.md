@@ -1,7 +1,7 @@
 # High-Level Technical Manual: QuantumBTC Project
 
 > **ID:** QM_High_Level_Technical_Manual
-> **Version:** 2.19
+> **Version:** 2.20
 > **Last Updated:** 2026-05-07
 > **Status:** APPROVED
 
@@ -81,6 +81,9 @@ Plinko is a game where a ball drops through a pegboard of $N$ rows, bouncing lef
 
 The API receives a `risk` level (low, medium, high) and `rows` (e.g., 16).
 The multiplier table is determined by the `risk` and `rows` configuration.
+
+**Micro-Bet Constraints (Fractional Dust Prevention)**
+Since Bitcoin and Lightning operate natively in whole satoshis, and Plinko contains fractional multipliers (e.g., $0.2\times$), the minimum allowed bet is mathematically constrained to **5 Sats**. This ensures that the lowest possible payout ($5 \times 0.2$) results in exactly 1 satoshi, preventing players from losing 100% of their bet to downward rounding (`Math.floor`) on minimal wagers.
 
 **Entropy Resolution (Provably Fair)**
 The `final_entropy` hash (SHA256) provides 256 bits of randomness. Since a 16-row Plinko requires 16 binary choices (Left = 0, Right = 1), we use the first 16 bits of the hash to determine the path.

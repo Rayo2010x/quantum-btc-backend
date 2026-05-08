@@ -13,7 +13,7 @@
 ## 01-Requirements (Business Logic)
 | Artifact | Version | Status | Last Modified |
 | :--- | :--- | :--- | :--- |
-| [High-Level Technical Manual](01-Requirements/QM_High_Level_Technical_Manual.md) | 2.19 | **APPROVED** | 2026-05-07 |
+| [High-Level Technical Manual](01-Requirements/QM_High_Level_Technical_Manual.md) | 2.20 | **APPROVED** | 2026-05-08 |
 | [Transparency & Verification](01-Requirements/QM_Transparency_and_Verification.md) | 1.0 | **APPROVED** | 2026-03-03 |
 | [Bankroll & Risk Analysis](01-Requirements/QM_Bankroll_Risk_Analysis.md) | 1.1 | **DRAFT** | 2026-04-08 |
 | [Frontend Integration Plan](01-Requirements/QM_Frontend_Integration_Plan.md) | 1.1 | **APPROVED** | 2026-04-08 |
