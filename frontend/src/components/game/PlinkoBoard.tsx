@@ -9,12 +9,13 @@ export const MULTIPLIERS = {
 interface PlinkoBoardProps {
     isDropping: boolean;
     targetSlot: number | null;
+    exactPath?: number[] | null;
     risk: 'low' | 'medium' | 'high';
     wager: number;
     onDropFinish: () => void;
 }
 
-export function PlinkoBoard({ isDropping, targetSlot, risk, wager, onDropFinish }: PlinkoBoardProps) {
+export function PlinkoBoard({ isDropping, targetSlot, exactPath, risk, wager, onDropFinish }: PlinkoBoardProps) {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const [path, setPath] = useState<number[]>([]);
     const [dropState, setDropState] = useState<'idle' | 'quantum' | 'falling'>('idle');
@@ -26,16 +27,20 @@ export function PlinkoBoard({ isDropping, targetSlot, risk, wager, onDropFinish 
         if (isDropping && targetSlot !== null) {
             setDropState('quantum');
 
-            // targetSlot is 0-16. This means we need exactly `targetSlot` Right moves out of 16.
-            const moves = Array(16).fill(0); // 0 = Left, 1 = Right
-            for (let i = 0; i < targetSlot; i++) moves[i] = 1;
-            
-            // Shuffle
-            for (let i = moves.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [moves[i], moves[j]] = [moves[j], moves[i]];
+            if (exactPath && exactPath.length === 16) {
+                setPath(exactPath);
+            } else {
+                // targetSlot is 0-16. This means we need exactly `targetSlot` Right moves out of 16.
+                const moves = Array(16).fill(0); // 0 = Left, 1 = Right
+                for (let i = 0; i < targetSlot; i++) moves[i] = 1;
+                
+                // Shuffle
+                for (let i = moves.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [moves[i], moves[j]] = [moves[j], moves[i]];
+                }
+                setPath(moves);
             }
-            setPath(moves);
 
             // Wait 1.5s in quantum superposition before collapsing into a path
             if (quantumTimerRef.current) clearTimeout(quantumTimerRef.current);
@@ -238,7 +243,7 @@ export function PlinkoBoard({ isDropping, targetSlot, risk, wager, onDropFinish 
         return () => {
             if (animationFrameId) cancelAnimationFrame(animationFrameId);
         };
-    }, [dropState, path, risk, targetSlot, hoveredSlot, wager]);
+    }, [dropState, path, risk, targetSlot, hoveredSlot, wager, exactPath]);
 
     // Handle hover
     const handleMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {

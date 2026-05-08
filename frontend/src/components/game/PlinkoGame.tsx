@@ -21,6 +21,7 @@ export function PlinkoGame({ sessionId, isMaintenance }: { sessionId: string | n
     // Animation State
     const [isDropping, setIsDropping] = useState(false);
     const [showResultOverlay, setShowResultOverlay] = useState(false);
+    const [exactPath, setExactPath] = useState<number[] | null>(null);
 
     useEffect(() => {
         if (!pollingBetId) return;
@@ -32,6 +33,21 @@ export function PlinkoGame({ sessionId, isMaintenance }: { sessionId: string | n
                     setBetStatus(status);
                     
                     if (status.outcome !== undefined && !isDropping && !showResultOverlay) {
+                        // Calculate exact path if seeds are available
+                        let pathForBoard: number[] | null = null;
+                        if (status.serverSeedReveal && status.clientSeed && status.drandRandomness) {
+                            const combinedString = `${status.serverSeedReveal}${status.clientSeed}${status.drandRandomness}`;
+                            const msgBuffer = new TextEncoder().encode(combinedString);
+                            const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+                            const hashArray = Array.from(new Uint8Array(hashBuffer));
+                            const hash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+                            
+                            pathForBoard = [];
+                            for (let i = 0; i < 16; i++) {
+                                pathForBoard.push(parseInt(hash.charAt(i), 16) % 2);
+                            }
+                        }
+                        setExactPath(pathForBoard);
                         setIsDropping(true);
                         setCurrentBet(null);
                     }
@@ -69,6 +85,7 @@ export function PlinkoGame({ sessionId, isMaintenance }: { sessionId: string | n
         setPollingBetId(null);
         setIsDropping(false);
         setShowResultOverlay(false);
+        setExactPath(null);
 
         try {
             let finalSeed = clientSeed.trim();
@@ -226,6 +243,7 @@ export function PlinkoGame({ sessionId, isMaintenance }: { sessionId: string | n
                         <PlinkoBoard 
                             isDropping={isDropping} 
                             targetSlot={betStatus?.outcome ?? null} 
+                            exactPath={exactPath}
                             risk={risk}
                             wager={wager}
                             onDropFinish={handleDropFinish}
