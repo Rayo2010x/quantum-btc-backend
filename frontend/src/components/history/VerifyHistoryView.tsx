@@ -270,7 +270,7 @@ export function VerifyHistoryView({ sessionId, onRegisterClick }: VerifyHistoryV
             {/* --- BOTTOM SECTION: HISTORY TABLE --- */}
             <div className="space-y-6 pt-10 border-t border-white/10">
                 <div className="flex items-center justify-between">
-                    <h3 className="text-2xl font-bold text-white">Bet <span className="text-primary">History</span></h3>
+                    <h3 className="text-2xl font-bold text-white">Your Bet <span className="text-primary">History</span></h3>
                     <div className="text-sm text-gray-500 font-mono">
                         {sessionId ? `Session: ${sessionId.substring(0, 8)}...` : 'Connecting...'}
                     </div>
@@ -293,15 +293,18 @@ export function VerifyHistoryView({ sessionId, onRegisterClick }: VerifyHistoryV
                                     <tr>
                                         <th className="px-6 py-4">Time</th>
                                         <th className="px-6 py-4">Bet ID</th>
-                                        <th className="px-6 py-4">Status</th>
                                         <th className="px-6 py-4 text-center">Outcome</th>
-                                        <th className="px-6 py-4 text-right">Net</th>
+                                        <th className="px-6 py-4 text-right">NET P&L</th>
                                         <th className="px-6 py-4 text-center">Verification</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {bets.map((bet) => {
                                         const isFinished = bet.status === 'WON' || bet.status === 'LOST';
+                                        const netPnl = isFinished ? bet.payoutSat - bet.amountSat : null;
+                                        const pnlColor = !isFinished ? 'text-gray-400' : (netPnl! > 0 ? 'text-green-400' : (netPnl! < 0 ? 'text-red-400' : 'text-gray-300'));
+                                        const pnlText = !isFinished ? 'Pending' : (netPnl! > 0 ? `+${netPnl}` : `${netPnl}`);
+
                                         return (
                                             <tr key={bet.id} className="border-b border-white/5 hover:bg-white/5 transition-colors">
                                                 <td className="px-6 py-4 text-gray-400 font-mono text-xs whitespace-nowrap">
@@ -313,9 +316,6 @@ export function VerifyHistoryView({ sessionId, onRegisterClick }: VerifyHistoryV
                                                 </td>
                                                 <td className="px-6 py-4 font-mono text-xs text-gray-300">
                                                     {bet.id}
-                                                </td>
-                                                <td className="px-6 py-4 text-gray-400 text-xs">
-                                                    {bet.status}
                                                 </td>
                                                 <td className="px-6 py-4 text-center">
                                                     {isFinished ? (
@@ -329,8 +329,8 @@ export function VerifyHistoryView({ sessionId, onRegisterClick }: VerifyHistoryV
                                                         </span>
                                                     ) : <span className="text-gray-500">-</span>}
                                                 </td>
-                                                <td className={`px-6 py-4 text-right font-bold ${bet.status === 'WON' ? 'text-green-400' : bet.status === 'LOST' ? 'text-gray-500' : 'text-gray-400'}`}>
-                                                    {bet.status === 'WON' ? `+${bet.payoutSat}` : bet.status === 'LOST' ? `-${bet.amountSat}` : `${bet.amountSat} pending`}
+                                                <td className={`px-6 py-4 text-right font-bold ${pnlColor}`}>
+                                                    {pnlText}
                                                 </td>
                                                 <td className="px-6 py-4 text-center">
                                                     {isFinished && (
