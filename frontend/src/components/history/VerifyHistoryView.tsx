@@ -292,7 +292,8 @@ export function VerifyHistoryView({ sessionId, onRegisterClick }: VerifyHistoryV
                                 <thead className="text-xs text-gray-400 uppercase bg-black/60 border-b border-white/10">
                                     <tr>
                                         <th className="px-6 py-4">Time</th>
-                                        <th className="px-6 py-4">Bet ID</th>
+                                        <th className="px-6 py-4 max-w-[150px]">Bet ID</th>
+                                        <th className="px-6 py-4">Game</th>
                                         <th className="px-6 py-4 text-center">Outcome</th>
                                         <th className="px-6 py-4 text-right">NET P&L</th>
                                         <th className="px-6 py-4 text-center">Verification</th>
@@ -314,8 +315,11 @@ export function VerifyHistoryView({ sessionId, onRegisterClick }: VerifyHistoryV
                                                         return `${d.getUTCFullYear()}-${pad(d.getUTCMonth() + 1)}-${pad(d.getUTCDate())} ${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())}:${pad(d.getUTCSeconds())}+00`;
                                                     })()}
                                                 </td>
-                                                <td className="px-6 py-4 font-mono text-xs text-gray-300">
+                                                <td className="px-6 py-4 font-mono text-xs text-gray-300 max-w-[150px] truncate" title={bet.id}>
                                                     {bet.id}
+                                                </td>
+                                                <td className="px-6 py-4 text-gray-300 capitalize text-xs">
+                                                    {bet.gameType || 'Roulette'}
                                                 </td>
                                                 <td className="px-6 py-4 text-center">
                                                     {isFinished ? (
