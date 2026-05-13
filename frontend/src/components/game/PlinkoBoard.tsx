@@ -145,10 +145,22 @@ export function PlinkoBoard({ isDropping, balls, risk, wager, runsCount, onDropF
                 const mx = slotStartX + i * colWidth;
                 const my = height - 20;
                 
-                // Highlight active slots for single-ball completed state
-                const isActive = dropState === 'finished' && balls.length === 1 && balls[0]?.slot === i;
+                // Highlight slots where balls landed
+                const isActiveSingle = dropState === 'finished' && balls.length === 1 && balls[0]?.slot === i;
+                const hitCount = dropState === 'finished' && balls.length > 1 ? slotHitsRef.current[i] : 0;
+                const isHit = isActiveSingle || hitCount > 0;
                 
-                ctx.fillStyle = isActive ? '#00f0ff' : '#1f2937';
+                // Determine slot background color
+                let slotBg = '#1f2937'; // default dark
+                if (isActiveSingle) {
+                    slotBg = '#00f0ff';
+                } else if (hitCount > 0) {
+                    // Use the first ball's color that landed here for the highlight
+                    const firstBallIdx = balls.findIndex(b => b.slot === i);
+                    slotBg = firstBallIdx >= 0 ? getBallColor(firstBallIdx, balls.length) : '#00f0ff';
+                }
+                
+                ctx.fillStyle = slotBg;
                 ctx.beginPath();
                 ctx.roundRect(mx - colWidth/2 + 2, my - 15, colWidth - 4, 30, 4);
                 ctx.fill();
@@ -160,7 +172,7 @@ export function PlinkoBoard({ isDropping, balls, risk, wager, runsCount, onDropF
                     ctx.stroke();
                 }
                 
-                ctx.fillStyle = isActive ? '#000' : getMultiplierColor(multipliers[i]);
+                ctx.fillStyle = isHit ? '#000' : getMultiplierColor(multipliers[i]);
                 ctx.fillText(`${multipliers[i]}x`, mx, my);
                 
                 // Tooltip for hovered slot
@@ -189,12 +201,9 @@ export function PlinkoBoard({ isDropping, balls, risk, wager, runsCount, onDropF
                 }
             }
 
-            // Draw slot counter badges after all balls landed (multi-ball mode)
+            // Draw hit count badges above slots (multi-ball mode)
             if (dropState === 'finished' && balls.length > 1) {
                 const hits = slotHitsRef.current;
-                ctx.font = 'bold 11px monospace';
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
                 
                 for (let i = 0; i < 17; i++) {
                     if (hits[i] === 0) continue;
@@ -202,27 +211,29 @@ export function PlinkoBoard({ isDropping, balls, risk, wager, runsCount, onDropF
                     const mx = slotStartX + i * colWidth;
                     const my = height - 20;
                     
-                    // Determine badge color based on multiplier
-                    const mult = multipliers[i];
-                    let badgeBg = '#374151'; // gray
-                    let badgeFg = '#9ca3af';
-                    if (mult > 1) { badgeBg = '#166534'; badgeFg = '#4ade80'; }
-                    if (mult < 1) { badgeBg = '#7f1d1d'; badgeFg = '#f87171'; }
-                    
-                    // Badge circle on top of slot
+                    // Large badge above the multiplier slot
                     const badgeX = mx;
-                    const badgeY = my - 28;
-                    const badgeR = 10;
+                    const badgeY = my - 32;
+                    const badgeR = 12;
                     
-                    ctx.fillStyle = badgeBg;
+                    // Use the ball's color for the badge
+                    const firstBallIdx = balls.findIndex(b => b.slot === i);
+                    const badgeColor = firstBallIdx >= 0 ? getBallColor(firstBallIdx, balls.length) : '#00f0ff';
+                    
+                    // Badge background
+                    ctx.fillStyle = badgeColor;
+                    ctx.shadowColor = badgeColor;
+                    ctx.shadowBlur = 8;
                     ctx.beginPath();
                     ctx.arc(badgeX, badgeY, badgeR, 0, Math.PI * 2);
                     ctx.fill();
-                    ctx.strokeStyle = badgeFg;
-                    ctx.lineWidth = 1.5;
-                    ctx.stroke();
+                    ctx.shadowBlur = 0;
                     
-                    ctx.fillStyle = badgeFg;
+                    // Hit count number
+                    ctx.font = 'bold 13px monospace';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillStyle = '#000';
                     ctx.fillText(hits[i].toString(), badgeX, badgeY);
                 }
             }
@@ -348,39 +359,8 @@ export function PlinkoBoard({ isDropping, balls, risk, wager, runsCount, onDropF
                     onDropFinishRef.current();
                 }
             } else if (dropState === 'finished') {
-                // Draw settled balls at their final slot positions
-                const slotPositions: number[][] = Array.from({ length: 17 }, () => []);
-                balls.forEach((ball, idx) => slotPositions[ball.slot].push(idx));
-                
-                for (let slot = 0; slot < 17; slot++) {
-                    const indices = slotPositions[slot];
-                    if (indices.length === 0) continue;
-                    
-                    const mx = slotStartX + slot * colWidth;
-                    const bottomY = height - 42;
-                    
-                    indices.forEach((ballIdx, stackIdx) => {
-                        const color = getBallColor(ballIdx, balls.length);
-                        const yPos = bottomY - stackIdx * (ballRadius * 1.8);
-                        const r = ballRadius * 0.8;
-                        
-                        // Draw ball circle
-                        ctx.fillStyle = color;
-                        ctx.shadowColor = getBallGlow(ballIdx, balls.length);
-                        ctx.shadowBlur = 6;
-                        ctx.beginPath();
-                        ctx.arc(mx, yPos, r, 0, Math.PI * 2);
-                        ctx.fill();
-                        ctx.shadowBlur = 0;
-
-                        // Draw slot outcome label on the ball
-                        ctx.font = `bold ${Math.max(8, r)}px monospace`;
-                        ctx.textAlign = 'center';
-                        ctx.textBaseline = 'middle';
-                        ctx.fillStyle = '#000';
-                        ctx.fillText(slot.toString(), mx, yPos);
-                    });
-                }
+                // Settled state: balls are now indicated by the highlighted slots
+                // and count badges above — no additional rendering needed.
             }
 
             // Continue animation loop if not idle
