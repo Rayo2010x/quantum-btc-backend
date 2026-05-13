@@ -185,22 +185,22 @@ export async function webhookRoutes(app: FastifyInstance) {
               const intValue = parseInt(combined.substring(0, 8), 16);
               const runOutcome = intValue % 37;
 
-              let runPayout = 0n;
+              let runPayout = 0;
               const betsList = bet.bet_details;
               if (Array.isArray(betsList)) {
                 for (const b of betsList) {
-                  const amountPerRun = Math.floor(b.amount / runsCount);
+                  const amountPerRun = b.amount / runsCount;
                   const targetNumbers: number[] = b.numbers || (b.number !== undefined ? [b.number] : []);
                   if (targetNumbers.includes(runOutcome)) {
-                    const multiplier = BigInt(Math.floor(36 / targetNumbers.length));
-                    runPayout += BigInt(amountPerRun) * multiplier;
+                    const multiplier = 36 / targetNumbers.length;
+                    runPayout += amountPerRun * multiplier;
                   }
                 }
               }
               runResults.push({
                 run: i,
                 outcome: runOutcome,
-                payout_sat: Number(runPayout)
+                payout_sat: runPayout
               });
             }
           }

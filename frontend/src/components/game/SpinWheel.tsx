@@ -1,10 +1,10 @@
-
 import { useEffect, useState, useRef } from 'react';
 import { cn } from './BetControls';
 
 interface SpinWheelProps {
     targetNumber: number | null;
     isSpinning: boolean;
+    duration?: number;
     onFinish?: () => void;
 }
 
@@ -34,7 +34,7 @@ const QUANTUM_STYLES = `
 .animate-ghost-2 { animation: ghost-2 0.12s infinite alternate; }
 `;
 
-export function SpinWheel({ targetNumber, isSpinning, onFinish }: SpinWheelProps) {
+export function SpinWheel({ targetNumber, isSpinning, duration = 4000, onFinish }: SpinWheelProps) {
     const [rotation, setRotation] = useState(0);
     const [quantumEffect, setQuantumEffect] = useState(false);
     const wheelRef = useRef<HTMLDivElement>(null);
@@ -47,12 +47,14 @@ export function SpinWheel({ targetNumber, isSpinning, onFinish }: SpinWheelProps
             // Start quantum effect
             setQuantumEffect(true);
 
-            // Wait 1.5s then spin
+            // Shorter quantum effect for fast spins
+            const quantumDelay = duration < 2000 ? 500 : 1500;
+
+            // Wait then spin
             setTimeout(() => {
                 setQuantumEffect(false);
 
                 // 1. Calculate the rotation to land on the target number
-                // Each number is 360 / 37 degrees
                 const degreesPerSegment = 360 / 37;
                 const targetIndex = WHEEL_NUMBERS.indexOf(targetNumber);
                 const targetDegrees = targetIndex * degreesPerSegment;
@@ -60,23 +62,31 @@ export function SpinWheel({ targetNumber, isSpinning, onFinish }: SpinWheelProps
                 // 2. Add extra spins for effect (e.g., 5 full rotations)
                 const extraSpins = 360 * 5;
 
-                // 3. The wheel spins clockwise, so we need to rotate counter-clockwise to bring the number to the top (0 degrees)
-                // Or if we rotate the inner wheel, we rotate it negative.
-                // Let's assume standard CSS rotation. 0 is top.
-                // If 0 is at index 0, to keep 0 at top, rot is 0.
-                // If we want index 1 (32) at top, we rotate -degreesPerSegment.
+                // 3. The wheel spins clockwise, so we need to rotate counter-clockwise to bring the number to the top
                 const finalRotation = -(extraSpins + targetDegrees);
 
-                setRotation(finalRotation);
+                // Adjust for multiple spins - keep increasing rotation so it doesn't spin backwards
+                // By taking the current rotation and adding the needed negative degrees
+                setRotation((prev) => {
+                    // Normalizing current rotation to 0-360
+                    const currentNorm = Math.abs(prev) % 360;
+                    // How much to rotate to reach target from 0
+                    const needed = targetDegrees;
+                    
+                    // We want to add at least 5 extra spins + distance
+                    // Since we rotate negative (counter-clockwise) to bring numbers up:
+                    const nextRot = prev - (360 * 5) - ((needed - currentNorm + 360) % 360);
+                    return nextRot;
+                });
 
                 // Trigger callback after animation
                 setTimeout(() => {
                     onFinish?.();
                     hasSpun.current = false; // Reset for next time if component reused
-                }, 4000); // 4s animation
-            }, 1500); // 1.5s quantum superposition delay
+                }, duration); 
+            }, quantumDelay); 
         }
-    }, [targetNumber, isSpinning, onFinish]);
+    }, [targetNumber, isSpinning, onFinish, duration]);
 
     return (
         <div className="relative w-64 h-64 sm:w-80 sm:h-80 mx-auto overflow-hidden rounded-full border-4 border-yellow-600/50 shadow-[0_0_50px_rgba(255,215,0,0.1)] bg-black">
@@ -85,8 +95,11 @@ export function SpinWheel({ targetNumber, isSpinning, onFinish }: SpinWheelProps
             {/* The Rotating Wheel */}
             <div
                 ref={wheelRef}
-                className="w-full h-full relative transition-transform duration-[4000ms] ease-[cubic-bezier(0.25,0.1,0.25,1)]"
-                style={{ transform: `rotate(${rotation}deg)` }}
+                className="w-full h-full relative transition-transform ease-[cubic-bezier(0.25,0.1,0.25,1)]"
+                style={{ 
+                    transform: `rotate(${rotation}deg)`,
+                    transitionDuration: `${duration}ms`
+                }}
             >
                 {/* Render Numbers */}
                 {WHEEL_NUMBERS.map((num, i) => {
