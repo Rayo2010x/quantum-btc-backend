@@ -1,12 +1,16 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { GameApi, type PlaceBetResponse, type BetStatusResponse } from '../../lib/api';
-import { Loader2, AlertCircle, X, CheckCircle } from 'lucide-react';
+import { Loader2, AlertCircle, X, CheckCircle, TrendingUp, TrendingDown, Zap, Trophy } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import { cn } from './BetControls';
-import { PlinkoBoard, MULTIPLIERS } from './PlinkoBoard';
+import { PlinkoBoard, MULTIPLIERS, type BallData } from './PlinkoBoard';
+
+const ALLOWED_RUNS = [1, 2, 5, 10] as const;
+type RunsCount = typeof ALLOWED_RUNS[number];
 
 export function PlinkoGame({ sessionId, isMaintenance }: { sessionId: string | null; isMaintenance: boolean }) {
     const [wager, setWager] = useState<number>(100);
+    const [runsCount, setRunsCount] = useState<RunsCount>(1);
     const [risk, setRisk] = useState<'low' | 'medium' | 'high'>('medium');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -21,7 +25,12 @@ export function PlinkoGame({ sessionId, isMaintenance }: { sessionId: string | n
     // Animation State
     const [isDropping, setIsDropping] = useState(false);
     const [showResultOverlay, setShowResultOverlay] = useState(false);
-    const [exactPath, setExactPath] = useState<number[] | null>(null);
+    const [ballsData, setBallsData] = useState<BallData[]>([]);
+
+    // Computed values
+
+    const wagerPerRun = Math.floor(wager / runsCount);
+    const minBet = 5 * runsCount;
 
     useEffect(() => {
         if (!pollingBetId) return;
@@ -33,21 +42,50 @@ export function PlinkoGame({ sessionId, isMaintenance }: { sessionId: string | n
                     setBetStatus(status);
                     
                     if (status.outcome !== undefined && !isDropping && !showResultOverlay) {
-                        // Calculate exact path if seeds are available
-                        let pathForBoard: number[] | null = null;
-                        if (status.serverSeedReveal && status.clientSeed && status.drandRandomness) {
-                            const combinedString = `${status.serverSeedReveal}${status.clientSeed}${status.drandRandomness}`;
-                            const msgBuffer = new TextEncoder().encode(combinedString);
-                            const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
-                            const hashArray = Array.from(new Uint8Array(hashBuffer));
-                            const hash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-                            
-                            pathForBoard = [];
-                            for (let i = 0; i < 16; i++) {
-                                pathForBoard.push(parseInt(hash.charAt(i), 16) % 2);
+                        // Compute paths for all balls
+                        const computedBalls: BallData[] = [];
+                        const effectiveRunsCount = status.runsCount || 1;
+                        const runResults = status.runResults || [];
+
+                        if (runResults.length > 0) {
+                            // Multi-run: use runResults with path data
+                            for (const run of runResults) {
+                                if (run.path && run.path.length === 16) {
+                                    computedBalls.push({
+                                        path: run.path,
+                                        slot: run.outcome,
+                                    });
+                                } else {
+                                    // Fallback: compute path from seeds with nonce
+                                    const path = await computePathFromSeeds(
+                                        status.serverSeedReveal,
+                                        status.clientSeed,
+                                        status.drandRandomness,
+                                        run.run,
+                                        effectiveRunsCount
+                                    );
+                                    computedBalls.push({
+                                        path: path || generateFallbackPath(run.outcome),
+                                        slot: run.outcome,
+                                    });
+                                }
                             }
+                        } else if (status.outcome !== undefined) {
+                            // Single-run backward compat (no runResults)
+                            const path = await computePathFromSeeds(
+                                status.serverSeedReveal,
+                                status.clientSeed,
+                                status.drandRandomness,
+                                0,
+                                1
+                            );
+                            computedBalls.push({
+                                path: path || generateFallbackPath(status.outcome),
+                                slot: status.outcome,
+                            });
                         }
-                        setExactPath(pathForBoard);
+
+                        setBallsData(computedBalls);
                         setIsDropping(true);
                         setCurrentBet(null);
                     }
@@ -65,10 +103,10 @@ export function PlinkoGame({ sessionId, isMaintenance }: { sessionId: string | n
         return () => clearInterval(interval);
     }, [pollingBetId, isDropping, showResultOverlay]);
 
-    const handleDropFinish = () => {
+    const handleDropFinish = useCallback(() => {
         setIsDropping(false);
         setShowResultOverlay(true);
-    };
+    }, []);
 
     const handleDrop = async () => {
         if (wager <= 0 || isMaintenance) return;
@@ -85,7 +123,7 @@ export function PlinkoGame({ sessionId, isMaintenance }: { sessionId: string | n
         setPollingBetId(null);
         setIsDropping(false);
         setShowResultOverlay(false);
-        setExactPath(null);
+        setBallsData([]);
 
         try {
             let finalSeed = clientSeed.trim();
@@ -99,7 +137,7 @@ export function PlinkoGame({ sessionId, isMaintenance }: { sessionId: string | n
             
             const payload = [{ rows: 16, risk, amount: wager }];
             
-            const res = await GameApi.placeBet(payload, finalSeed, 'plinko');
+            const res = await GameApi.placeBet(payload, finalSeed, 'plinko', runsCount);
             setCurrentBet(res);
             setPollingBetId(res.betId);
         } catch (err: any) {
@@ -113,6 +151,9 @@ export function PlinkoGame({ sessionId, isMaintenance }: { sessionId: string | n
             setLoading(false);
         }
     };
+
+    // Compute summary stats from runResults
+    const summaryStats = computeSummary(betStatus, wager, risk, runsCount);
 
     return (
         <div className="flex flex-col items-center justify-start min-h-[80vh] text-center space-y-8 max-w-5xl mx-auto">
@@ -149,11 +190,44 @@ export function PlinkoGame({ sessionId, isMaintenance }: { sessionId: string | n
                                     onChange={(e) => setWager(parseInt(e.target.value) || 0)}
                                     className="w-full bg-black/50 border border-white/20 rounded-md px-4 py-3 text-white font-mono text-xl focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
                                 />
-                                <button onClick={() => setWager(Math.max(5, Math.floor(wager / 2)))} className="bg-white/10 hover:bg-white/20 px-4 rounded-md font-bold transition-colors">/2</button>
+                                <button onClick={() => setWager(Math.max(minBet, Math.floor(wager / 2)))} className="bg-white/10 hover:bg-white/20 px-4 rounded-md font-bold transition-colors">/2</button>
                                 <button onClick={() => setWager(wager * 2)} className="bg-white/10 hover:bg-white/20 px-4 rounded-md font-bold transition-colors">x2</button>
                             </div>
-                            {wager < 5 && (
-                                <p className="text-red-400 text-[10px] uppercase font-bold mt-1">Minimum bet is 5 sats to prevent fractional dust loss.</p>
+                            {wager < minBet && (
+                                <p className="text-red-400 text-[10px] uppercase font-bold mt-1">Minimum bet is {minBet} sats ({runsCount} run{runsCount > 1 ? 's' : ''} × 5 sats).</p>
+                            )}
+                        </div>
+
+                        {/* Runs Selector */}
+                        <div className="space-y-2 text-left">
+                            <label className="text-xs font-bold text-gray-400 uppercase tracking-wider">Runs</label>
+                            <div className="flex bg-black/50 p-1 rounded-lg border border-white/10">
+                                {ALLOWED_RUNS.map(r => (
+                                    <button
+                                        key={r}
+                                        onClick={() => setRunsCount(r)}
+                                        className={cn(
+                                            "flex-1 py-2 text-sm font-bold rounded-md transition-all font-mono",
+                                            runsCount === r 
+                                                ? "bg-primary text-black shadow-lg shadow-primary/20" 
+                                                : "text-gray-400 hover:text-white hover:bg-white/5"
+                                        )}
+                                    >
+                                        {r}×
+                                    </button>
+                                ))}
+                            </div>
+                            {/* Total bet display */}
+                            {runsCount > 1 && (
+                                <div className="flex items-center justify-between text-xs font-mono mt-1 px-1">
+                                    <span className="text-gray-500">Total Invoice</span>
+                                    <span className="text-primary font-bold">
+                                        {wager.toLocaleString()} sats
+                                        <span className="text-gray-500 font-normal ml-1">
+                                            ({runsCount} × {wagerPerRun.toLocaleString()})
+                                        </span>
+                                    </span>
+                                </div>
                             )}
                         </div>
 
@@ -205,15 +279,15 @@ export function PlinkoGame({ sessionId, isMaintenance }: { sessionId: string | n
                         {/* Action Button */}
                         <button
                             onClick={handleDrop}
-                            disabled={loading || wager < 5 || isMaintenance || isDropping}
+                            disabled={loading || wager < minBet || isMaintenance || isDropping}
                             className={cn(
                                 "w-full py-5 rounded-xl font-bold text-2xl uppercase tracking-widest transition-all font-display mt-auto",
-                                loading || wager < 5 || isMaintenance || isDropping
+                                loading || wager < minBet || isMaintenance || isDropping
                                     ? "bg-gray-800 text-gray-500 cursor-not-allowed"
                                     : "bg-primary text-black hover:bg-primary/90 shadow-[0_0_20px_rgba(0,240,255,0.3)] hover:shadow-[0_0_30px_rgba(0,240,255,0.5)] active:scale-95"
                             )}
                         >
-                            {loading ? <Loader2 className="animate-spin mx-auto" /> : "DROP"}
+                            {loading ? <Loader2 className="animate-spin mx-auto" /> : runsCount > 1 ? `DROP ${runsCount}×` : "DROP"}
                         </button>
                     </div>
 
@@ -232,6 +306,11 @@ export function PlinkoGame({ sessionId, isMaintenance }: { sessionId: string | n
                                     </div>
                                     <div className="font-mono text-xl text-primary font-bold font-display">
                                         {currentBet.amountSat} sats
+                                        {runsCount > 1 && (
+                                            <span className="text-gray-500 text-sm font-normal block mt-1">
+                                                {runsCount} runs × {Math.floor(currentBet.amountSat / runsCount)} sats each
+                                            </span>
+                                        )}
                                     </div>
                                     <div className="flex items-center justify-center gap-2 text-sm text-gray-500 animate-pulse">
                                         <Loader2 className="animate-spin" size={16} /> Waiting for payment...
@@ -242,10 +321,10 @@ export function PlinkoGame({ sessionId, isMaintenance }: { sessionId: string | n
 
                         <PlinkoBoard 
                             isDropping={isDropping} 
-                            targetSlot={betStatus?.outcome ?? null} 
-                            exactPath={exactPath}
+                            balls={ballsData}
                             risk={risk}
                             wager={wager}
+                            runsCount={runsCount}
                             onDropFinish={handleDropFinish}
                         />
                     </div>
@@ -256,25 +335,97 @@ export function PlinkoGame({ sessionId, isMaintenance }: { sessionId: string | n
                     <div className="mt-8 p-6 rounded-xl border text-center animate-in fade-in zoom-in duration-300 bg-black/40 border-white/10 overflow-hidden relative">
                         <div className={cn(
                             "absolute top-0 left-0 w-full h-1",
-                            betStatus.payoutSat && betStatus.payoutSat > wager ? "bg-green-500" : "bg-red-500"
+                            summaryStats.netPnl > 0 ? "bg-green-500" : "bg-red-500"
                         )} />
 
-                        <div className="flex flex-wrap justify-center gap-12 mb-6">
-                            <div>
-                                <span className="text-gray-500 block text-xs uppercase">Multiplier</span>
-                                <span className="font-mono text-3xl text-white">x{betStatus.outcome !== undefined ? (MULTIPLIERS as any)[risk][betStatus.outcome].toFixed(2) : "0.00"}</span>
+                        {/* Multi-run Summary */}
+                        {runsCount > 1 && betStatus.runResults && betStatus.runResults.length > 1 ? (
+                            <div className="space-y-6">
+                                {/* Stats Grid */}
+                                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                                    <div className="bg-black/30 p-3 rounded-lg border border-white/5">
+                                        <span className="text-gray-500 block text-[10px] uppercase font-bold">Runs</span>
+                                        <span className="font-mono text-2xl text-white">{summaryStats.totalRuns}</span>
+                                    </div>
+                                    <div className="bg-black/30 p-3 rounded-lg border border-white/5">
+                                        <span className="text-gray-500 block text-[10px] uppercase font-bold flex items-center justify-center gap-1">
+                                            <TrendingUp size={10} /> Wins
+                                        </span>
+                                        <span className="font-mono text-2xl text-green-400">{summaryStats.wins}</span>
+                                    </div>
+                                    <div className="bg-black/30 p-3 rounded-lg border border-white/5">
+                                        <span className="text-gray-500 block text-[10px] uppercase font-bold flex items-center justify-center gap-1">
+                                            <TrendingDown size={10} /> Losses
+                                        </span>
+                                        <span className="font-mono text-2xl text-red-400">{summaryStats.losses}</span>
+                                    </div>
+                                    <div className="bg-black/30 p-3 rounded-lg border border-white/5">
+                                        <span className="text-gray-500 block text-[10px] uppercase font-bold flex items-center justify-center gap-1">
+                                            <Trophy size={10} /> Best
+                                        </span>
+                                        <span className="font-mono text-2xl text-yellow-400">x{summaryStats.bestMultiplier.toFixed(2)}</span>
+                                    </div>
+                                </div>
+
+                                {/* Net P&L Hero */}
+                                <div className="flex items-center justify-center gap-3">
+                                    <Zap size={20} className={summaryStats.netPnl > 0 ? "text-green-400" : "text-red-400"} />
+                                    <span className="text-gray-400 text-sm uppercase font-bold">Net P&L</span>
+                                    <span className={cn(
+                                        "font-mono text-3xl font-bold",
+                                        summaryStats.netPnl > 0 ? "text-green-400" : summaryStats.netPnl < 0 ? "text-red-400" : "text-gray-300"
+                                    )}>
+                                        {summaryStats.netPnl > 0 ? "+" : ""}{summaryStats.netPnl.toLocaleString()} sats
+                                    </span>
+                                </div>
+
+                                {/* Individual Run Breakdown */}
+                                <div className="max-h-32 overflow-y-auto scrollbar-thin">
+                                    <div className="flex flex-wrap gap-2 justify-center">
+                                        {betStatus.runResults.map((run, idx) => {
+                                            const perRunWager = Math.floor(wager / (betStatus.runsCount || 1));
+                                            const isWin = run.payout_sat > perRunWager;
+                                            return (
+                                                <div 
+                                                    key={idx} 
+                                                    className={cn(
+                                                        "px-3 py-1.5 rounded-full text-xs font-mono font-bold border",
+                                                        isWin 
+                                                            ? "border-green-500/30 bg-green-500/10 text-green-400"
+                                                            : "border-red-500/30 bg-red-500/10 text-red-400"
+                                                    )}
+                                                    style={{ 
+                                                        animationDelay: `${idx * 100}ms`,
+                                                        borderLeftColor: getBallColorCSS(idx, betStatus.runResults!.length),
+                                                        borderLeftWidth: '3px',
+                                                    }}
+                                                >
+                                                    #{idx + 1}: x{(run.multiplier ?? (run.payout_sat / perRunWager)).toFixed(2)} → {run.payout_sat} sats
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
                             </div>
-                            <div>
-                                <span className="text-gray-500 block text-xs uppercase">Prize</span>
-                                <span className={cn("font-mono text-3xl", betStatus.payoutSat && betStatus.payoutSat > wager ? "text-green-400" : "text-gray-300")}>
-                                    {betStatus.payoutSat} sats
-                                </span>
+                        ) : (
+                            /* Single-run result (original layout) */
+                            <div className="flex flex-wrap justify-center gap-12 mb-6">
+                                <div>
+                                    <span className="text-gray-500 block text-xs uppercase">Multiplier</span>
+                                    <span className="font-mono text-3xl text-white">x{betStatus.outcome !== undefined ? (MULTIPLIERS as any)[risk][betStatus.outcome].toFixed(2) : "0.00"}</span>
+                                </div>
+                                <div>
+                                    <span className="text-gray-500 block text-xs uppercase">Prize</span>
+                                    <span className={cn("font-mono text-3xl", betStatus.payoutSat && betStatus.payoutSat > wager ? "text-green-400" : "text-gray-300")}>
+                                        {betStatus.payoutSat} sats
+                                    </span>
+                                </div>
                             </div>
-                        </div>
+                        )}
 
                         {/* Withdrawal QR or Claimed State if Won */}
                         {betStatus.status === 'WON' && (
-                            <div className="bg-white/5 p-6 rounded-xl border border-green-500/30 inline-block w-full max-w-md">
+                            <div className="bg-white/5 p-6 rounded-xl border border-green-500/30 inline-block w-full max-w-md mt-4">
                                 {betStatus.isClaimed ? (
                                     <p className="text-green-400 font-bold flex items-center justify-center gap-2 text-xl">
                                         <CheckCircle size={28} /> Prize transferred. Congrats!
@@ -303,4 +454,99 @@ export function PlinkoGame({ sessionId, isMaintenance }: { sessionId: string | n
             </div>
         </div>
     );
+}
+
+// ---- Helper Functions ----
+
+/** Compute path from seeds (with nonce for multi-run) */
+async function computePathFromSeeds(
+    serverSeed?: string,
+    clientSeed?: string,
+    drandRandomness?: string,
+    runIndex: number = 0,
+    totalRuns: number = 1
+): Promise<number[] | null> {
+    if (!serverSeed || !clientSeed || !drandRandomness) return null;
+
+    // For single-run (backward compat): no nonce appended
+    // For multi-run: append nonce index
+    const combinedString = totalRuns === 1
+        ? `${serverSeed}${clientSeed}${drandRandomness}`
+        : `${serverSeed}${clientSeed}${drandRandomness}${runIndex}`;
+
+    const msgBuffer = new TextEncoder().encode(combinedString);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    const hash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    
+    const path: number[] = [];
+    for (let i = 0; i < 16; i++) {
+        path.push(parseInt(hash.charAt(i), 16) % 2);
+    }
+    return path;
+}
+
+/** Generate a fallback visual path targeting the given slot */
+function generateFallbackPath(targetSlot: number): number[] {
+    const moves = Array(16).fill(0);
+    for (let i = 0; i < targetSlot; i++) moves[i] = 1;
+    // Shuffle
+    for (let i = moves.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [moves[i], moves[j]] = [moves[j], moves[i]];
+    }
+    return moves;
+}
+
+/** Compute summary statistics for multi-run overlay */
+function computeSummary(
+    betStatus: BetStatusResponse | null,
+    wager: number,
+    risk: string,
+    runsCount: number
+): { totalRuns: number; wins: number; losses: number; netPnl: number; bestMultiplier: number } {
+    if (!betStatus || !betStatus.runResults || betStatus.runResults.length === 0) {
+        // Single-run fallback
+        const payout = betStatus?.payoutSat ?? 0;
+        const isWin = payout > wager;
+        const mult = betStatus?.outcome !== undefined 
+            ? (MULTIPLIERS as any)[risk]?.[betStatus.outcome] ?? 0 
+            : 0;
+        return {
+            totalRuns: 1,
+            wins: isWin ? 1 : 0,
+            losses: isWin ? 0 : 1,
+            netPnl: payout - wager,
+            bestMultiplier: mult,
+        };
+    }
+
+    const perRunWager = Math.floor(wager / runsCount);
+    let wins = 0;
+    let losses = 0;
+    let bestMultiplier = 0;
+    let totalPayout = 0;
+
+    for (const run of betStatus.runResults) {
+        const mult = run.multiplier ?? (perRunWager > 0 ? run.payout_sat / perRunWager : 0);
+        if (run.payout_sat > perRunWager) wins++;
+        else losses++;
+        if (mult > bestMultiplier) bestMultiplier = mult;
+        totalPayout += run.payout_sat;
+    }
+
+    return {
+        totalRuns: betStatus.runResults.length,
+        wins,
+        losses,
+        netPnl: totalPayout - wager,
+        bestMultiplier,
+    };
+}
+
+/** Get CSS ball color for inline styles */
+function getBallColorCSS(index: number, total: number): string {
+    if (total === 1) return '#00f0ff';
+    const hue = 180 + index * 15;
+    return `hsl(${hue}, 100%, 60%)`;
 }

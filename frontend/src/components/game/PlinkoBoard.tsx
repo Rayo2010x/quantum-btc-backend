@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 
 export const MULTIPLIERS = {
     low: [16, 9, 2, 1.5, 1.2, 1.0, 1.0, 0.9, 0.95, 0.9, 1.0, 1.0, 1.2, 1.5, 2, 9, 16],
@@ -6,53 +6,102 @@ export const MULTIPLIERS = {
     high: [1000, 130, 26, 9, 4, 1.9, 0.2, 0.2, 0.2, 0.2, 0.2, 1.9, 4, 9, 26, 130, 1000]
 };
 
+export interface BallData {
+    path: number[];
+    slot: number;
+}
+
 interface PlinkoBoardProps {
     isDropping: boolean;
-    targetSlot: number | null;
-    exactPath?: number[] | null;
+    balls: BallData[];
     risk: 'low' | 'medium' | 'high';
     wager: number;
+    runsCount: number;
     onDropFinish: () => void;
 }
 
-export function PlinkoBoard({ isDropping, targetSlot, exactPath, risk, wager, onDropFinish }: PlinkoBoardProps) {
+// Color helpers
+function getBallColor(index: number, total: number): string {
+    if (total === 1) return '#00f0ff'; // Original cyan for single-ball
+    const hue = 180 + index * 15;     // Spread from 180° (cyan) forward
+    return `hsl(${hue}, 100%, 60%)`;
+}
+
+function getBallGlow(index: number, total: number): string {
+    if (total === 1) return 'rgba(0, 240, 255, 0.6)';
+    const hue = 180 + index * 15;
+    return `hsl(${hue}, 100%, 60%)`;
+}
+
+function getMultiplierColor(val: number) {
+    if (val <= 1) return '#9ca3af'; // gray-400
+    if (val <= 3) return '#4ade80'; // green-400
+    if (val <= 10) return '#fbbf24'; // amber-400
+    if (val <= 50) return '#f97316'; // orange-500
+    return '#ef4444'; // red-500
+}
+
+interface BallAnimState {
+    currentRow: number;
+    progress: number;
+    x: number;
+    y: number;
+    launched: boolean;
+    landed: boolean;
+}
+
+const STAGGER_DELAY_MS = 250;
+const BALL_SPEED = 0.08;
+const ROWS = 16;
+
+export function PlinkoBoard({ isDropping, balls, risk, wager, runsCount, onDropFinish }: PlinkoBoardProps) {
     const canvasRef = useRef<HTMLCanvasElement>(null);
-    const [path, setPath] = useState<number[]>([]);
-    const [dropState, setDropState] = useState<'idle' | 'quantum' | 'falling'>('idle');
+    const [dropState, setDropState] = useState<'idle' | 'quantum' | 'falling' | 'finished'>('idle');
     const [hoveredSlot, setHoveredSlot] = useState<number | null>(null);
     const quantumTimerRef = useRef<number | null>(null);
     
-    // Generate a physics path when drop starts
+    // Mutable refs for animation state (avoids React re-render per frame)
+    const ballStatesRef = useRef<BallAnimState[]>([]);
+    const slotHitsRef = useRef<number[]>(new Array(17).fill(0));
+    const launchTimestampRef = useRef<number>(0);
+    const onDropFinishRef = useRef(onDropFinish);
+    onDropFinishRef.current = onDropFinish;
+
+    // Initialize animation when balls change
     useEffect(() => {
-        if (isDropping && targetSlot !== null) {
+        if (isDropping && balls.length > 0) {
+            // Reset state
+            ballStatesRef.current = balls.map(() => ({
+                currentRow: 0,
+                progress: 0,
+                x: 0,
+                y: 20,
+                launched: false,
+                landed: false,
+            }));
+            slotHitsRef.current = new Array(17).fill(0);
+            launchTimestampRef.current = 0;
+
+            // Start quantum phase
             setDropState('quantum');
 
-            if (exactPath && exactPath.length === 16) {
-                setPath(exactPath);
-            } else {
-                // targetSlot is 0-16. This means we need exactly `targetSlot` Right moves out of 16.
-                const moves = Array(16).fill(0); // 0 = Left, 1 = Right
-                for (let i = 0; i < targetSlot; i++) moves[i] = 1;
-                
-                // Shuffle
-                for (let i = moves.length - 1; i > 0; i--) {
-                    const j = Math.floor(Math.random() * (i + 1));
-                    [moves[i], moves[j]] = [moves[j], moves[i]];
-                }
-                setPath(moves);
-            }
-
-            // Wait 1.5s in quantum superposition before collapsing into a path
+            // After 1.5s quantum effect, start falling
             if (quantumTimerRef.current) clearTimeout(quantumTimerRef.current);
             quantumTimerRef.current = setTimeout(() => {
+                launchTimestampRef.current = performance.now();
+                // Launch first ball immediately
+                if (ballStatesRef.current.length > 0) {
+                    ballStatesRef.current[0].launched = true;
+                }
                 setDropState('falling');
             }, 1500);
-        } else {
+        } else if (!isDropping) {
             setDropState('idle');
             if (quantumTimerRef.current) clearTimeout(quantumTimerRef.current);
         }
-    }, [isDropping, targetSlot]);
+    }, [isDropping, balls]);
 
+    // Main animation loop
     useEffect(() => {
         const canvas = canvasRef.current;
         if (!canvas) return;
@@ -61,26 +110,20 @@ export function PlinkoBoard({ isDropping, targetSlot, exactPath, risk, wager, on
 
         const width = canvas.width;
         const height = canvas.height;
-        const rows = 16;
         const pegRadius = 4;
-        const ballRadius = 8;
+        const ballRadius = balls.length > 5 ? 6 : 8;
         
-        const rowHeight = (height - 60) / rows;
-        const colWidth = width / (rows + 2);
+        const rowHeight = (height - 60) / ROWS;
+        const colWidth = width / (ROWS + 2);
 
         let animationFrameId: number;
         
-        let ballX = width / 2;
-        let ballY = 20;
-        let currentRow = 0;
-        let progress = 0; // 0 to 1 between rows
-        
-        const render = () => {
+        const render = (timestamp: number) => {
             ctx.clearRect(0, 0, width, height);
             
             // Draw Pegs
             ctx.fillStyle = '#4b5563';
-            for (let r = 1; r <= rows; r++) {
+            for (let r = 1; r <= ROWS; r++) {
                 const cols = r;
                 const startX = (width - (cols - 1) * colWidth) / 2;
                 for (let c = 0; c < cols; c++) {
@@ -92,26 +135,26 @@ export function PlinkoBoard({ isDropping, targetSlot, exactPath, risk, wager, on
 
             // Draw Multipliers at bottom
             const multipliers = MULTIPLIERS[risk];
-            const startX = (width - (17 - 1) * colWidth) / 2;
+            const slotStartX = (width - (17 - 1) * colWidth) / 2;
             
             ctx.font = 'bold 12px monospace';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
             
             for (let i = 0; i < 17; i++) {
-                const mx = startX + i * colWidth;
+                const mx = slotStartX + i * colWidth;
                 const my = height - 20;
                 
-                // Highlight active slot
-                const isActive = !isDropping && targetSlot === i;
+                // Highlight active slots for single-ball completed state
+                const isActive = dropState === 'finished' && balls.length === 1 && balls[0]?.slot === i;
                 
                 ctx.fillStyle = isActive ? '#00f0ff' : '#1f2937';
                 ctx.beginPath();
                 ctx.roundRect(mx - colWidth/2 + 2, my - 15, colWidth - 4, 30, 4);
                 ctx.fill();
                 
-                // If hovered, draw an outline
-                if (hoveredSlot === i && !isDropping) {
+                // Hover outline
+                if (hoveredSlot === i && dropState === 'idle') {
                     ctx.strokeStyle = '#00f0ff';
                     ctx.lineWidth = 2;
                     ctx.stroke();
@@ -120,17 +163,17 @@ export function PlinkoBoard({ isDropping, targetSlot, exactPath, risk, wager, on
                 ctx.fillStyle = isActive ? '#000' : getMultiplierColor(multipliers[i]);
                 ctx.fillText(`${multipliers[i]}x`, mx, my);
                 
-                // Draw Tooltip for hovered slot
-                if (hoveredSlot === i && !isDropping) {
-                    const prize = Math.floor(wager * multipliers[i]);
-                    const tipText = `${prize} SATS`;
+                // Tooltip for hovered slot
+                if (hoveredSlot === i && dropState === 'idle') {
+                    const perRunWager = Math.floor(wager / runsCount);
+                    const prize = Math.floor(perRunWager * multipliers[i]);
+                    const tipText = runsCount > 1 ? `${prize} SATS/run` : `${prize} SATS`;
                     ctx.font = 'bold 12px font-display';
                     const textWidth = ctx.measureText(tipText).width;
                     
                     const tipX = mx;
                     const tipY = my - 35;
                     
-                    // Tooltip background
                     ctx.fillStyle = '#000000';
                     ctx.beginPath();
                     ctx.roundRect(tipX - textWidth/2 - 8, tipY - 14, textWidth + 16, 28, 4);
@@ -139,16 +182,52 @@ export function PlinkoBoard({ isDropping, targetSlot, exactPath, risk, wager, on
                     ctx.lineWidth = 1;
                     ctx.stroke();
                     
-                    // Tooltip text
-                    ctx.fillStyle = prize > wager ? '#4ade80' : prize < wager ? '#ef4444' : '#fbbf24';
+                    ctx.fillStyle = prize > perRunWager ? '#4ade80' : prize < perRunWager ? '#ef4444' : '#fbbf24';
                     ctx.fillText(tipText, tipX, tipY);
                     
-                    // Restore font
                     ctx.font = 'bold 12px monospace';
                 }
             }
 
-            // Draw Ball based on state
+            // Draw slot counter badges after all balls landed (multi-ball mode)
+            if (dropState === 'finished' && balls.length > 1) {
+                const hits = slotHitsRef.current;
+                ctx.font = 'bold 11px monospace';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                
+                for (let i = 0; i < 17; i++) {
+                    if (hits[i] === 0) continue;
+                    
+                    const mx = slotStartX + i * colWidth;
+                    const my = height - 20;
+                    
+                    // Determine badge color based on multiplier
+                    const mult = multipliers[i];
+                    let badgeBg = '#374151'; // gray
+                    let badgeFg = '#9ca3af';
+                    if (mult > 1) { badgeBg = '#166534'; badgeFg = '#4ade80'; }
+                    if (mult < 1) { badgeBg = '#7f1d1d'; badgeFg = '#f87171'; }
+                    
+                    // Badge circle on top of slot
+                    const badgeX = mx;
+                    const badgeY = my - 28;
+                    const badgeR = 10;
+                    
+                    ctx.fillStyle = badgeBg;
+                    ctx.beginPath();
+                    ctx.arc(badgeX, badgeY, badgeR, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.strokeStyle = badgeFg;
+                    ctx.lineWidth = 1.5;
+                    ctx.stroke();
+                    
+                    ctx.fillStyle = badgeFg;
+                    ctx.fillText(hits[i].toString(), badgeX, badgeY);
+                }
+            }
+
+            // Draw Balls based on state
             if (dropState === 'idle') {
                 // Static ball waiting at the top
                 ctx.fillStyle = '#00f0ff';
@@ -160,9 +239,7 @@ export function PlinkoBoard({ isDropping, targetSlot, exactPath, risk, wager, on
                 ctx.shadowBlur = 0;
             } else if (dropState === 'quantum') {
                 // Quantum superposition effect (vibrating/glitching)
-                
-                // Draw multiple ghost balls
-                for(let i = 0; i < 5; i++) {
+                for (let i = 0; i < 5; i++) {
                     const offsetX = (Math.random() - 0.5) * 12;
                     const offsetY = (Math.random() - 0.5) * 12;
                     
@@ -180,56 +257,121 @@ export function PlinkoBoard({ isDropping, targetSlot, exactPath, risk, wager, on
                 ctx.arc(width / 2, 20, ballRadius, 0, Math.PI * 2);
                 ctx.fill();
                 ctx.shadowBlur = 0;
-            } else if (dropState === 'falling' && path.length > 0) {
-                // Animate ball
-                if (currentRow < 16) {
-                    progress += 0.08; // speed
-                    if (progress >= 1) {
-                        progress = 0;
-                        currentRow++;
-                    }
-                    
-                    if (currentRow < 16) {
-                        // Interpolate position
-                        const move = path[currentRow]; // 0 or 1
-                        
-                        // Calculate start X/Y for this row
-                        let startCols = currentRow + 1;
-                        let startXRow = (width - (startCols - 1) * colWidth) / 2;
-                        
-                        // Count previous rights to know current column index
-                        let currentC = 0;
-                        for(let i=0; i<currentRow; i++) currentC += path[i];
-                        
-                        let startXPos = startXRow + currentC * colWidth;
-                        let startYPos = (currentRow + 1) * rowHeight;
-                        
-                        // Calculate end X/Y for next row
-                        let nextCols = currentRow + 2;
-                        let nextStartXRow = (width - (nextCols - 1) * colWidth) / 2;
-                        let nextC = currentC + move;
-                        
-                        let nextXPos = nextStartXRow + nextC * colWidth;
-                        let nextYPos = (currentRow + 2) * rowHeight;
-                        
-                        // Simple bounce interpolation
-                        const bounce = Math.sin(progress * Math.PI) * 15;
-                        
-                        ballX = startXPos + (nextXPos - startXPos) * progress;
-                        ballY = startYPos + (nextYPos - startYPos) * progress - bounce;
-                    } else {
-                        // Reached bottom
-                        onDropFinish();
+            } else if (dropState === 'falling') {
+                const elapsed = timestamp - launchTimestampRef.current;
+                let allLanded = true;
+                
+                // Launch balls with stagger
+                for (let b = 0; b < balls.length; b++) {
+                    const launchAt = b * STAGGER_DELAY_MS;
+                    if (elapsed >= launchAt && !ballStatesRef.current[b].launched) {
+                        ballStatesRef.current[b].launched = true;
                     }
                 }
                 
-                ctx.fillStyle = '#00f0ff';
-                ctx.shadowColor = '#00f0ff';
-                ctx.shadowBlur = 10;
-                ctx.beginPath();
-                ctx.arc(ballX, ballY, ballRadius, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.shadowBlur = 0;
+                // Update and draw each ball
+                for (let b = 0; b < balls.length; b++) {
+                    const state = ballStatesRef.current[b];
+                    const ballPath = balls[b].path;
+                    const color = getBallColor(b, balls.length);
+                    
+                    if (!state.launched) {
+                        allLanded = false;
+                        // Draw queued ball at top with reduced opacity
+                        ctx.globalAlpha = 0.3;
+                        ctx.fillStyle = color;
+                        ctx.beginPath();
+                        ctx.arc(width / 2, 20, ballRadius, 0, Math.PI * 2);
+                        ctx.fill();
+                        ctx.globalAlpha = 1;
+                        continue;
+                    }
+                    
+                    if (state.landed) continue; // Already done
+                    
+                    allLanded = false;
+                    
+                    // Animate this ball
+                    state.progress += BALL_SPEED;
+                    if (state.progress >= 1) {
+                        state.progress = 0;
+                        state.currentRow++;
+                    }
+                    
+                    if (state.currentRow < ROWS) {
+                        const move = ballPath[state.currentRow]; // 0 or 1
+                        
+                        // Start position for this row
+                        const startCols = state.currentRow + 1;
+                        const startXRow = (width - (startCols - 1) * colWidth) / 2;
+                        
+                        // Count previous rights
+                        let currentC = 0;
+                        for (let j = 0; j < state.currentRow; j++) currentC += ballPath[j];
+                        
+                        const startXPos = startXRow + currentC * colWidth;
+                        const startYPos = (state.currentRow + 1) * rowHeight;
+                        
+                        // End position for next row
+                        const nextCols = state.currentRow + 2;
+                        const nextStartXRow = (width - (nextCols - 1) * colWidth) / 2;
+                        const nextC = currentC + move;
+                        
+                        const nextXPos = nextStartXRow + nextC * colWidth;
+                        const nextYPos = (state.currentRow + 2) * rowHeight;
+                        
+                        // Bounce interpolation
+                        const bounce = Math.sin(state.progress * Math.PI) * 15;
+                        
+                        state.x = startXPos + (nextXPos - startXPos) * state.progress;
+                        state.y = startYPos + (nextYPos - startYPos) * state.progress - bounce;
+                    } else {
+                        // Ball reached bottom
+                        state.landed = true;
+                        slotHitsRef.current[balls[b].slot]++;
+                        continue;
+                    }
+                    
+                    // Draw the ball
+                    ctx.fillStyle = color;
+                    ctx.shadowColor = getBallGlow(b, balls.length);
+                    ctx.shadowBlur = 10;
+                    ctx.beginPath();
+                    ctx.arc(state.x, state.y, ballRadius, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.shadowBlur = 0;
+                }
+                
+                // All balls have landed
+                if (allLanded) {
+                    setDropState('finished');
+                    onDropFinishRef.current();
+                }
+            } else if (dropState === 'finished') {
+                // Draw settled balls at their final slot positions
+                const slotPositions: number[][] = Array.from({ length: 17 }, () => []);
+                balls.forEach((ball, idx) => slotPositions[ball.slot].push(idx));
+                
+                for (let slot = 0; slot < 17; slot++) {
+                    const indices = slotPositions[slot];
+                    if (indices.length === 0) continue;
+                    
+                    const mx = slotStartX + slot * colWidth;
+                    const bottomY = height - 42;
+                    
+                    indices.forEach((ballIdx, stackIdx) => {
+                        const color = getBallColor(ballIdx, balls.length);
+                        const yPos = bottomY - stackIdx * (ballRadius * 1.8);
+                        
+                        ctx.fillStyle = color;
+                        ctx.shadowColor = getBallGlow(ballIdx, balls.length);
+                        ctx.shadowBlur = 6;
+                        ctx.beginPath();
+                        ctx.arc(mx, yPos, ballRadius * 0.8, 0, Math.PI * 2);
+                        ctx.fill();
+                        ctx.shadowBlur = 0;
+                    });
+                }
             }
 
             // Continue animation loop if not idle
@@ -238,16 +380,16 @@ export function PlinkoBoard({ isDropping, targetSlot, exactPath, risk, wager, on
             }
         };
 
-        render();
+        animationFrameId = requestAnimationFrame(render);
 
         return () => {
             if (animationFrameId) cancelAnimationFrame(animationFrameId);
         };
-    }, [dropState, path, risk, targetSlot, hoveredSlot, wager, exactPath]);
+    }, [dropState, balls, risk, hoveredSlot, wager, runsCount]);
 
     // Handle hover
-    const handleMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
-        if (isDropping) {
+    const handleMouseMove = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
+        if (dropState !== 'idle') {
             setHoveredSlot(null);
             return;
         }
@@ -262,13 +404,10 @@ export function PlinkoBoard({ isDropping, targetSlot, exactPath, risk, wager, on
         const mouseX = (e.clientX - rect.left) * scaleX;
         const mouseY = (e.clientY - rect.top) * scaleY;
         
-        // Check if mouse is in the bottom area where slots are
         if (mouseY > canvas.height - 40 && mouseY < canvas.height) {
-            const rows = 16;
-            const colWidth = canvas.width / (rows + 2);
+            const colWidth = canvas.width / (ROWS + 2);
             const startX = (canvas.width - (17 - 1) * colWidth) / 2;
             
-            // Find which slot we are hovering
             let found = null;
             for (let i = 0; i < 17; i++) {
                 const mx = startX + i * colWidth;
@@ -281,11 +420,11 @@ export function PlinkoBoard({ isDropping, targetSlot, exactPath, risk, wager, on
         } else {
             setHoveredSlot(null);
         }
-    };
+    }, [dropState]);
     
-    const handleMouseLeave = () => {
+    const handleMouseLeave = useCallback(() => {
         setHoveredSlot(null);
-    };
+    }, []);
 
     return (
         <div className="w-full flex justify-center py-8">
@@ -299,12 +438,4 @@ export function PlinkoBoard({ isDropping, targetSlot, exactPath, risk, wager, on
             />
         </div>
     );
-}
-
-function getMultiplierColor(val: number) {
-    if (val <= 1) return '#9ca3af'; // gray-400
-    if (val <= 3) return '#4ade80'; // green-400
-    if (val <= 10) return '#fbbf24'; // amber-400
-    if (val <= 50) return '#f97316'; // orange-500
-    return '#ef4444'; // red-500
 }
