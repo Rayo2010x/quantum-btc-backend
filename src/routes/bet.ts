@@ -4,6 +4,7 @@ import { z } from "zod";
 import { pool, withTx } from "../db/index.js";
 import crypto from "node:crypto";
 import { env } from "../config/env.js";
+import { PLINKO_PAYOUTS } from "../config/plinkoPayouts.js";
 
 import { getBankroll } from "../services/bankroll_worker.js";
 
@@ -92,10 +93,9 @@ export async function betRoutes(app: FastifyInstance) {
         maxPotentialPayout += b.amount * multiplier;
       });
     } else if (gameType === "plinko") {
-      const { PLINKO_PAYOUTS } = require("../config/plinkoPayouts.js");
       bets.forEach((b: any) => {
         const rowsConfig = PLINKO_PAYOUTS[b.rows] || PLINKO_PAYOUTS[16];
-        const multipliers = rowsConfig[b.risk] || rowsConfig["high"];
+        const multipliers = rowsConfig[b.risk as keyof typeof rowsConfig] || rowsConfig["high"];
         const maxMultiplier = Math.max(...multipliers);
         maxPotentialPayout += b.amount * maxMultiplier;
       });
