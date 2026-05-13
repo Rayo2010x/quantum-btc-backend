@@ -47,7 +47,7 @@ export function SpinWheel({ runResults, isSpinning, onFinish }: SpinWheelProps) 
         return acc;
     }, {} as Record<number, number>);
 
-    const timeoutsRef = useRef<NodeJS.Timeout[]>([]);
+    const timeoutsRef = useRef<ReturnType<typeof setTimeout>[]>([]);
 
     useEffect(() => {
         if (isSpinning && !hasSpun.current && runResults.length > 0) {
