@@ -253,7 +253,7 @@ export function BetControls() {
                 <div className="mb-8 transform scale-90 sm:scale-100 transition-all text-center">
                     <SpinWheel
                         outcome={betStatus?.outcome}
-                        runResults={betStatus?.runResults || []}
+                        runResults={betStatus?.runResults || (betStatus?.outcome !== undefined ? [{ outcome: betStatus.outcome } as any] : [])}
                         isSpinning={isSpinning}
                         onFinish={handleAnimationFinish}
                     />
