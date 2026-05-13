@@ -38,8 +38,13 @@ export function calculatePlinkoOutcome(
   }
 
   // The final slot corresponds to the sum of all 'Rights'
-  // Fetch the multiplier for this slot based on the risk configuration
-  const multipliers = PLINKO_PAYOUTS[risk];
+  // Fetch the multiplier for this slot based on the row count and risk configuration
+  const rowMultipliers = PLINKO_PAYOUTS[rows];
+  if (!rowMultipliers) {
+    throw new Error(`Invalid Plinko row count. Rows: ${rows}`);
+  }
+
+  const multipliers = rowMultipliers[risk];
   
   if (!multipliers || slot >= multipliers.length) {
     throw new Error(`Invalid Plinko configuration or math error. Risk: ${risk}, Rows: ${rows}, Slot: ${slot}`);

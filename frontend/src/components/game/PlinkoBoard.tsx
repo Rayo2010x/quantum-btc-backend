@@ -1,9 +1,21 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 
-export const MULTIPLIERS = {
-    low: [16, 9, 2, 1.5, 1.2, 1.0, 1.0, 0.9, 0.95, 0.9, 1.0, 1.0, 1.2, 1.5, 2, 9, 16],
-    medium: [110, 41, 10, 5, 3, 1.4, 1, 0.5, 0.3, 0.5, 1, 1.4, 3, 5, 10, 41, 110],
-    high: [1000, 130, 26, 9, 4, 1.9, 0.2, 0.2, 0.2, 0.2, 0.2, 1.9, 4, 9, 26, 130, 1000]
+export const MULTIPLIERS: Record<number, Record<'low'|'medium'|'high', number[]>> = {
+    8: {
+        low:    [5.6, 2.0, 1.1, 1.0, 0.5, 1.0, 1.1, 2.0, 5.6],
+        medium: [14, 3, 1.2, 0.7, 0.4, 0.7, 1.2, 3, 14],
+        high:   [29, 5.8, 1.1, 0.2, 0.2, 0.2, 1.1, 5.8, 29]
+    },
+    12: {
+        low:    [10, 3, 1.6, 1.4, 1.1, 1.0, 0.45, 1.0, 1.1, 1.4, 1.6, 3, 10],
+        medium: [33, 12, 4.0, 2.0, 1.0, 0.6, 0.3, 0.6, 1.0, 2.0, 4.0, 12, 33],
+        high:   [170, 23, 7.8, 2.0, 0.7, 0.2, 0.2, 0.2, 0.7, 2.0, 7.8, 23, 170]
+    },
+    16: {
+        low: [16, 9, 2, 1.5, 1.2, 1.0, 1.0, 0.9, 0.95, 0.9, 1.0, 1.0, 1.2, 1.5, 2, 9, 16],
+        medium: [110, 41, 10, 5, 3, 1.4, 1, 0.5, 0.3, 0.5, 1, 1.4, 3, 5, 10, 41, 110],
+        high: [1000, 130, 26, 9, 4, 1.9, 0.2, 0.2, 0.2, 0.2, 0.2, 1.9, 4, 9, 26, 130, 1000]
+    }
 };
 
 export interface BallData {
@@ -17,6 +29,7 @@ interface PlinkoBoardProps {
     risk: 'low' | 'medium' | 'high';
     wager: number;
     runsCount: number;
+    rows: number;
     onDropFinish: () => void;
 }
 
@@ -52,9 +65,8 @@ interface BallAnimState {
 
 const STAGGER_DELAY_MS = 250;
 const BALL_SPEED = 0.08;
-const ROWS = 16;
 
-export function PlinkoBoard({ isDropping, balls, risk, wager, runsCount, onDropFinish }: PlinkoBoardProps) {
+export function PlinkoBoard({ isDropping, balls, risk, wager, runsCount, rows, onDropFinish }: PlinkoBoardProps) {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const [dropState, setDropState] = useState<'idle' | 'quantum' | 'falling' | 'finished'>('idle');
     const [hoveredSlot, setHoveredSlot] = useState<number | null>(null);
@@ -79,7 +91,7 @@ export function PlinkoBoard({ isDropping, balls, risk, wager, runsCount, onDropF
                 launched: false,
                 landed: false,
             }));
-            slotHitsRef.current = new Array(17).fill(0);
+            slotHitsRef.current = new Array(rows + 1).fill(0);
             launchTimestampRef.current = 0;
 
             // Start quantum phase
@@ -112,11 +124,14 @@ export function PlinkoBoard({ isDropping, balls, risk, wager, runsCount, onDropF
 
         const width = canvas.width;
         const height = canvas.height;
-        const pegRadius = 4;
-        const ballRadius = balls.length > 5 ? 6 : 8;
         
-        const rowHeight = (height - 60) / ROWS;
-        const colWidth = width / (ROWS + 2);
+        // Dynamically adjust sizes based on row count for better visual balance
+        const pegRadius = rows === 8 ? 6 : rows === 12 ? 5 : 4;
+        const baseBallRadius = rows === 8 ? 10 : rows === 12 ? 8 : 6;
+        const ballRadius = balls.length > 5 ? Math.max(4, baseBallRadius - 2) : baseBallRadius;
+        
+        const rowHeight = (height - 60) / rows;
+        const colWidth = width / (rows + 2);
 
         let animationFrameId: number;
         
@@ -125,7 +140,7 @@ export function PlinkoBoard({ isDropping, balls, risk, wager, runsCount, onDropF
             
             // Draw Pegs
             ctx.fillStyle = '#4b5563';
-            for (let r = 1; r <= ROWS; r++) {
+            for (let r = 1; r <= rows; r++) {
                 const cols = r;
                 const startX = (width - (cols - 1) * colWidth) / 2;
                 for (let c = 0; c < cols; c++) {
@@ -136,14 +151,15 @@ export function PlinkoBoard({ isDropping, balls, risk, wager, runsCount, onDropF
             }
 
             // Draw Multipliers at bottom
-            const multipliers = MULTIPLIERS[risk];
-            const slotStartX = (width - (17 - 1) * colWidth) / 2;
+            const multipliers = MULTIPLIERS[rows][risk];
+            const slotCount = rows + 1;
+            const slotStartX = (width - (slotCount - 1) * colWidth) / 2;
             
             ctx.font = 'bold 12px monospace';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
             
-            for (let i = 0; i < 17; i++) {
+            for (let i = 0; i < slotCount; i++) {
                 const mx = slotStartX + i * colWidth;
                 const my = height - 20;
                 
@@ -206,8 +222,9 @@ export function PlinkoBoard({ isDropping, balls, risk, wager, runsCount, onDropF
             // Draw hit count badges above slots (multi-ball mode)
             if (dropState === 'finished' && balls.length > 1) {
                 const hits = slotHitsRef.current;
+                const slotCount = rows + 1;
                 
-                for (let i = 0; i < 17; i++) {
+                for (let i = 0; i < slotCount; i++) {
                     if (hits[i] === 0) continue;
                     
                     const mx = slotStartX + i * colWidth;
@@ -311,7 +328,7 @@ export function PlinkoBoard({ isDropping, balls, risk, wager, runsCount, onDropF
                         state.currentRow++;
                     }
                     
-                    if (state.currentRow < ROWS) {
+                    if (state.currentRow < rows) {
                         const move = ballPath[state.currentRow]; // 0 or 1
                         
                         // Start position for this row
@@ -376,7 +393,7 @@ export function PlinkoBoard({ isDropping, balls, risk, wager, runsCount, onDropF
         return () => {
             if (animationFrameId) cancelAnimationFrame(animationFrameId);
         };
-    }, [dropState, balls, risk, hoveredSlot, wager, runsCount]);
+    }, [dropState, balls, risk, hoveredSlot, wager, runsCount, rows]);
 
     // Handle hover
     const handleMouseMove = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
@@ -396,11 +413,12 @@ export function PlinkoBoard({ isDropping, balls, risk, wager, runsCount, onDropF
         const mouseY = (e.clientY - rect.top) * scaleY;
         
         if (mouseY > canvas.height - 40 && mouseY < canvas.height) {
-            const colWidth = canvas.width / (ROWS + 2);
-            const startX = (canvas.width - (17 - 1) * colWidth) / 2;
+            const slotCount = rows + 1;
+            const colWidth = canvas.width / (rows + 2);
+            const startX = (canvas.width - (slotCount - 1) * colWidth) / 2;
             
             let found = null;
-            for (let i = 0; i < 17; i++) {
+            for (let i = 0; i < slotCount; i++) {
                 const mx = startX + i * colWidth;
                 if (Math.abs(mouseX - mx) <= colWidth / 2) {
                     found = i;

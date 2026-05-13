@@ -69,8 +69,8 @@ export async function betRoutes(app: FastifyInstance) {
         data.bets.forEach((b, i) => {
           // Enforce minimum: 5 sats per run for Plinko
           const minAmount = 5 * data.runsCount;
-          if (typeof b.rows !== "number" || b.rows !== 16 || !["low", "medium", "high"].includes(b.risk) || b.amount < minAmount) {
-            ctx.addIssue({ code: z.ZodIssueCode.custom, message: `Invalid plinko bet. Requires rows=16, risk='low'|'medium'|'high', and min amount ${minAmount} sats for ${data.runsCount} run(s)`, path: ["bets", i] });
+          if (typeof b.rows !== "number" || ![8, 12, 16].includes(b.rows) || !["low", "medium", "high"].includes(b.risk) || b.amount < minAmount) {
+            ctx.addIssue({ code: z.ZodIssueCode.custom, message: `Invalid plinko bet. Requires rows in [8, 12, 16], risk='low'|'medium'|'high', and min amount ${minAmount} sats for ${data.runsCount} run(s)`, path: ["bets", i] });
           }
         });
       }
@@ -92,10 +92,11 @@ export async function betRoutes(app: FastifyInstance) {
         maxPotentialPayout += b.amount * multiplier;
       });
     } else if (gameType === "plinko") {
+      const { PLINKO_PAYOUTS } = require("../config/plinkoPayouts.js");
       bets.forEach((b: any) => {
-        let maxMultiplier = 16;
-        if (b.risk === "medium") maxMultiplier = 110;
-        if (b.risk === "high") maxMultiplier = 1000;
+        const rowsConfig = PLINKO_PAYOUTS[b.rows] || PLINKO_PAYOUTS[16];
+        const multipliers = rowsConfig[b.risk] || rowsConfig["high"];
+        const maxMultiplier = Math.max(...multipliers);
         maxPotentialPayout += b.amount * maxMultiplier;
       });
     }

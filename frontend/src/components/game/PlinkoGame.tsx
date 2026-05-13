@@ -8,9 +8,13 @@ import { PlinkoBoard, MULTIPLIERS, type BallData } from './PlinkoBoard';
 const ALLOWED_RUNS = [1, 2, 5, 10] as const;
 type RunsCount = typeof ALLOWED_RUNS[number];
 
+const ALLOWED_ROWS = [8, 12, 16] as const;
+type RowsCount = typeof ALLOWED_ROWS[number];
+
 export function PlinkoGame({ sessionId, isMaintenance }: { sessionId: string | null; isMaintenance: boolean }) {
     const [wager, setWager] = useState<number>(100);
     const [runsCount, setRunsCount] = useState<RunsCount>(1);
+    const [rows, setRows] = useState<RowsCount>(16);
     const [risk, setRisk] = useState<'low' | 'medium' | 'high'>('medium');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -62,10 +66,11 @@ export function PlinkoGame({ sessionId, isMaintenance }: { sessionId: string | n
                                         status.clientSeed,
                                         status.drandRandomness,
                                         run.run,
-                                        effectiveRunsCount
+                                        effectiveRunsCount,
+                                        rows
                                     );
                                     computedBalls.push({
-                                        path: path || generateFallbackPath(run.outcome),
+                                        path: path || generateFallbackPath(run.outcome, rows),
                                         slot: run.outcome,
                                     });
                                 }
@@ -77,10 +82,11 @@ export function PlinkoGame({ sessionId, isMaintenance }: { sessionId: string | n
                                 status.clientSeed,
                                 status.drandRandomness,
                                 0,
-                                1
+                                1,
+                                rows
                             );
                             computedBalls.push({
-                                path: path || generateFallbackPath(status.outcome),
+                                path: path || generateFallbackPath(status.outcome, rows),
                                 slot: status.outcome,
                             });
                         }
@@ -135,7 +141,7 @@ export function PlinkoGame({ sessionId, isMaintenance }: { sessionId: string | n
                 setClientSeed(finalSeed); // Update UI so user sees what was generated
             }
             
-            const payload = [{ rows: 16, risk, amount: wager }];
+            const payload = [{ rows, risk, amount: wager }];
             
             const res = await GameApi.placeBet(payload, finalSeed, 'plinko', runsCount);
             setCurrentBet(res);
@@ -153,7 +159,7 @@ export function PlinkoGame({ sessionId, isMaintenance }: { sessionId: string | n
     };
 
     // Compute summary stats from runResults
-    const summaryStats = computeSummary(betStatus, wager, risk, runsCount);
+    const summaryStats = computeSummary(betStatus, wager, risk, runsCount, rows);
 
     return (
         <div className="flex flex-col items-center justify-start min-h-[80vh] text-center space-y-8 max-w-5xl mx-auto">
@@ -231,6 +237,29 @@ export function PlinkoGame({ sessionId, isMaintenance }: { sessionId: string | n
                             )}
                         </div>
 
+                        {/* Rows Selector */}
+                        <div className="space-y-2 text-left">
+                            <label className="text-xs font-bold text-gray-400 uppercase tracking-wider">Rows</label>
+                            <div className="flex bg-black/50 p-1 rounded-lg border border-white/10">
+                                {ALLOWED_ROWS.map(r => (
+                                    <button
+                                        key={r}
+                                        onClick={() => setRows(r)}
+                                        disabled={isDropping}
+                                        className={cn(
+                                            "flex-1 py-2 text-sm font-bold rounded-md transition-all font-mono",
+                                            rows === r 
+                                                ? "bg-primary text-black shadow-lg shadow-primary/20" 
+                                                : "text-gray-400 hover:text-white hover:bg-white/5",
+                                            isDropping && "opacity-50 cursor-not-allowed"
+                                        )}
+                                    >
+                                        {r}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
                         {/* Risk Selector */}
                         <div className="space-y-2 text-left">
                             <label className="text-xs font-bold text-gray-400 uppercase tracking-wider">Risk Level</label>
@@ -239,9 +268,11 @@ export function PlinkoGame({ sessionId, isMaintenance }: { sessionId: string | n
                                     <button
                                         key={r}
                                         onClick={() => setRisk(r as any)}
+                                        disabled={isDropping}
                                         className={cn(
                                             "flex-1 py-2 text-sm font-bold uppercase rounded-md transition-all",
-                                            risk === r ? "bg-primary text-black shadow-lg" : "text-gray-400 hover:text-white hover:bg-white/5"
+                                            risk === r ? "bg-primary text-black shadow-lg" : "text-gray-400 hover:text-white hover:bg-white/5",
+                                            isDropping && "opacity-50 cursor-not-allowed"
                                         )}
                                     >
                                         {r}
@@ -325,6 +356,7 @@ export function PlinkoGame({ sessionId, isMaintenance }: { sessionId: string | n
                             risk={risk}
                             wager={wager}
                             runsCount={runsCount}
+                            rows={rows}
                             onDropFinish={handleDropFinish}
                         />
                     </div>
@@ -361,7 +393,7 @@ export function PlinkoGame({ sessionId, isMaintenance }: { sessionId: string | n
                             <div className="flex flex-wrap justify-center gap-12 mb-6">
                                 <div>
                                     <span className="text-gray-500 block text-xs uppercase">Multiplier</span>
-                                    <span className="font-mono text-3xl text-white">x{betStatus.outcome !== undefined ? (MULTIPLIERS as any)[risk][betStatus.outcome].toFixed(2) : "0.00"}</span>
+                                    <span className="font-mono text-3xl text-white">x{betStatus.outcome !== undefined ? (MULTIPLIERS as any)[rows][risk][betStatus.outcome].toFixed(2) : "0.00"}</span>
                                 </div>
                                 <div>
                                     <span className="text-gray-500 block text-xs uppercase">Prize</span>
@@ -413,7 +445,8 @@ async function computePathFromSeeds(
     clientSeed?: string,
     drandRandomness?: string,
     runIndex: number = 0,
-    totalRuns: number = 1
+    totalRuns: number = 1,
+    rows: number = 16
 ): Promise<number[] | null> {
     if (!serverSeed || !clientSeed || !drandRandomness) return null;
 
@@ -429,15 +462,15 @@ async function computePathFromSeeds(
     const hash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
     
     const path: number[] = [];
-    for (let i = 0; i < 16; i++) {
+    for (let i = 0; i < rows; i++) {
         path.push(parseInt(hash.charAt(i), 16) % 2);
     }
     return path;
 }
 
 /** Generate a fallback visual path targeting the given slot */
-function generateFallbackPath(targetSlot: number): number[] {
-    const moves = Array(16).fill(0);
+function generateFallbackPath(targetSlot: number, rows: number = 16): number[] {
+    const moves = Array(rows).fill(0);
     for (let i = 0; i < targetSlot; i++) moves[i] = 1;
     // Shuffle
     for (let i = moves.length - 1; i > 0; i--) {
@@ -452,14 +485,15 @@ function computeSummary(
     betStatus: BetStatusResponse | null,
     wager: number,
     risk: string,
-    runsCount: number
+    runsCount: number,
+    rows: number
 ): { totalRuns: number; wins: number; losses: number; netPnl: number; bestMultiplier: number; avgMultiplier: number } {
     if (!betStatus || !betStatus.runResults || betStatus.runResults.length === 0) {
         // Single-run fallback
         const payout = betStatus?.payoutSat ?? 0;
         const isWin = payout > wager;
         const mult = betStatus?.outcome !== undefined 
-            ? (MULTIPLIERS as any)[risk]?.[betStatus.outcome] ?? 0 
+            ? (MULTIPLIERS as any)[rows]?.[risk]?.[betStatus.outcome] ?? 0 
             : 0;
         return {
             totalRuns: 1,
