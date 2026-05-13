@@ -95,7 +95,9 @@ export function PlinkoBoard({ isDropping, balls, risk, wager, runsCount, onDropF
                 }
                 setDropState('falling');
             }, 1500);
-        } else if (!isDropping) {
+        } else if (!isDropping && balls.length === 0) {
+            // Only reset to idle when balls are cleared (new game cycle).
+            // If balls still have data, we're in 'finished' state — keep it.
             setDropState('idle');
             if (quantumTimerRef.current) clearTimeout(quantumTimerRef.current);
         }
