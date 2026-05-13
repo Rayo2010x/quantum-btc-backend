@@ -77,13 +77,7 @@ export function SpinWheel({ runResults, isSpinning, onFinish }: SpinWheelProps) 
         return () => timeoutsRef.current.forEach(clearTimeout);
     }, []);
 
-    // Reset when not spinning
-    useEffect(() => {
-        if (!isSpinning && phase === 'settled') {
-            setPhase('idle');
-            setSpins([]);
-        }
-    }, [isSpinning, phase]);
+
 
     return (
         <div className="relative w-64 h-64 sm:w-80 sm:h-80 mx-auto overflow-hidden rounded-full border-4 border-yellow-600/50 shadow-[0_0_50px_rgba(255,215,0,0.1)] bg-black">
