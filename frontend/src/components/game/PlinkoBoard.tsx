@@ -191,7 +191,7 @@ export function PlinkoBoard({ isDropping, balls, risk, wager, runsCount, rows, o
                 }
                 
                 ctx.fillStyle = isHit ? '#000' : getMultiplierColor(multipliers[i]);
-                ctx.fillText(`${multipliers[i]}x`, mx, my);
+                ctx.fillText(`x${multipliers[i]}`, mx, my);
                 
                 // Tooltip for hovered slot
                 if (hoveredSlot === i && dropState === 'idle') {
@@ -253,7 +253,7 @@ export function PlinkoBoard({ isDropping, balls, risk, wager, runsCount, rows, o
                     ctx.textAlign = 'center';
                     ctx.textBaseline = 'middle';
                     ctx.fillStyle = '#000';
-                    ctx.fillText(hits[i].toString(), badgeX, badgeY);
+                    ctx.fillText(`x${hits[i]}`, badgeX, badgeY);
                 }
             }
 
@@ -429,7 +429,7 @@ export function PlinkoBoard({ isDropping, balls, risk, wager, runsCount, rows, o
         } else {
             setHoveredSlot(null);
         }
-    }, [dropState]);
+    }, [dropState, rows]);
     
     const handleMouseLeave = useCallback(() => {
         setHoveredSlot(null);

@@ -158,7 +158,7 @@ export async function webhookRoutes(app: FastifyInstance) {
           for (let i = 0; i < runsCount; i++) {
             if (bet.game_type === 'plinko') {
               const b = bet.bet_details[0];
-              const amountPerRun = Math.floor(Number(bet.amount_sat) / runsCount);
+              const amountPerRun = Number(bet.amount_sat) / runsCount;
               // Append nonce i to the clientSeed component
               const plinkoRes = calculatePlinkoOutcome(
                 entropyData,
