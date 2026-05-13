@@ -409,7 +409,9 @@ export function BetControls() {
                         return total;
                     };
 
-                <div className="min-w-[700px] flex relative z-10">
+                    return (
+                        <>
+                            <div className="min-w-[700px] flex relative z-10">
                     {/* Zero */}
                     <div className="w-12 sm:w-16 flex-shrink-0 flex flex-col items-stretch">
                         <NumberButton
@@ -501,7 +503,10 @@ export function BetControls() {
                     <OutsideBetButton label="ODD" currentBet={getOutsideBetTotal('odd')} outcomeCount={getOutcomeCount('odd')} onClick={() => handleOutsideBet('odd')} className="flex-1 h-12 sm:h-14 -mt-px -ml-px" />
                     <OutsideBetButton label="19-36" currentBet={getOutsideBetTotal('half_high')} outcomeCount={getOutcomeCount('half_high')} onClick={() => handleOutsideBet('half_high')} className="flex-1 h-12 sm:h-14 rounded-br-3xl -mt-px -ml-px" />
                 </div>
-                {})()}
+
+                        </>
+                    );
+                })()}
             </div>
 
             {/* Controls */}

@@ -60,10 +60,9 @@ export function SpinWheel({ targetNumber, isSpinning, duration = 4000, onFinish 
                 const targetDegrees = targetIndex * degreesPerSegment;
 
                 // 2. Add extra spins for effect (e.g., 5 full rotations)
-                const extraSpins = 360 * 5;
 
                 // 3. The wheel spins clockwise, so we need to rotate counter-clockwise to bring the number to the top
-                const finalRotation = -(extraSpins + targetDegrees);
+                // 3. The wheel spins clockwise, so we need to rotate counter-clockwise to bring the number to the top
 
                 // Adjust for multiple spins - keep increasing rotation so it doesn't spin backwards
                 // By taking the current rotation and adding the needed negative degrees
