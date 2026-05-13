@@ -39,6 +39,7 @@ type AnimationPhase = 'idle' | 'quantum' | 'spinning' | 'settled';
 export function SpinWheel({ runResults, isSpinning, onFinish }: SpinWheelProps) {
     const [phase, setPhase] = useState<AnimationPhase>('idle');
     const [spins, setSpins] = useState<number[]>([]);
+    const [durations, setDurations] = useState<number[]>([]);
     const hasSpun = useRef(false);
 
     // Calculate outcome counts for badge aggregation
@@ -53,9 +54,11 @@ export function SpinWheel({ runResults, isSpinning, onFinish }: SpinWheelProps) 
         if (isSpinning && !hasSpun.current && runResults.length > 0) {
             hasSpun.current = true;
             
-            // Randomize spins for each ball so they don't move exactly together
-            const newSpins = runResults.map(() => 360 * (3 + Math.floor(Math.random() * 3)));
+            // Randomize spins and durations for each ball so they move independently
+            const newSpins = runResults.map(() => 360 * (3 + Math.floor(Math.random() * 5)));
+            const newDurations = runResults.map(() => 2000 + Math.floor(Math.random() * 800));
             setSpins(newSpins);
+            setDurations(newDurations);
 
             setPhase('quantum');
 
@@ -133,12 +136,12 @@ export function SpinWheel({ runResults, isSpinning, onFinish }: SpinWheelProps) 
                             className="absolute inset-0 transition-transform ease-[cubic-bezier(0.25,0.1,0.25,1)]"
                             style={{ 
                                 transform: `rotate(${currentRotation}deg)`,
-                                transitionDuration: isSettled ? '0ms' : (isSpinning ? '3000ms' : '0ms'),
+                                transitionDuration: isSettled ? '0ms' : (isSpinning ? `${durations[i]}ms` : '0ms'),
                                 opacity: isSettled && !isFirstOfOutcome ? 0 : 1
                             }}
                         >
                             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-6 h-1/2 origin-bottom flex justify-center">
-                                {isSettled && isFirstOfOutcome && count > 1 ? (
+                                {isSettled && isFirstOfOutcome && count >= 1 ? (
                                     <div 
                                         className="absolute w-5 h-5 bg-amber-400 rounded-full flex items-center justify-center text-[10px] font-bold text-black border border-white shadow-[0_0_10px_rgba(251,191,36,0.8)] animate-in zoom-in"
                                         style={{ top: '32px', transform: 'rotate(180deg)' }}

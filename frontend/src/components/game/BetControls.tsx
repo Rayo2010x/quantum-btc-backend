@@ -273,14 +273,10 @@ export function BetControls() {
                     </h2>
 
                     <div className="flex flex-wrap justify-center gap-8 mb-6">
-                        <div>
-                            <span className="text-gray-500 block text-xs uppercase">Outcome</span>
-                            <span className="font-mono text-3xl text-white">{betStatus.outcome}</span>
-                        </div>
                         {betStatus.payoutSat ? (
-                            <div>
-                                <span className="text-gray-500 block text-xs uppercase">Prize</span>
-                                <span className="font-mono text-3xl text-green-400">+{betStatus.payoutSat} sats</span>
+                            <div className="flex flex-col items-center justify-center">
+                                <span className="text-gray-500 block text-xs uppercase mb-1">Prize</span>
+                                <span className="font-mono text-3xl sm:text-4xl text-green-400 font-bold">+{betStatus.payoutSat} sats</span>
                             </div>
                         ) : null}
                     </div>
