@@ -2,9 +2,9 @@ import { useEffect, useState, useRef } from 'react';
 import { cn } from './BetControls';
 
 interface SpinWheelProps {
-    targetNumber: number | null;
+    outcome?: number;
+    runResults: { outcome: number }[];
     isSpinning: boolean;
-    duration?: number;
     onFinish?: () => void;
 }
 
@@ -34,72 +34,56 @@ const QUANTUM_STYLES = `
 .animate-ghost-2 { animation: ghost-2 0.12s infinite alternate; }
 `;
 
-export function SpinWheel({ targetNumber, isSpinning, duration = 4000, onFinish }: SpinWheelProps) {
-    const [rotation, setRotation] = useState(0);
-    const [quantumEffect, setQuantumEffect] = useState(false);
-    const wheelRef = useRef<HTMLDivElement>(null);
+type AnimationPhase = 'idle' | 'quantum' | 'spinning' | 'settled';
+
+export function SpinWheel({ runResults, isSpinning, onFinish }: SpinWheelProps) {
+    const [phase, setPhase] = useState<AnimationPhase>('idle');
+    const [spins, setSpins] = useState<number[]>([]);
     const hasSpun = useRef(false);
 
+    // Calculate outcome counts for badge aggregation
+    const outcomeCounts = runResults.reduce((acc, r) => {
+        acc[r.outcome] = (acc[r.outcome] || 0) + 1;
+        return acc;
+    }, {} as Record<number, number>);
+
     useEffect(() => {
-        if (targetNumber !== null && isSpinning && !hasSpun.current) {
+        if (isSpinning && !hasSpun.current && runResults.length > 0) {
             hasSpun.current = true;
+            
+            // Randomize spins for each ball so they don't move exactly together
+            const newSpins = runResults.map(() => 360 * (3 + Math.floor(Math.random() * 3)));
+            setSpins(newSpins);
 
-            // Start quantum effect
-            setQuantumEffect(true);
+            setPhase('quantum');
 
-            // Shorter quantum effect for fast spins
-            const quantumDelay = duration < 2000 ? 500 : 1500;
-
-            // Wait then spin
-            setTimeout(() => {
-                setQuantumEffect(false);
-
-                // 1. Calculate the rotation to land on the target number
-                const degreesPerSegment = 360 / 37;
-                const targetIndex = WHEEL_NUMBERS.indexOf(targetNumber);
-                const targetDegrees = targetIndex * degreesPerSegment;
-
-                // 2. Add extra spins for effect (e.g., 5 full rotations)
-
-                // 3. The wheel spins clockwise, so we need to rotate counter-clockwise to bring the number to the top
-                // 3. The wheel spins clockwise, so we need to rotate counter-clockwise to bring the number to the top
-
-                // Adjust for multiple spins - keep increasing rotation so it doesn't spin backwards
-                // By taking the current rotation and adding the needed negative degrees
-                setRotation((prev) => {
-                    // Normalizing current rotation to 0-360
-                    const currentNorm = Math.abs(prev) % 360;
-                    // How much to rotate to reach target from 0
-                    const needed = targetDegrees;
-                    
-                    // We want to add at least 5 extra spins + distance
-                    // Since we rotate negative (counter-clockwise) to bring numbers up:
-                    const nextRot = prev - (360 * 5) - ((needed - currentNorm + 360) % 360);
-                    return nextRot;
-                });
-
-                // Trigger callback after animation
+            const timeouts = [
+                setTimeout(() => setPhase('spinning'), 1500),
+                setTimeout(() => setPhase('settled'), 4500),
                 setTimeout(() => {
                     onFinish?.();
-                    hasSpun.current = false; // Reset for next time if component reused
-                }, duration); 
-            }, quantumDelay); 
+                    hasSpun.current = false;
+                }, 5000) // Small delay after settling before overlay shows
+            ];
+
+            return () => timeouts.forEach(clearTimeout);
         }
-    }, [targetNumber, isSpinning, onFinish, duration]);
+    }, [isSpinning, runResults, onFinish]);
+
+    // Reset when not spinning
+    useEffect(() => {
+        if (!isSpinning && phase === 'settled') {
+            setPhase('idle');
+            setSpins([]);
+        }
+    }, [isSpinning, phase]);
 
     return (
         <div className="relative w-64 h-64 sm:w-80 sm:h-80 mx-auto overflow-hidden rounded-full border-4 border-yellow-600/50 shadow-[0_0_50px_rgba(255,215,0,0.1)] bg-black">
             <style>{QUANTUM_STYLES}</style>
 
-            {/* The Rotating Wheel */}
-            <div
-                ref={wheelRef}
-                className="w-full h-full relative transition-transform ease-[cubic-bezier(0.25,0.1,0.25,1)]"
-                style={{ 
-                    transform: `rotate(${rotation}deg)`,
-                    transitionDuration: `${duration}ms`
-                }}
-            >
+            {/* Static Wheel */}
+            <div className="w-full h-full relative">
                 {/* Render Numbers */}
                 {WHEEL_NUMBERS.map((num, i) => {
                     const angle = (i * 360) / 37;
@@ -125,23 +109,61 @@ export function SpinWheel({ targetNumber, isSpinning, duration = 4000, onFinish 
                         </div>
                     );
                 })}
+
+                {/* Multiple Balls */}
+                {phase !== 'idle' && phase !== 'quantum' && runResults.map((run, i) => {
+                    const targetIndex = WHEEL_NUMBERS.indexOf(run.outcome);
+                    const baseAngle = targetIndex * (360 / 37);
+                    const finalRotation = baseAngle + (spins[i] || 0);
+                    const isSettled = phase === 'settled';
+                    
+                    const isFirstOfOutcome = runResults.findIndex(r => r.outcome === run.outcome) === i;
+                    const count = outcomeCounts[run.outcome];
+
+                    return (
+                        <div
+                            key={i}
+                            className="absolute inset-0 transition-transform ease-[cubic-bezier(0.25,0.1,0.25,1)]"
+                            style={{ 
+                                transform: `rotate(${finalRotation}deg)`,
+                                transitionDuration: isSettled ? '0ms' : '3000ms',
+                                opacity: isSettled && !isFirstOfOutcome ? 0 : 1
+                            }}
+                        >
+                            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-6 h-1/2 origin-bottom flex justify-center">
+                                {isSettled && isFirstOfOutcome && count > 1 ? (
+                                    <div 
+                                        className="absolute w-5 h-5 bg-amber-400 rounded-full flex items-center justify-center text-[10px] font-bold text-black border border-white shadow-[0_0_10px_rgba(251,191,36,0.8)] animate-in zoom-in"
+                                        style={{ top: '32px', transform: 'rotate(180deg)' }}
+                                    >
+                                        x{count}
+                                    </div>
+                                ) : (
+                                    <div 
+                                        className="absolute w-3 h-3 bg-white rounded-full shadow-[0_0_10px_#fff] transition-all duration-500"
+                                        style={{ 
+                                            top: isSettled ? '36px' : '4px'
+                                        }}
+                                    />
+                                )}
+                            </div>
+                        </div>
+                    );
+                })}
             </div>
 
-            {/* Pointer */}
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-0 h-0 border-l-[10px] border-l-transparent border-t-[20px] border-t-yellow-400 border-r-[10px] border-r-transparent z-10 drop-shadow-lg" />
-
             {/* Center Cap with Quantum Effect */}
-            {quantumEffect && (
+            {(phase === 'quantum' || phase === 'spinning') && (
                 <>
                     <div className="absolute top-1/2 left-1/2 w-12 h-12 rounded-full bg-[#00f0ff]/40 mix-blend-screen z-[9] animate-ghost-1" />
                     <div className="absolute top-1/2 left-1/2 w-12 h-12 rounded-full bg-[#00f0ff]/40 mix-blend-screen z-[9] animate-ghost-2" />
                 </>
             )}
             <div className={cn(
-                "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-12 h-12 rounded-full z-10 flex items-center justify-center font-bold border transition-colors duration-100",
-                quantumEffect 
-                    ? "bg-[#00f0ff] border-white text-white animate-quantum-jitter shadow-[0_0_20px_rgba(0,240,255,1)]" 
-                    : "bg-gradient-to-br from-yellow-500 to-yellow-700 border-yellow-200 text-black shadow-[inset_0_2px_4px_rgba(255,255,255,0.3)]"
+                "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-12 h-12 rounded-full z-10 flex items-center justify-center font-display font-bold text-black shadow-xl border-2",
+                phase === 'quantum' 
+                    ? "bg-primary border-white animate-quantum-jitter" 
+                    : "bg-yellow-500 border-yellow-300"
             )}>
                 Q
             </div>

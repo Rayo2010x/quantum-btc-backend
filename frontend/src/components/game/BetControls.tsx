@@ -28,7 +28,6 @@ export function BetControls() {
 
     // Animation State
     const [isSpinning, setIsSpinning] = useState(false);
-    const [currentRunIndex, setCurrentRunIndex] = useState<number>(0);
     const [showResultOverlay, setShowResultOverlay] = useState(false);
 
     // System Limiter State
@@ -96,7 +95,6 @@ export function BetControls() {
 
                     // If we have an outcome and aren't spinning yet, START SPIN!
                     if (status.outcome !== undefined && !isSpinning && !showResultOverlay) {
-                        setCurrentRunIndex(0);
                         setIsSpinning(true);
                         setCurrentBet(null); // Hide QR code modal
                     }
@@ -116,15 +114,8 @@ export function BetControls() {
     }, [pollingBetId, isSpinning, showResultOverlay]);
 
     const handleAnimationFinish = () => {
-        if (betStatus && betStatus.runResults && currentRunIndex < (betStatus.runsCount || 1) - 1) {
-            // Sequential multi-run
-            setCurrentRunIndex(prev => prev + 1);
-            setIsSpinning(false);
-            setTimeout(() => setIsSpinning(true), 50); 
-        } else {
-            setIsSpinning(false);
-            setShowResultOverlay(true);
-        }
+        setIsSpinning(false);
+        setShowResultOverlay(true);
     };
 
     const handleClear = () => {
@@ -260,15 +251,10 @@ export function BetControls() {
             {/* Spin Wheel Animation */}
             {(isSpinning || showResultOverlay) && (
                 <div className="mb-8 transform scale-90 sm:scale-100 transition-all text-center">
-                    {(betStatus?.runsCount || 1) > 1 && isSpinning && (
-                        <div className="mb-4 text-primary font-display font-bold tracking-widest animate-pulse">
-                            RUN {currentRunIndex + 1} OF {betStatus?.runsCount}
-                        </div>
-                    )}
                     <SpinWheel
-                        targetNumber={betStatus?.runResults ? betStatus.runResults[currentRunIndex]?.outcome : (betStatus?.outcome ?? 0)} 
+                        outcome={betStatus?.outcome}
+                        runResults={betStatus?.runResults || []}
                         isSpinning={isSpinning}
-                        duration={(betStatus?.runsCount || 1) > 2 ? 1500 : 3000}
                         onFinish={handleAnimationFinish}
                     />
                 </div>
@@ -475,7 +461,7 @@ export function BetControls() {
                         {getOutcomeCount('red') > 0 && (
                             <div className="absolute bottom-1 right-1 flex items-center justify-center z-30 animate-in zoom-in spin-in-[10deg] duration-500">
                                 <div className="w-5 h-5 rounded-full bg-amber-400 text-black flex items-center justify-center text-[10px] font-bold shadow-[0_0_10px_rgba(251,191,36,0.8)] border border-white">
-                                    {getOutcomeCount('red') > 1 ? `x${getOutcomeCount('red')}` : '✓'}
+                                    {getOutcomeCount('red') > 1 ? `x${getOutcomeCount('red')}` : 'x1'}
                                 </div>
                             </div>
                         )}
@@ -494,7 +480,7 @@ export function BetControls() {
                         {getOutcomeCount('black') > 0 && (
                             <div className="absolute bottom-1 right-1 flex items-center justify-center z-30 animate-in zoom-in spin-in-[10deg] duration-500">
                                 <div className="w-5 h-5 rounded-full bg-amber-400 text-black flex items-center justify-center text-[10px] font-bold shadow-[0_0_10px_rgba(251,191,36,0.8)] border border-white">
-                                    {getOutcomeCount('black') > 1 ? `x${getOutcomeCount('black')}` : '✓'}
+                                    {getOutcomeCount('black') > 1 ? `x${getOutcomeCount('black')}` : 'x1'}
                                 </div>
                             </div>
                         )}
@@ -613,7 +599,7 @@ function NumberButton({ num, currentBet, outcomeCount, onClick, className, isGre
             {outcomeCount > 0 && (
                 <div className="absolute bottom-1 right-1 flex items-center justify-center z-30 animate-in zoom-in spin-in-[10deg] duration-500">
                     <div className="w-5 h-5 rounded-full bg-amber-400 text-black flex items-center justify-center text-[10px] font-bold shadow-[0_0_10px_rgba(251,191,36,0.8)] border border-white">
-                        {outcomeCount > 1 ? `x${outcomeCount}` : '✓'}
+                        {outcomeCount > 1 ? `x${outcomeCount}` : 'x1'}
                     </div>
                 </div>
             )}
@@ -648,7 +634,7 @@ function OutsideBetButton({ label, currentBet, outcomeCount, onClick, className 
             {outcomeCount > 0 && (
                 <div className="absolute bottom-1 right-1 flex items-center justify-center z-30 animate-in zoom-in spin-in-[10deg] duration-500">
                     <div className="w-5 h-5 rounded-full bg-amber-400 text-black flex items-center justify-center text-[10px] font-bold shadow-[0_0_10px_rgba(251,191,36,0.8)] border border-white">
-                        {outcomeCount > 1 ? `x${outcomeCount}` : '✓'}
+                        {outcomeCount > 1 ? `x${outcomeCount}` : 'x1'}
                     </div>
                 </div>
             )}
