@@ -362,14 +362,23 @@ export function PlinkoBoard({ isDropping, balls, risk, wager, runsCount, onDropF
                     indices.forEach((ballIdx, stackIdx) => {
                         const color = getBallColor(ballIdx, balls.length);
                         const yPos = bottomY - stackIdx * (ballRadius * 1.8);
+                        const r = ballRadius * 0.8;
                         
+                        // Draw ball circle
                         ctx.fillStyle = color;
                         ctx.shadowColor = getBallGlow(ballIdx, balls.length);
                         ctx.shadowBlur = 6;
                         ctx.beginPath();
-                        ctx.arc(mx, yPos, ballRadius * 0.8, 0, Math.PI * 2);
+                        ctx.arc(mx, yPos, r, 0, Math.PI * 2);
                         ctx.fill();
                         ctx.shadowBlur = 0;
+
+                        // Draw slot outcome label on the ball
+                        ctx.font = `bold ${Math.max(8, r)}px monospace`;
+                        ctx.textAlign = 'center';
+                        ctx.textBaseline = 'middle';
+                        ctx.fillStyle = '#000';
+                        ctx.fillText(slot.toString(), mx, yPos);
                     });
                 }
             }

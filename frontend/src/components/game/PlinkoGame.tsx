@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { GameApi, type PlaceBetResponse, type BetStatusResponse } from '../../lib/api';
-import { Loader2, AlertCircle, X, CheckCircle, TrendingUp, TrendingDown, Zap, Trophy } from 'lucide-react';
+import { Loader2, AlertCircle, X, CheckCircle } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import { cn } from './BetControls';
 import { PlinkoBoard, MULTIPLIERS, type BallData } from './PlinkoBoard';
@@ -340,71 +340,20 @@ export function PlinkoGame({ sessionId, isMaintenance }: { sessionId: string | n
 
                         {/* Multi-run Summary */}
                         {runsCount > 1 && betStatus.runResults && betStatus.runResults.length > 1 ? (
-                            <div className="space-y-6">
-                                {/* Stats Grid */}
-                                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                                    <div className="bg-black/30 p-3 rounded-lg border border-white/5">
-                                        <span className="text-gray-500 block text-[10px] uppercase font-bold">Runs</span>
-                                        <span className="font-mono text-2xl text-white">{summaryStats.totalRuns}</span>
-                                    </div>
-                                    <div className="bg-black/30 p-3 rounded-lg border border-white/5">
-                                        <span className="text-gray-500 block text-[10px] uppercase font-bold flex items-center justify-center gap-1">
-                                            <TrendingUp size={10} /> Wins
-                                        </span>
-                                        <span className="font-mono text-2xl text-green-400">{summaryStats.wins}</span>
-                                    </div>
-                                    <div className="bg-black/30 p-3 rounded-lg border border-white/5">
-                                        <span className="text-gray-500 block text-[10px] uppercase font-bold flex items-center justify-center gap-1">
-                                            <TrendingDown size={10} /> Losses
-                                        </span>
-                                        <span className="font-mono text-2xl text-red-400">{summaryStats.losses}</span>
-                                    </div>
-                                    <div className="bg-black/30 p-3 rounded-lg border border-white/5">
-                                        <span className="text-gray-500 block text-[10px] uppercase font-bold flex items-center justify-center gap-1">
-                                            <Trophy size={10} /> Best
-                                        </span>
-                                        <span className="font-mono text-2xl text-yellow-400">x{summaryStats.bestMultiplier.toFixed(2)}</span>
-                                    </div>
+                            <div className="flex flex-wrap justify-center gap-12 mb-6">
+                                <div>
+                                    <span className="text-gray-500 block text-xs uppercase">Avg. Multiplier</span>
+                                    <span className="font-mono text-3xl text-white">x{summaryStats.avgMultiplier.toFixed(2)}</span>
                                 </div>
-
-                                {/* Net P&L Hero */}
-                                <div className="flex items-center justify-center gap-3">
-                                    <Zap size={20} className={summaryStats.netPnl > 0 ? "text-green-400" : "text-red-400"} />
-                                    <span className="text-gray-400 text-sm uppercase font-bold">Net P&L</span>
-                                    <span className={cn(
-                                        "font-mono text-3xl font-bold",
-                                        summaryStats.netPnl > 0 ? "text-green-400" : summaryStats.netPnl < 0 ? "text-red-400" : "text-gray-300"
-                                    )}>
-                                        {summaryStats.netPnl > 0 ? "+" : ""}{summaryStats.netPnl.toLocaleString()} sats
+                                <div>
+                                    <span className="text-gray-500 block text-xs uppercase">Total Prize</span>
+                                    <span className={cn("font-mono text-3xl", (betStatus.payoutSat ?? 0) > wager ? "text-green-400" : "text-gray-300")}>
+                                        {betStatus.payoutSat} sats
                                     </span>
                                 </div>
-
-                                {/* Individual Run Breakdown */}
-                                <div className="max-h-32 overflow-y-auto scrollbar-thin">
-                                    <div className="flex flex-wrap gap-2 justify-center">
-                                        {betStatus.runResults.map((run, idx) => {
-                                            const perRunWager = Math.floor(wager / (betStatus.runsCount || 1));
-                                            const isWin = run.payout_sat > perRunWager;
-                                            return (
-                                                <div 
-                                                    key={idx} 
-                                                    className={cn(
-                                                        "px-3 py-1.5 rounded-full text-xs font-mono font-bold border",
-                                                        isWin 
-                                                            ? "border-green-500/30 bg-green-500/10 text-green-400"
-                                                            : "border-red-500/30 bg-red-500/10 text-red-400"
-                                                    )}
-                                                    style={{ 
-                                                        animationDelay: `${idx * 100}ms`,
-                                                        borderLeftColor: getBallColorCSS(idx, betStatus.runResults!.length),
-                                                        borderLeftWidth: '3px',
-                                                    }}
-                                                >
-                                                    #{idx + 1}: x{(run.multiplier ?? (run.payout_sat / perRunWager)).toFixed(2)} → {run.payout_sat} sats
-                                                </div>
-                                            );
-                                        })}
-                                    </div>
+                                <div>
+                                    <span className="text-gray-500 block text-xs uppercase">Runs</span>
+                                    <span className="font-mono text-3xl text-white">{summaryStats.totalRuns}×</span>
                                 </div>
                             </div>
                         ) : (
@@ -504,7 +453,7 @@ function computeSummary(
     wager: number,
     risk: string,
     runsCount: number
-): { totalRuns: number; wins: number; losses: number; netPnl: number; bestMultiplier: number } {
+): { totalRuns: number; wins: number; losses: number; netPnl: number; bestMultiplier: number; avgMultiplier: number } {
     if (!betStatus || !betStatus.runResults || betStatus.runResults.length === 0) {
         // Single-run fallback
         const payout = betStatus?.payoutSat ?? 0;
@@ -518,6 +467,7 @@ function computeSummary(
             losses: isWin ? 0 : 1,
             netPnl: payout - wager,
             bestMultiplier: mult,
+            avgMultiplier: mult,
         };
     }
 
@@ -526,6 +476,7 @@ function computeSummary(
     let losses = 0;
     let bestMultiplier = 0;
     let totalPayout = 0;
+    let totalMultiplier = 0;
 
     for (const run of betStatus.runResults) {
         const mult = run.multiplier ?? (perRunWager > 0 ? run.payout_sat / perRunWager : 0);
@@ -533,7 +484,10 @@ function computeSummary(
         else losses++;
         if (mult > bestMultiplier) bestMultiplier = mult;
         totalPayout += run.payout_sat;
+        totalMultiplier += mult;
     }
+
+    const avgMultiplier = betStatus.runResults.length > 0 ? totalMultiplier / betStatus.runResults.length : 0;
 
     return {
         totalRuns: betStatus.runResults.length,
@@ -541,12 +495,7 @@ function computeSummary(
         losses,
         netPnl: totalPayout - wager,
         bestMultiplier,
+        avgMultiplier,
     };
 }
 
-/** Get CSS ball color for inline styles */
-function getBallColorCSS(index: number, total: number): string {
-    if (total === 1) return '#00f0ff';
-    const hue = 180 + index * 15;
-    return `hsl(${hue}, 100%, 60%)`;
-}
