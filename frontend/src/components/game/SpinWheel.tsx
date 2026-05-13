@@ -47,6 +47,8 @@ export function SpinWheel({ runResults, isSpinning, onFinish }: SpinWheelProps) 
         return acc;
     }, {} as Record<number, number>);
 
+    const timeoutsRef = useRef<NodeJS.Timeout[]>([]);
+
     useEffect(() => {
         if (isSpinning && !hasSpun.current && runResults.length > 0) {
             hasSpun.current = true;
@@ -57,7 +59,7 @@ export function SpinWheel({ runResults, isSpinning, onFinish }: SpinWheelProps) 
 
             setPhase('quantum');
 
-            const timeouts = [
+            timeoutsRef.current = [
                 setTimeout(() => setPhase('spinning'), 1500),
                 setTimeout(() => setPhase('settled'), 4500),
                 setTimeout(() => {
@@ -65,10 +67,12 @@ export function SpinWheel({ runResults, isSpinning, onFinish }: SpinWheelProps) 
                     hasSpun.current = false;
                 }, 5000) // Small delay after settling before overlay shows
             ];
-
-            return () => timeouts.forEach(clearTimeout);
         }
     }, [isSpinning, runResults, onFinish]);
+
+    useEffect(() => {
+        return () => timeoutsRef.current.forEach(clearTimeout);
+    }, []);
 
     // Reset when not spinning
     useEffect(() => {
