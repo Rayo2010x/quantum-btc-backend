@@ -111,11 +111,14 @@ export function SpinWheel({ runResults, isSpinning, onFinish }: SpinWheelProps) 
                 })}
 
                 {/* Multiple Balls */}
-                {phase !== 'idle' && phase !== 'quantum' && runResults.map((run, i) => {
+                {phase !== 'idle' && runResults.map((run, i) => {
                     const targetIndex = WHEEL_NUMBERS.indexOf(run.outcome);
                     const baseAngle = targetIndex * (360 / 37);
                     const finalRotation = baseAngle + (spins[i] || 0);
+                    const isQuantum = phase === 'quantum';
+                    const isSpinning = phase === 'spinning';
                     const isSettled = phase === 'settled';
+                    const currentRotation = isQuantum ? baseAngle : finalRotation;
                     
                     const isFirstOfOutcome = runResults.findIndex(r => r.outcome === run.outcome) === i;
                     const count = outcomeCounts[run.outcome];
@@ -125,8 +128,8 @@ export function SpinWheel({ runResults, isSpinning, onFinish }: SpinWheelProps) 
                             key={i}
                             className="absolute inset-0 transition-transform ease-[cubic-bezier(0.25,0.1,0.25,1)]"
                             style={{ 
-                                transform: `rotate(${finalRotation}deg)`,
-                                transitionDuration: isSettled ? '0ms' : '3000ms',
+                                transform: `rotate(${currentRotation}deg)`,
+                                transitionDuration: isSettled ? '0ms' : (isSpinning ? '3000ms' : '0ms'),
                                 opacity: isSettled && !isFirstOfOutcome ? 0 : 1
                             }}
                         >
@@ -142,7 +145,9 @@ export function SpinWheel({ runResults, isSpinning, onFinish }: SpinWheelProps) 
                                     <div 
                                         className="absolute w-3 h-3 bg-white rounded-full shadow-[0_0_10px_#fff] transition-all duration-500"
                                         style={{ 
-                                            top: isSettled ? '36px' : '4px'
+                                            top: isSettled ? '36px' : (isQuantum ? '120px' : '4px'),
+                                            opacity: isQuantum ? 0 : 1,
+                                            transform: isQuantum ? 'scale(0.1)' : 'scale(1)'
                                         }}
                                     />
                                 )}

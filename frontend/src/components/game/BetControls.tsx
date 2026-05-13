@@ -218,7 +218,7 @@ export function BetControls() {
             )}
 
             {/* Payment Modal / Overlay */}
-            {currentBet && !betStatus?.outcome && (
+            {currentBet && betStatus?.outcome === undefined && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
                     <div className="bg-surface border border-primary/30 p-8 rounded-2xl max-w-md w-full text-center space-y-6 shadow-[0_0_50px_rgba(0,240,255,0.2)]">
                         <div>
