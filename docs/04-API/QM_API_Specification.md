@@ -1,8 +1,8 @@
 # API Specification - QuantumBTC
 
 > **ID:** QM_API_Specification
-> **Version:** 2.1
-> **Last Updated:** 2026-05-07
+> **Version:** 2.2
+> **Last Updated:** 2026-05-12
 > **Status:** APPROVED
 
 ## 1. Base URL
@@ -25,6 +25,7 @@
     {
       "sessionId": "uuid",
       "gameType": "roulette", // Optional, defaults to "roulette"
+      "runsCount": 1,         // Optional, defaults to 1. Allowed: 1, 2, 5, 10
       "bets": [
         { "numbers": [0], "amount": 100 },
         { "numbers": [1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36], "amount": 500 }
@@ -32,12 +33,13 @@
       "clientSeed": "user_provided_entropy"
     }
 
-    // Example for Plinko:
+    // Example for Plinko (5 runs):
     // {
     //   "sessionId": "uuid",
     //   "gameType": "plinko",
+    //   "runsCount": 5,
     //   "bets": [
-    //     { "risk": "high", "rows": 16, "amount": 100 }
+    //     { "risk": "high", "rows": 16, "amount": 500 }
     //   ],
     //   "clientSeed": "user_provided_entropy"
     // }
@@ -60,12 +62,18 @@
     {
       "status": "WAITING_PAYMENT | PROCESSING | WON | LOST",
       "outcome": 17,
+      "gameType": "roulette",
+      "runsCount": 5,
       "payoutSat": 3600,
       "serverSeedReveal": "a1b2...",
       "clientSeed": "user_provided_entropy",
       "drandRound": 1234567,
       "drandRandomness": "89ab...",
       "drandSignature": "cd34...",
+      "runResults": [
+        { "run": 0, "outcome": 17, "payout_sat": 3600 },
+        { "run": 1, "outcome": 5, "payout_sat": 0 }
+      ],
       "lnurlWithdraw": "lnurl1..." // Only if WON
     }
     ```
@@ -80,8 +88,10 @@
           "id": "uuid",
           "amountSat": 100,
           "payoutSat": 0,
+          "runsCount": 1,
           "status": "LOST",
           "outcome": 0,
+          "gameType": "roulette",
           "createdAt": "2026-03-04T12:00:00Z"
         }
       ]

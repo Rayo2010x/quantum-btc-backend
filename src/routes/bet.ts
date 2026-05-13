@@ -48,10 +48,16 @@ export async function betRoutes(app: FastifyInstance) {
     const MultiBetSchema = z.object({
       sessionId: z.string().uuid(),
       gameType: z.enum(["roulette", "plinko"]).optional().default("roulette"),
+      runsCount: z.union([z.literal(1), z.literal(2), z.literal(5), z.literal(10)]).optional().default(1),
       clientSeed: z.string().min(10),
       bets: z.array(z.any()).min(1)
     }).superRefine((data, ctx) => {
       if (data.gameType === "roulette") {
+        const totalAmount = data.bets.reduce((sum: number, b: any) => sum + (b.amount || 0), 0);
+        // Enforce minimum: 10 sats per run for Roulette
+        if (totalAmount < 10 * data.runsCount) {
+          ctx.addIssue({ code: z.ZodIssueCode.custom, message: `Minimum total bet is ${10 * data.runsCount} sats for ${data.runsCount} run(s)`, path: ["bets"] });
+        }
         data.bets.forEach((b, i) => {
           if (!b.numbers || !Array.isArray(b.numbers) || b.numbers.length < 1 || b.numbers.length > 18 || b.amount <= 0) {
             ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Invalid roulette bet format", path: ["bets", i] });
@@ -61,14 +67,16 @@ export async function betRoutes(app: FastifyInstance) {
         });
       } else if (data.gameType === "plinko") {
         data.bets.forEach((b, i) => {
-          if (typeof b.rows !== "number" || b.rows !== 16 || !["low", "medium", "high"].includes(b.risk) || b.amount < 5) {
-            ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Invalid plinko bet. Requires rows=16, risk='low'|'medium'|'high', and min amount 5 sats", path: ["bets", i] });
+          // Enforce minimum: 5 sats per run for Plinko
+          const minAmount = 5 * data.runsCount;
+          if (typeof b.rows !== "number" || b.rows !== 16 || !["low", "medium", "high"].includes(b.risk) || b.amount < minAmount) {
+            ctx.addIssue({ code: z.ZodIssueCode.custom, message: `Invalid plinko bet. Requires rows=16, risk='low'|'medium'|'high', and min amount ${minAmount} sats for ${data.runsCount} run(s)`, path: ["bets", i] });
           }
         });
       }
     });
 
-    const { sessionId, gameType, bets, clientSeed } = MultiBetSchema.parse(req.body);
+    const { sessionId, gameType, runsCount, bets, clientSeed } = MultiBetSchema.parse(req.body);
     const totalBetAmount = bets.reduce((sum, b) => sum + b.amount, 0);
 
     // Dynamic Bankroll Risk Management (Kelly Criterion)
@@ -76,7 +84,7 @@ export async function betRoutes(app: FastifyInstance) {
     const effectiveBankroll = currentBankroll > 0 ? currentBankroll : env.BANKROLL_FLOOR_SATS;
     const maxPayoutAllowed = effectiveBankroll * env.CASINO_RISK_TOLERANCE_PERCENT;
 
-    // Calculate total potential exposure
+    // Calculate total potential exposure (scaled by runsCount for worst-case)
     let maxPotentialPayout = 0;
     if (gameType === "roulette") {
       bets.forEach((b: any) => {
@@ -91,6 +99,12 @@ export async function betRoutes(app: FastifyInstance) {
         maxPotentialPayout += b.amount * maxMultiplier;
       });
     }
+    // Multi-run: worst case is all runs hit max payout
+    // Note: maxPotentialPayout already accounts for total amount; since each run
+    // gets amountPerRun = totalAmount / runsCount, the per-run max payout is
+    // (totalAmount / runsCount) * maxMultiplier. Over N runs worst case is
+    // N * (totalAmount / runsCount) * maxMultiplier = totalAmount * maxMultiplier.
+    // So no additional multiplication needed — it's mathematically equivalent.
 
     if (maxPotentialPayout > maxPayoutAllowed) {
       return reply.status(400).send({
@@ -105,7 +119,8 @@ export async function betRoutes(app: FastifyInstance) {
     try {
       // NON-CUSTODIAL FLOW:
       // 1. Create Invoice for the total amount
-      const description = `QuantumBet Round [${bets.length} numbers]`;
+      const runsLabel = runsCount > 1 ? ` x${runsCount} runs` : '';
+      const description = `QuantumBet Round [${bets.length} positions${runsLabel}]`;
       const charge = await OpenNode.createCharge(totalBetAmount, description);
 
       // 2. Commit Bet to DB as WAITING_PAYMENT
@@ -149,12 +164,12 @@ export async function betRoutes(app: FastifyInstance) {
           `INSERT INTO bets (
                     session_id, game_type, amount_sat, payout_sat, selected_numbers, 
                     client_seed, server_seed_hash, server_seed_reveal, 
-                    final_result, status, entropy_id, bet_details, invoice_id
-                ) VALUES ($1, $2, $3, 0, $4, $5, $6, NULL, NULL, 'WAITING_PAYMENT', $7, $8, $9) RETURNING id`,
+                    final_result, status, entropy_id, bet_details, invoice_id, runs_count
+                ) VALUES ($1, $2, $3, 0, $4, $5, $6, NULL, NULL, 'WAITING_PAYMENT', $7, $8, $9, $10) RETURNING id`,
           [
             sessionId, gameType, Number(totalBetAmount), selectedNumbers,
             clientSeed, serverSeedHash,
-            entropyId, JSON.stringify(bets), charge.id
+            entropyId, JSON.stringify(bets), charge.id, runsCount
           ]
         );
 

@@ -1,8 +1,8 @@
 # Database Schema - QuantumBTC
 
 > **ID:** QM_Database_Schema
-> **Version:** 1.8
-> **Last Updated:** 2026-05-07
+> **Version:** 1.9
+> **Last Updated:** 2026-05-12
 > **Status:** APPROVED
 
 ## 1. Entity-Relationship Diagram (ERD)
@@ -47,6 +47,8 @@ erDiagram
         string combined_entropy_hash
         string status
         bigint payout_sat
+        int runs_count "1|2|5|10 DEFAULT 1"
+        jsonb run_results "Per-run outcome data"
         timestamp created_at
     }
 
@@ -87,13 +89,16 @@ Typically ephemeral, mostly for audit/logging in non-custodial mode.
 ### 2.2 Table: `bets`
 The core ledger of gameplay.
 *   **game_type:** `VARCHAR(20)`. Type of game ('roulette', 'plinko'). Defaults to 'roulette'.
-*   **amount_sat:** `BIGINT`. The wager (from Invoice).
-*   **payout_sat:** `BIGINT`. The win amount (0 if lost).
+*   **amount_sat:** `BIGINT`. The total wager for all runs (from Invoice).
+*   **payout_sat:** `BIGINT`. The aggregate win amount across all runs (0 if all lost).
+*   **runs_count:** `INTEGER`. Number of independent game runs per bet (1, 2, 5, or 10). Defaults to 1.
+*   **run_results:** `JSONB`. Per-run outcome data: `{"runs": [{run, outcome, payout_sat, ...}]}`. NULL for legacy single-run bets.
+*   **final_result:** `INTEGER`. Stores the first run's outcome for backward compatibility.
 *   **invoice_id:** `VARCHAR`. Link to OpenNode Charge.
 *   **withdrawal_token_id:** `UUID`. Link to claim token (if won).
 *   **status:** 'WAITING_PAYMENT', 'PROCESSING', 'WON', 'LOST'.
 *   **entropy_id:** `UUID`. FK to `entropy_buffer`.
-*   **bet_details:** `JSONB`. Numbers selected.
+*   **bet_details:** `JSONB`. Numbers selected (Roulette) or risk/rows config (Plinko).
 
 ### 2.3 Table: `entropy_buffer`
 Pre-fetched quantum randomness.
@@ -155,11 +160,14 @@ CREATE TABLE bets (
   game_type VARCHAR(20) DEFAULT 'roulette',
   amount_sat BIGINT NOT NULL,
   payout_sat BIGINT DEFAULT 0,
+  runs_count INTEGER NOT NULL DEFAULT 1,
+  run_results JSONB,
   invoice_id VARCHAR(100),
   status VARCHAR(20) DEFAULT 'WAITING_PAYMENT',
   entropy_id UUID REFERENCES entropy_buffer(id),
   bet_details JSONB,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  CONSTRAINT runs_count_valid CHECK (runs_count IN (1, 2, 5, 10))
 );
 
 CREATE TABLE withdrawal_tokens (

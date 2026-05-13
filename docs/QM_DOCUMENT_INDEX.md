@@ -1,8 +1,8 @@
 # DOCUMENT INDEX - QuantumBTC Backend
 
 > **ID:** QM_DOCUMENT_INDEX
-> **Version:** 2.2
-> **Last Updated:** 2026-05-07
+> **Version:** 2.3
+> **Last Updated:** 2026-05-12
 > **Status:** APPROVED
 
 ## 00-Meta (Process & Standards)
@@ -31,13 +31,13 @@
 ## 03-Database (Persistence Layer)
 | Artifact | Version | Status | Last Modified |
 | :--- | :--- | :--- | :--- |
-| [Data Schema & Dictionary](03-Database/QM_Database_Schema.md) | 1.8 | **APPROVED** | 2026-05-07 |
+| [Data Schema & Dictionary](03-Database/QM_Database_Schema.md) | 1.9 | **APPROVED** | 2026-05-12 |
 | [State Transition Models](03-Database/QM_State_Models.md) | 1.0 | **DRAFT** | 2026-01-30 |
 
 ## 04-API (Interfaces & Contracts)
 | Artifact | Version | Status | Last Modified |
 | :--- | :--- | :--- | :--- |
-| [API Specification (REST & LNURL)](04-API/QM_API_Specification.md) | 2.1 | **APPROVED** | 2026-05-07 |
+| [API Specification (REST & LNURL)](04-API/QM_API_Specification.md) | 2.2 | **APPROVED** | 2026-05-12 |
 
 ## 05-QA-Testing (Verification)
 | Artifact | Version | Status | Last Modified |

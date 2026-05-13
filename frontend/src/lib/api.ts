@@ -14,11 +14,21 @@ export interface PlaceBetResponse {
     amountSat: number;
 }
 
+export interface RunResult {
+    run: number;
+    outcome: number;
+    payout_sat: number;
+    multiplier?: number;
+    path?: number[];
+}
+
 export interface BetStatusResponse {
     status: 'WAITING_PAYMENT' | 'WON' | 'LOST' | 'PROCESSING';
     outcome?: number;
     gameType?: string;
     payoutSat?: number;
+    runsCount?: number;
+    runResults?: RunResult[] | null;
     serverSeedReveal?: string;
     clientSeed?: string;
     drandRound?: number;
@@ -34,6 +44,7 @@ export interface BetHistoryResponse {
         id: string;
         amountSat: number;
         payoutSat: number;
+        runsCount?: number;
         status: string;
         outcome: number;
         gameType?: string;

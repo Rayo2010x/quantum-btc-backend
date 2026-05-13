@@ -109,33 +109,104 @@ export async function webhookRoutes(app: FastifyInstance) {
 
         let outcome = 0;
         let totalPayout = 0n;
+        const runsCount: number = bet.runs_count || 1;
+        const runResults: any[] = [];
 
-        if (bet.game_type === 'plinko') {
-          const b = bet.bet_details[0];
-          const plinkoRes = calculatePlinkoOutcome(entropyData, bet.client_seed + drandRandomnessVal, b.rows, b.risk);
-          outcome = plinkoRes.slot;
-          totalPayout = BigInt(Math.floor(b.amount * plinkoRes.multiplier));
-        } else {
-          // Roulette Logic
-          const combined = crypto
-            .createHash("sha256")
-            .update(entropyData)
-            .update(bet.client_seed)
-            .update(drandRandomnessVal)
-            .digest("hex");
-          const intValue = parseInt(combined.substring(0, 8), 16);
-          outcome = intValue % 37;
+        if (runsCount === 1) {
+          // === SINGLE-RUN PATH (backward compatible — no nonce appended) ===
+          if (bet.game_type === 'plinko') {
+            const b = bet.bet_details[0];
+            const plinkoRes = calculatePlinkoOutcome(entropyData, bet.client_seed + drandRandomnessVal, b.rows, b.risk);
+            outcome = plinkoRes.slot;
+            totalPayout = BigInt(Math.floor(b.amount * plinkoRes.multiplier));
+            runResults.push({
+              run: 0,
+              outcome: plinkoRes.slot,
+              multiplier: plinkoRes.multiplier,
+              path: plinkoRes.path,
+              payout_sat: Number(totalPayout)
+            });
+          } else {
+            // Roulette — single run (no nonce, preserves existing hash)
+            const combined = crypto
+              .createHash("sha256")
+              .update(entropyData)
+              .update(bet.client_seed)
+              .update(drandRandomnessVal)
+              .digest("hex");
+            const intValue = parseInt(combined.substring(0, 8), 16);
+            outcome = intValue % 37;
 
-          const betsList = bet.bet_details; // JSONB
-          if (Array.isArray(betsList)) {
-            for (const b of betsList) {
-              const targetNumbers: number[] = b.numbers || (b.number !== undefined ? [b.number] : []);
-              if (targetNumbers.includes(outcome)) {
-                const multiplier = BigInt(Math.floor(36 / targetNumbers.length));
-                totalPayout += BigInt(b.amount) * multiplier;
+            const betsList = bet.bet_details; // JSONB
+            if (Array.isArray(betsList)) {
+              for (const b of betsList) {
+                const targetNumbers: number[] = b.numbers || (b.number !== undefined ? [b.number] : []);
+                if (targetNumbers.includes(outcome)) {
+                  const multiplier = BigInt(Math.floor(36 / targetNumbers.length));
+                  totalPayout += BigInt(b.amount) * multiplier;
+                }
               }
             }
+            runResults.push({
+              run: 0,
+              outcome,
+              payout_sat: Number(totalPayout)
+            });
           }
+        } else {
+          // === MULTI-RUN PATH (nonce-based entropy derivation) ===
+          for (let i = 0; i < runsCount; i++) {
+            if (bet.game_type === 'plinko') {
+              const b = bet.bet_details[0];
+              const amountPerRun = Math.floor(Number(bet.amount_sat) / runsCount);
+              // Append nonce i to the clientSeed component
+              const plinkoRes = calculatePlinkoOutcome(
+                entropyData,
+                bet.client_seed + drandRandomnessVal + i.toString(),
+                b.rows, b.risk
+              );
+              const runPayout = Math.floor(amountPerRun * plinkoRes.multiplier);
+              runResults.push({
+                run: i,
+                outcome: plinkoRes.slot,
+                multiplier: plinkoRes.multiplier,
+                path: plinkoRes.path,
+                payout_sat: runPayout
+              });
+            } else {
+              // Roulette — nonce-based entropy per run
+              const combined = crypto
+                .createHash("sha256")
+                .update(entropyData)
+                .update(bet.client_seed)
+                .update(drandRandomnessVal)
+                .update(i.toString())  // <-- Nonce for this run
+                .digest("hex");
+              const intValue = parseInt(combined.substring(0, 8), 16);
+              const runOutcome = intValue % 37;
+
+              let runPayout = 0n;
+              const betsList = bet.bet_details;
+              if (Array.isArray(betsList)) {
+                for (const b of betsList) {
+                  const amountPerRun = Math.floor(b.amount / runsCount);
+                  const targetNumbers: number[] = b.numbers || (b.number !== undefined ? [b.number] : []);
+                  if (targetNumbers.includes(runOutcome)) {
+                    const multiplier = BigInt(Math.floor(36 / targetNumbers.length));
+                    runPayout += BigInt(amountPerRun) * multiplier;
+                  }
+                }
+              }
+              runResults.push({
+                run: i,
+                outcome: runOutcome,
+                payout_sat: Number(runPayout)
+              });
+            }
+          }
+
+          totalPayout = runResults.reduce((sum: bigint, r: any) => sum + BigInt(r.payout_sat), 0n);
+          outcome = runResults[0].outcome; // Primary outcome for final_result column
         }
 
         const isWin = totalPayout > 0n;
@@ -155,22 +226,24 @@ export async function webhookRoutes(app: FastifyInstance) {
           withdrawalTokenId = tokenRes.rows[0].id;
         }
 
-        // 5. Update Bet
+        // 5. Update Bet (includes run_results JSONB)
+        const runResultsJson = runsCount > 1 ? JSON.stringify({ runs: runResults }) : null;
         await client.query(
           `UPDATE bets 
                  SET status = $1, final_result = $2, payout_sat = $3, 
                      server_seed_reveal = $4, withdrawal_token_id = $5,
-                     drand_round = $6, drand_randomness = $7, drand_signature = $8
-                 WHERE id = $9`,
+                     drand_round = $6, drand_randomness = $7, drand_signature = $8,
+                     run_results = $9
+                 WHERE id = $10`,
           [
             finalStatus, outcome, BigInt(totalPayout), entropyData, withdrawalTokenId,
             drandData?.round || null, drandData?.randomness || null, drandData?.signature || null,
+            runResultsJson,
             bet.id
           ]
         );
 
-        console.log(`🏁 Game Finished. Result: ${finalStatus}, Outcome: ${outcome}, Payout: ${totalPayout}`);
-        console.log(`🏁 Game Finished. Result: ${finalStatus}, Outcome: ${outcome}, Payout: ${totalPayout}`);
+        console.log(`🏁 Game Finished. Result: ${finalStatus}, Outcome: ${outcome}, Payout: ${totalPayout}, Runs: ${runsCount}`);
 
         // Broadcast Result via Websocket!
         broadcastGameResult(bet.id, {
@@ -181,7 +254,9 @@ export async function webhookRoutes(app: FastifyInstance) {
           withdrawalTokenId: withdrawalTokenId,
           drandRound: drandData?.round || null,
           drandRandomness: drandData?.randomness || null,
-          drandSignature: drandData?.signature || null
+          drandSignature: drandData?.signature || null,
+          runsCount,
+          runResults
         });
 
         return { ok: true, betId: bet.id, result: finalStatus };
