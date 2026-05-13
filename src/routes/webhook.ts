@@ -165,13 +165,13 @@ export async function webhookRoutes(app: FastifyInstance) {
                 bet.client_seed + drandRandomnessVal + i.toString(),
                 b.rows, b.risk
               );
-              const runPayout = Math.floor(amountPerRun * plinkoRes.multiplier);
+              const runPayout = amountPerRun * plinkoRes.multiplier; // Precise — no rounding per run
               runResults.push({
                 run: i,
                 outcome: plinkoRes.slot,
                 multiplier: plinkoRes.multiplier,
                 path: plinkoRes.path,
-                payout_sat: runPayout
+                payout_sat: runPayout // Precise float; total is floored once at the end
               });
             } else {
               // Roulette — nonce-based entropy per run
@@ -205,7 +205,9 @@ export async function webhookRoutes(app: FastifyInstance) {
             }
           }
 
-          totalPayout = runResults.reduce((sum: bigint, r: any) => sum + BigInt(r.payout_sat), 0n);
+          // Single floor on the aggregate — no per-run rounding error
+          const preciseTotal = runResults.reduce((sum: number, r: any) => sum + r.payout_sat, 0);
+          totalPayout = BigInt(Math.floor(preciseTotal));
           outcome = runResults[0].outcome; // Primary outcome for final_result column
         }
 
