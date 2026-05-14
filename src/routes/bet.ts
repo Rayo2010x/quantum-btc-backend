@@ -85,27 +85,26 @@ export async function betRoutes(app: FastifyInstance) {
     const effectiveBankroll = currentBankroll > 0 ? currentBankroll : env.BANKROLL_FLOOR_SATS;
     const maxPayoutAllowed = effectiveBankroll * env.CASINO_RISK_TOLERANCE_PERCENT;
 
-    // Calculate total potential exposure (scaled by runsCount for worst-case)
+    // Calculate per-run exposure (Kelly Criterion: protect per-event, not per-batch)
     let maxPotentialPayout = 0;
     if (gameType === "roulette") {
       bets.forEach((b: any) => {
         const multiplier = 36 / b.numbers.length;
-        maxPotentialPayout += b.amount * multiplier;
+        maxPotentialPayout += (b.amount / runsCount) * multiplier;
       });
     } else if (gameType === "plinko") {
       bets.forEach((b: any) => {
         const rowsConfig = PLINKO_PAYOUTS[b.rows] || PLINKO_PAYOUTS[16];
         const multipliers = rowsConfig[b.risk as keyof typeof rowsConfig] || rowsConfig["high"];
         const maxMultiplier = Math.max(...multipliers);
-        maxPotentialPayout += b.amount * maxMultiplier;
+        maxPotentialPayout += (b.amount / runsCount) * maxMultiplier;
       });
     }
-    // Multi-run: worst case is all runs hit max payout
-    // Note: maxPotentialPayout already accounts for total amount; since each run
-    // gets amountPerRun = totalAmount / runsCount, the per-run max payout is
-    // (totalAmount / runsCount) * maxMultiplier. Over N runs worst case is
-    // N * (totalAmount / runsCount) * maxMultiplier = totalAmount * maxMultiplier.
-    // So no additional multiplication needed — it's mathematically equivalent.
+    // Per-run Kelly Criterion: each run is an independent event. The 2% bankroll
+    // protection applies to the maximum payout of any SINGLE run, not the aggregate
+    // worst case (all N runs hitting max simultaneously has negligible probability).
+    // This is consistent with the fact that a user can already place N sequential
+    // single-run bets to achieve the same total exposure.
 
     if (maxPotentialPayout > maxPayoutAllowed) {
       return reply.status(400).send({

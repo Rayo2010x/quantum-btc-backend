@@ -1,7 +1,7 @@
 # Bankroll Risk & Maximum Bet Strategy
 
 > **ID:** QM_Bankroll_Risk_Analysis
-> **Version:** 2.0
+> **Version:** 2.1
 > **Last Updated:** 2026-05-14
 > **Status:** APPROVED
 
@@ -40,29 +40,32 @@ For MVP purposes, we will set a strict tolerance: no individual bet should be ab
 > If we integrate *Red/Black* bets in the future (2x multiplier), this same formula would allow the player to bet up to 8,000 Sats at once, since the negative impact on our treasury would still be confined to the 2% mathematical limit.
 
 ### 3.2 Multi-Run (Batch Betting) Exposure
-With multi-run support (runsCount = 1, 2, 5, or 10), the worst-case exposure calculation remains mathematically equivalent to a single-run bet:
+With multi-run support (runsCount = 1, 2, 5, or 10), the Kelly Criterion is applied **per individual run**, not to the aggregate batch:
 
-$$maxExposure = \frac{totalBet}{runsCount} \times maxMultiplier \times runsCount = totalBet \times maxMultiplier$$
+$$maxExposure_{perRun} = \frac{totalBet}{runsCount} \times maxMultiplier$$
 
-The `runsCount` cancels itself. Therefore, **no additional multiplication is needed** in the bankroll protection formula — the existing check already covers multi-run bets correctly.
+The check rejects the bet if $maxExposure_{perRun} > bankroll \times 0.02$.
+
+**Rationale:** Each run is an independent event — the 2% bankroll limit protects against single-event catastrophic loss. The aggregate worst case (all N runs hitting max simultaneously) has astronomically low probability (e.g., for Plinko 16-row High Risk: $P \approx (0.003\%)^{10} \approx 0$) and is not a realistic risk scenario. A user can already place N sequential single-run bets to achieve the same total exposure, so the multi-run path must be consistent.
+
+This means the effective maximum total bet **scales linearly with runsCount**:
+
+$$maxBet_{total} = \frac{bankroll \times 0.02}{maxMultiplier} \times runsCount$$
 
 ### 3.3 Plinko Maximum Multiplier Constraints
-With configurable Plinko rows (8, 12, 16) and risk levels (low, medium, high), the maximum multiplier varies dramatically:
+With configurable Plinko rows (8, 12, 16) and risk levels (low, medium, high), the maximum multiplier varies dramatically. The table below shows the max total bet for different runsCount values (bankroll = 400K, 2% tolerance):
 
-| Rows | Risk | Max Multiplier | Max Bet (400K bankroll, 2%) |
-| :--- | :--- | :--- | :--- |
-| 8 | Low | 5.6× | 1,428 sats |
-| 8 | Medium | 14× | 571 sats |
-| 8 | High | 29× | 275 sats |
-| 12 | Low | 10× | 800 sats |
-| 12 | Medium | 33× | 242 sats |
-| 12 | High | 170× | 47 sats |
-| 16 | Low | 16× | 500 sats |
-| 16 | Medium | 110× | 72 sats |
-| 16 | High | 1000× | **8 sats** |
-
-> [!WARNING]
-> **Plinko 16-row High Risk** has a 1000× max multiplier, resulting in a maximum allowed bet of only 8 sats. Combined with the minimum bet enforcement (5 sats × runsCount), multi-run configurations above 1 become impossible on this specific tier. This is an inherent constraint of offering extreme payouts under a conservative bankroll risk tolerance.
+| Rows | Risk | Max Mult. | 1 Run | 2 Runs | 5 Runs | 10 Runs |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| 8 | Low | 5.6× | 1,428 sats | 2,856 sats | 7,140 sats | 14,280 sats |
+| 8 | Medium | 14× | 571 sats | 1,142 sats | 2,855 sats | 5,710 sats |
+| 8 | High | 29× | 275 sats | 550 sats | 1,375 sats | 2,750 sats |
+| 12 | Low | 10× | 800 sats | 1,600 sats | 4,000 sats | 8,000 sats |
+| 12 | Medium | 33× | 242 sats | 484 sats | 1,210 sats | 2,420 sats |
+| 12 | High | 170× | 47 sats | 94 sats | 235 sats | 470 sats |
+| 16 | Low | 16× | 500 sats | 1,000 sats | 2,500 sats | 5,000 sats |
+| 16 | Medium | 110× | 72 sats | 144 sats | 360 sats | 720 sats |
+| 16 | High | 1000× | **8 sats** | **16 sats** | **40 sats** | **80 sats** |
 
 **Per-Run Rounding Strategy:** Per-run payouts are computed as precise floats. Only the aggregate total payout across all runs is floored (`Math.floor`) once at the end. This eliminates cumulative rounding losses that would unfairly penalize the player in high-run configurations.
 

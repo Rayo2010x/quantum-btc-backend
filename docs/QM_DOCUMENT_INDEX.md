@@ -15,7 +15,7 @@
 | :--- | :--- | :--- | :--- |
 | [High-Level Technical Manual](01-Requirements/QM_High_Level_Technical_Manual.md) | 3.0 | **APPROVED** | 2026-05-14 |
 | [Transparency & Verification](01-Requirements/QM_Transparency_and_Verification.md) | 1.0 | **APPROVED** | 2026-03-03 |
-| [Bankroll & Risk Analysis](01-Requirements/QM_Bankroll_Risk_Analysis.md) | 2.0 | **APPROVED** | 2026-05-14 |
+| [Bankroll & Risk Analysis](01-Requirements/QM_Bankroll_Risk_Analysis.md) | 2.1 | **APPROVED** | 2026-05-14 |
 | [Frontend Integration Plan](01-Requirements/QM_Frontend_Integration_Plan.md) | 1.1 | **APPROVED** | 2026-04-08 |
 | [UI/UX and Frontend Guidelines](01-Requirements/QM_UI_UX_Guidelines.md) | 1.6 | **DRAFT** | 2026-04-09 |
 | [White Paper](01-Requirements/QM_White_Paper.md) | 0.5 | **APPROVED** | 2026-04-09 |
