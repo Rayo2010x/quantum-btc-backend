@@ -128,6 +128,32 @@ export function StatisticsView() {
         ];
     }, [stats]);
 
+    const plinkoData = useMemo(() => {
+        if (!stats?.plinkoFrequencies) return null;
+        
+        const formatData = (rowSize: number) => {
+            const data = stats.plinkoFrequencies![rowSize];
+            if (!data) return [];
+            return Object.entries(data).map(([numStr, count]) => ({
+                label: numStr,
+                value: count as number,
+                colorClass: 'bg-primary/80'
+            }));
+        };
+
+        const calcTotal = (rowSize: number) => {
+            const data = stats.plinkoFrequencies![rowSize];
+            if (!data) return 0;
+            return Object.values(data).reduce((a, b) => a + (b as number), 0);
+        };
+
+        return {
+            8: { data: formatData(8), total: calcTotal(8) },
+            12: { data: formatData(12), total: calcTotal(12) },
+            16: { data: formatData(16), total: calcTotal(16) }
+        };
+    }, [stats]);
+
     if (isLoading) {
         return (
             <div className="flex justify-center items-center min-h-[50vh]">
@@ -208,38 +234,58 @@ export function StatisticsView() {
                 </div>
             </div>
 
-            <DualAxisHistogram
-                title={gameType === 'roulette' ? "1. Frequency by Number (0-36)" : "Frequency by Target Slot (0-16)"}
-                data={numbersData}
-                total={totalRuns}
-            />
+            {gameType === 'roulette' ? (
+                <>
+                    <DualAxisHistogram
+                        title="1. FREQUENCY BY NUMBER (0-36)"
+                        data={numbersData}
+                        total={totalRuns}
+                    />
 
-            {gameType === 'roulette' && (
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <DualAxisHistogram
+                            title="2. FREQUENCY BY ROW"
+                            data={rowsData}
+                            total={totalRuns}
+                        />
+                        <DualAxisHistogram
+                            title="3. FREQUENCY BY DOZEN"
+                            data={dozensData}
+                            total={totalRuns}
+                        />
+                        <DualAxisHistogram
+                            title="4. FREQUENCY BY HALF"
+                            data={halvesData}
+                            total={totalRuns}
+                        />
+                        <DualAxisHistogram
+                            title="5. FREQUENCY BY COLOR"
+                            data={colorsData}
+                            total={totalRuns}
+                        />
+                        <DualAxisHistogram
+                            title="6. PARITY (ODD/EVEN)"
+                            data={parityData}
+                            total={totalRuns}
+                        />
+                    </div>
+                </>
+            ) : plinkoData && (
+                <div className="grid grid-cols-1 gap-8">
                     <DualAxisHistogram
-                        title="2. Frequency by Row"
-                        data={rowsData}
-                        total={totalRuns}
+                        title="1. FREQUENCY BY TARGET SLOT (8 ROWS, 0-8)"
+                        data={plinkoData[8].data}
+                        total={plinkoData[8].total}
                     />
                     <DualAxisHistogram
-                        title="3. Frequency by Dozen"
-                        data={dozensData}
-                        total={totalRuns}
+                        title="2. FREQUENCY BY TARGET SLOT (12 ROWS, 0-12)"
+                        data={plinkoData[12].data}
+                        total={plinkoData[12].total}
                     />
                     <DualAxisHistogram
-                        title="4. Frequency by Half"
-                        data={halvesData}
-                        total={totalRuns}
-                    />
-                    <DualAxisHistogram
-                        title="5. Frequency by Color"
-                        data={colorsData}
-                        total={totalRuns}
-                    />
-                    <DualAxisHistogram
-                        title="6. Parity (Odd/Even)"
-                        data={parityData}
-                        total={totalRuns}
+                        title="3. FREQUENCY BY TARGET SLOT (16 ROWS, 0-16)"
+                        data={plinkoData[16].data}
+                        total={plinkoData[16].total}
                     />
                 </div>
             )}

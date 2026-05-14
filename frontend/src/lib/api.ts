@@ -57,6 +57,7 @@ export interface StatisticsResponse {
     totalBets: number;
     totalRuns: number;
     frequencies: Record<number, number>;
+    plinkoFrequencies?: Record<number, Record<number, number>>;
 }
 
 // Campaign Models
