@@ -314,7 +314,7 @@ export function VerifyHistoryView({ sessionId, onRegisterClick }: VerifyHistoryV
                                         <div>
                                             <div className="text-sm text-gray-400">Calculated</div>
                                             <div className="text-4xl font-display font-bold text-white">
-                                                {Array.isArray(calculatedOutcome) ? `[${calculatedOutcome.length}]` : calculatedOutcome}
+                                                {verificationData.runsCount}
                                             </div>
                                         </div>
                                         {isVerified ? (
@@ -364,7 +364,7 @@ export function VerifyHistoryView({ sessionId, onRegisterClick }: VerifyHistoryV
                                         <th className="px-6 py-4 max-w-[150px]">Bet ID</th>
                                         <th className="px-6 py-4">Game</th>
                                         <th className="px-6 py-4 text-center">Runs</th>
-                                        <th className="px-6 py-4 text-center">Outcome</th>
+                                        <th className="px-6 py-4 text-center">Outcome[0]</th>
                                         <th className="px-6 py-4 text-right">NET P&L</th>
                                         <th className="px-6 py-4 text-center">Verification</th>
                                     </tr>
