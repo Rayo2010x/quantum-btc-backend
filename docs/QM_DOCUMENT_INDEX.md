@@ -1,8 +1,8 @@
 # DOCUMENT INDEX - QuantumBTC Backend
 
 > **ID:** QM_DOCUMENT_INDEX
-> **Version:** 2.3
-> **Last Updated:** 2026-05-12
+> **Version:** 2.4
+> **Last Updated:** 2026-05-14
 > **Status:** APPROVED
 
 ## 00-Meta (Process & Standards)
@@ -13,9 +13,9 @@
 ## 01-Requirements (Business Logic)
 | Artifact | Version | Status | Last Modified |
 | :--- | :--- | :--- | :--- |
-| [High-Level Technical Manual](01-Requirements/QM_High_Level_Technical_Manual.md) | 2.20 | **APPROVED** | 2026-05-08 |
+| [High-Level Technical Manual](01-Requirements/QM_High_Level_Technical_Manual.md) | 3.0 | **APPROVED** | 2026-05-14 |
 | [Transparency & Verification](01-Requirements/QM_Transparency_and_Verification.md) | 1.0 | **APPROVED** | 2026-03-03 |
-| [Bankroll & Risk Analysis](01-Requirements/QM_Bankroll_Risk_Analysis.md) | 1.1 | **DRAFT** | 2026-04-08 |
+| [Bankroll & Risk Analysis](01-Requirements/QM_Bankroll_Risk_Analysis.md) | 2.0 | **APPROVED** | 2026-05-14 |
 | [Frontend Integration Plan](01-Requirements/QM_Frontend_Integration_Plan.md) | 1.1 | **APPROVED** | 2026-04-08 |
 | [UI/UX and Frontend Guidelines](01-Requirements/QM_UI_UX_Guidelines.md) | 1.6 | **DRAFT** | 2026-04-09 |
 | [White Paper](01-Requirements/QM_White_Paper.md) | 0.5 | **APPROVED** | 2026-04-09 |
@@ -31,7 +31,7 @@
 ## 03-Database (Persistence Layer)
 | Artifact | Version | Status | Last Modified |
 | :--- | :--- | :--- | :--- |
-| [Data Schema & Dictionary](03-Database/QM_Database_Schema.md) | 1.9 | **APPROVED** | 2026-05-12 |
+| [Data Schema & Dictionary](03-Database/QM_Database_Schema.md) | 2.0 | **APPROVED** | 2026-05-14 |
 | [State Transition Models](03-Database/QM_State_Models.md) | 1.0 | **DRAFT** | 2026-01-30 |
 
 ## 04-API (Interfaces & Contracts)

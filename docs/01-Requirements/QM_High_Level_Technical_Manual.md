@@ -1,8 +1,8 @@
 # High-Level Technical Manual: QuantumBTC Project
 
 > **ID:** QM_High_Level_Technical_Manual
-> **Version:** 2.20
-> **Last Updated:** 2026-05-07
+> **Version:** 3.0
+> **Last Updated:** 2026-05-14
 > **Status:** APPROVED
 
 ## 1. Operation Summary
@@ -48,7 +48,7 @@ For a secure integration between the API and the QuantumBTC Front-End, the follo
 The standard 37-number model (0-36) is used. Zero always favors the house in outside bets.
 
 The system supports simple and complex bets (Outside Bets, Dozens, Splits) by evaluating an **Array of Numbers**.
-The API Backend receives an array of $N$ numbers. The prize multiplier is calculated mathematically and dynamically mathematically in the backend:
+The API Backend receives an array of $N$ numbers. The prize multiplier is calculated mathematically and dynamically in the backend:
 
 $$Multiplier = \frac{36}{N}$$
 
@@ -63,7 +63,22 @@ $$Multiplier = \frac{36}{N}$$
 | Dozen / Column | 12 | 3× |
 | Red/Black, Even/Odd | 18 | 2× |
 
-### 3.1 Result Visualization (Animation)
+#### 3.1.1 Weight-Based Betting System
+Roulette uses a **weight-based chip system** rather than absolute satoshi values. The user places chips with relative weights (1, 2, 5, 10) on the board and separately specifies a **Total Bet Amount** in satoshis.
+
+*   **Chip Weights:** `[1, 2, 5, 10]` — these are unitless relative values.
+*   **Bet Distribution:** Each position's satoshi portion = `(positionWeight / totalWeight) × totalBetAmount`.
+*   **Invoice Amount:** The Total Bet Amount is the exact value charged via the Lightning invoice.
+*   **Visual:** Chips are rendered as small (12×12px) indicators in the upper-left corner of each cell, showing the weight value without obscuring the number.
+
+#### 3.1.2 Multi-Run (Batch Betting)
+The user can select **1, 2, 5, or 10 runs** per single transaction. Each run uses the same chip layout (locked per batch) but produces an independent outcome derived from a nonce-indexed entropy formula (see §4.2).
+
+*   **Per-Run Amount:** `totalBetAmount / runsCount` (precise float; only the aggregate total payout is floored).
+*   **Animation:** Runs 1-2 use full ~3-second spin animation; runs 5-10 use accelerated ~1.5-second animation. A progress indicator shows "Run X of N".
+*   **Outcome Visualization:** After all runs complete, white/amber chips appear in the bottom-right corner of each hit cell, showing the hit count.
+
+#### 3.1.3 Result Visualization (Animation)
 To maintain the "Premium" experience, the system must not immediately show the numeric result.
 1.  **INITIAL State:** Static or slowly rotating roulette (idle).
 2.  **SPINNING State:** Upon payment confirmation (webhook), the roulette spins visually for 3-5 seconds.
@@ -79,16 +94,34 @@ To maintain the "Premium" experience, the system must not immediately show the n
 ### 3.2 Plinko Mechanics
 Plinko is a game where a ball drops through a pegboard of $N$ rows, bouncing left or right at each peg until it lands in a multiplier slot at the bottom.
 
-The API receives a `risk` level (low, medium, high) and `rows` (e.g., 16).
-The multiplier table is determined by the `risk` and `rows` configuration.
+The API receives a `risk` level (low, medium, high) and `rows` (8, 12, or 16).
+The multiplier table is determined by the `risk` and `rows` configuration, stored as a 2D lookup: `PLINKO_PAYOUTS[rows][risk]`.
+
+#### 3.2.1 Configurable Rows
+The user can select between **8, 12, or 16 rows**, each producing a different number of slots and probability distribution:
+
+| Rows | Slots (Buckets) | Distribution Shape | Edge Multiplier Range |
+| :--- | :--- | :--- | :--- |
+| 8 | 9 (0-8) | Steep bell curve | Low: 5.6× / High: 29× |
+| 12 | 13 (0-12) | Medium bell curve | Low: 10× / High: 170× |
+| 16 | 17 (0-16) | Flat bell curve | Low: 16× / High: 1000× |
+
+All 9 payout tables (3 rows × 3 risk levels) maintain a **~97.5% RTP** (Return to Player), verified via binomial distribution: $P(slot = k) = C(N, k) \times 0.5^N$.
+
+#### 3.2.2 Multi-Run (Batch Drops)
+The user can select **1, 2, 5, or 10 runs** per transaction. Rows and risk level are **locked per batch** (one payment, one configuration).
+
+*   **Animation:** Multiple balls drop with a 250ms stagger delay, each with a unique hue from the cyan spectrum.
+*   **Slot Counters:** After all balls land, counter badges appear below each slot showing the hit count (green for wins, red for losses).
+*   **Summary:** A consolidated result shows aggregate Net P&L.
 
 **Micro-Bet Constraints (Fractional Dust Prevention)**
-Since Bitcoin and Lightning operate natively in whole satoshis, and Plinko contains fractional multipliers (e.g., $0.2\times$), the minimum allowed bet is mathematically constrained to **5 Sats**. This ensures that the lowest possible payout ($5 \times 0.2$) results in exactly 1 satoshi, preventing players from losing 100% of their bet to downward rounding (`Math.floor`) on minimal wagers.
+Since Bitcoin and Lightning operate natively in whole satoshis, and Plinko contains fractional multipliers (e.g., $0.2\times$), the minimum allowed bet is mathematically constrained to **5 sats per run**. Per-run payouts are kept as precise floats; only the aggregate total payout across all runs is floored (`Math.floor`) once at the end, preventing cumulative rounding losses.
 
 **Entropy Resolution (Provably Fair)**
-The `final_entropy` hash (SHA256) provides 256 bits of randomness. Since a 16-row Plinko requires 16 binary choices (Left = 0, Right = 1), we use the first 16 bits of the hash to determine the path.
+The `final_entropy` hash (SHA256) provides 256 bits of randomness. For an $N$-row Plinko, we use the first $N$ hexadecimal characters of the hash to determine the path (each character mod 2 = Left or Right).
 
-$$Slot = \sum_{i=1}^{Rows} bit_i$$
+$$Slot = \sum_{i=0}^{Rows-1} (parseInt(hash[i], 16) \bmod 2)$$
 
 Where $Slot$ determines the final index in the multiplier array. The system ensures perfect 50/50 probability for each bounce. The visual result matches the mathematical calculation performed by the backend.
 
@@ -105,7 +138,18 @@ The system guarantees fair and unpredictable entropy using two sources integrate
 ### 4.2 Result Formula
 The final entropy is calculated after payment:
 $$final\_entropy = SHA256(cached\_anu\_bytes \ || \ client\_seed \ || \ drand\_randomness)$$
-The result is $final\_entropy \pmod{37}$.
+For Roulette (single-run): the result is $parseInt(final\_entropy[0..7], 16) \pmod{37}$.
+For Plinko (single-run): the result is $\sum_{i=0}^{Rows-1} (parseInt(final\_entropy[i], 16) \bmod 2)$.
+
+#### 4.2.1 Multi-Run Nonce-Based Derivation
+When `runsCount > 1`, a unique entropy is derived for each run by appending a nonce index $i$ to the hash input:
+$$final\_entropy_i = SHA256(cached\_anu\_bytes \ || \ client\_seed \ || \ drand\_randomness \ || \ i)$$
+Where $i \in [0, runsCount - 1]$. This ensures:
+*   Each run produces an independent, deterministic outcome.
+*   A single entropy buffer record serves all runs (no buffer exhaustion).
+*   The user can independently verify each run via the Verification Laboratory by computing $hash_i$ for each nonce.
+
+**Backward Compatibility:** For single-run bets (`runsCount = 1`), no nonce is appended. This preserves the hash chain for all legacy bets.
 
 ## 5. Technical Architecture and Flows
 | Component | Main Function |
@@ -118,9 +162,12 @@ The result is $final\_entropy \pmod{37}$.
 
 ### 5.2 Statistics Tab
 To provide transparency regarding the recurrence of results, the system has a dedicated tab for aggregated metrics ("Statistics"), permanently accessible and located next to "Roulette".
-*   **Global Metric:** Total amount of bets played or the filtered amount depending on choice.
-*   **"Last Bets" Selector:** An interactive filtering menu is provided allowing quantification of only the last $N$ plays (200, 500, 1000, 5000, All). This isolates "data noise" from extremely old plays and favors recent probabilistic analysis. Default state is "200". The view updates exclusively on first access or when modifying the selector.
-*   **Distribution (Dual-Axis Histograms):** Aggregated historical data (Absolute Quantity and Percentage) extracted from the batch of bets corresponding to the applied filter:
+*   **Global Metrics (Dual):**
+    *   **Total Runs** (primary, hero counter): The sum of all individual game outcomes across all bets. For a single bet with `runsCount = 5`, this contributes 5 runs.
+    *   **Total Bets** (secondary): The number of unique transactions (Lightning invoices paid). Displayed as "across X bets" below the hero counter.
+*   **"Last Runs" Selector:** An interactive filtering menu allowing quantification of only the last $N$ runs (200, 500, 1000, 5000, All). This isolates "data noise" from extremely old plays and favors recent probabilistic analysis. Default state is "200". The view updates exclusively on first access or when modifying the selector.
+*   **Frequency Data Source:** For multi-run bets, the `run_results` JSONB column is unpacked via `jsonb_array_elements()` to count each individual run outcome. Legacy bets (where `run_results IS NULL`) fall back to the `final_result` integer column. A UNION query ensures backward compatibility.
+*   **Distribution (Dual-Axis Histograms):** Aggregated historical data (Absolute Quantity and Percentage) extracted from the batch of runs corresponding to the applied filter:
     *   Frequency of Straights (Numbers 0-36).
     *   Frequency by Rows (Row 1, Row 2, Row 3).
     *   Frequency by Dozens (1st, 2nd, 3rd).

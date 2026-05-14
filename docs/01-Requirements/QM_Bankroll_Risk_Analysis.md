@@ -1,9 +1,9 @@
 # Bankroll Risk & Maximum Bet Strategy
 
 > **ID:** QM_Bankroll_Risk_Analysis
-> **Version:** 1.1
-> **Last Updated:** 2026-04-08
-> **Status:** DRAFT
+> **Version:** 2.0
+> **Last Updated:** 2026-05-14
+> **Status:** APPROVED
 
 ## 1. The "Risk of Ruin" (RoR) Problem
 Currently in the local system, the `MAX_BET_SATS` constant is roughly defined as `BANKROLL_FLOOR_SATS / 50` (**2%** of the Bankroll). 
@@ -38,6 +38,33 @@ For MVP purposes, we will set a strict tolerance: no individual bet should be ab
 
 > [!TIP]
 > If we integrate *Red/Black* bets in the future (2x multiplier), this same formula would allow the player to bet up to 8,000 Sats at once, since the negative impact on our treasury would still be confined to the 2% mathematical limit.
+
+### 3.2 Multi-Run (Batch Betting) Exposure
+With multi-run support (runsCount = 1, 2, 5, or 10), the worst-case exposure calculation remains mathematically equivalent to a single-run bet:
+
+$$maxExposure = \frac{totalBet}{runsCount} \times maxMultiplier \times runsCount = totalBet \times maxMultiplier$$
+
+The `runsCount` cancels itself. Therefore, **no additional multiplication is needed** in the bankroll protection formula — the existing check already covers multi-run bets correctly.
+
+### 3.3 Plinko Maximum Multiplier Constraints
+With configurable Plinko rows (8, 12, 16) and risk levels (low, medium, high), the maximum multiplier varies dramatically:
+
+| Rows | Risk | Max Multiplier | Max Bet (400K bankroll, 2%) |
+| :--- | :--- | :--- | :--- |
+| 8 | Low | 5.6× | 1,428 sats |
+| 8 | Medium | 14× | 571 sats |
+| 8 | High | 29× | 275 sats |
+| 12 | Low | 10× | 800 sats |
+| 12 | Medium | 33× | 242 sats |
+| 12 | High | 170× | 47 sats |
+| 16 | Low | 16× | 500 sats |
+| 16 | Medium | 110× | 72 sats |
+| 16 | High | 1000× | **8 sats** |
+
+> [!WARNING]
+> **Plinko 16-row High Risk** has a 1000× max multiplier, resulting in a maximum allowed bet of only 8 sats. Combined with the minimum bet enforcement (5 sats × runsCount), multi-run configurations above 1 become impossible on this specific tier. This is an inherent constraint of offering extreme payouts under a conservative bankroll risk tolerance.
+
+**Per-Run Rounding Strategy:** Per-run payouts are computed as precise floats. Only the aggregate total payout across all runs is floored (`Math.floor`) once at the end. This eliminates cumulative rounding losses that would unfairly penalize the player in high-run configurations.
 
 ## 4. Liquidity Monitoring and Bankruptcy Alerts (OpenNode)
 
