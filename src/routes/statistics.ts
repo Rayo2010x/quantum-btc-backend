@@ -23,9 +23,9 @@ export async function statisticsRoutes(app: FastifyInstance) {
             // CTE to get the required set of bets
             const cte = `
                 WITH recent_bets AS (
-                    SELECT final_result
+                    SELECT final_result, runs_count, run_results
                     FROM bets
-                    WHERE final_result IS NOT NULL
+                    WHERE status IN ('WON', 'LOST')
                     AND game_type = $1
                     ${limitQuery}
                 )
@@ -33,18 +33,27 @@ export async function statisticsRoutes(app: FastifyInstance) {
 
             // Get total completed bets based on the filtered set
             const totalRes = await pool.query(
-                `${cte} SELECT COUNT(*) as total_bets FROM recent_bets`,
+                `${cte} SELECT COUNT(*) as total_bets, COALESCE(SUM(runs_count), 0) as total_runs FROM recent_bets`,
                 queryParams
             );
             const totalBets = parseInt(totalRes.rows[0].total_bets, 10);
+            const totalRuns = parseInt(totalRes.rows[0].total_runs, 10);
 
             // Get frequencies per number from the filtered set
             const freqRes = await pool.query(
-                `${cte} 
-                 SELECT final_result, COUNT(*) as count
-                 FROM recent_bets
-                 GROUP BY final_result
-                 ORDER BY final_result ASC`,
+                `${cte},
+                 unpacked_runs AS (
+                     SELECT final_result as outcome FROM recent_bets WHERE run_results IS NULL
+                     UNION ALL
+                     SELECT (r->>'outcome')::int as outcome 
+                     FROM recent_bets, jsonb_array_elements(run_results->'runs') as r 
+                     WHERE run_results IS NOT NULL
+                 )
+                 SELECT outcome as final_result, COUNT(*) as count
+                 FROM unpacked_runs
+                 WHERE outcome IS NOT NULL
+                 GROUP BY outcome
+                 ORDER BY outcome ASC`,
                 queryParams
             );
 
@@ -62,6 +71,7 @@ export async function statisticsRoutes(app: FastifyInstance) {
 
             return {
                 totalBets,
+                totalRuns,
                 frequencies
             };
         } catch (err) {

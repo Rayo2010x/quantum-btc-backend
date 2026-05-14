@@ -37,6 +37,7 @@ export interface BetStatusResponse {
     lnurlWithdraw?: string;
     k1?: string;
     isClaimed?: boolean;
+    betDetails?: any;
 }
 
 export interface BetHistoryResponse {
@@ -54,6 +55,7 @@ export interface BetHistoryResponse {
 
 export interface StatisticsResponse {
     totalBets: number;
+    totalRuns: number;
     frequencies: Record<number, number>;
 }
 

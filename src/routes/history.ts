@@ -36,7 +36,8 @@ export async function historyRoutes(app: FastifyInstance) {
                         status, 
                         final_result as outcome, 
                         game_type,
-                        created_at
+                        created_at,
+                        runs_count
                      FROM bets 
                      WHERE session_id IN (
                         SELECT session_id FROM reward_registrations WHERE reward_address = $1
@@ -55,7 +56,8 @@ export async function historyRoutes(app: FastifyInstance) {
                         status, 
                         final_result as outcome, 
                         game_type,
-                        created_at
+                        created_at,
+                        runs_count
                      FROM bets 
                      WHERE session_id = $1
                      ORDER BY created_at DESC 
@@ -72,7 +74,8 @@ export async function historyRoutes(app: FastifyInstance) {
                 status: row.status,
                 outcome: row.outcome,
                 gameType: row.game_type,
-                createdAt: row.created_at
+                createdAt: row.created_at,
+                runsCount: row.runs_count || 1
             }));
 
             return { history };

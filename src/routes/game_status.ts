@@ -48,6 +48,7 @@ export async function gameStatusRoutes(app: FastifyInstance) {
                 payoutSat: Number(bet.payout_sat),
                 runsCount: bet.runs_count || 1,
                 runResults: bet.run_results?.runs || null,
+                betDetails: bet.bet_details,
                 serverSeedReveal: bet.server_seed_reveal,
                 clientSeed: bet.client_seed,
                 drandRound: bet.drand_round,

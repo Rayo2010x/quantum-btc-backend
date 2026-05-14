@@ -145,6 +145,7 @@ export function StatisticsView() {
     }
 
     const totalBets = stats.totalBets;
+    const totalRuns = stats.totalRuns || totalBets;
 
     return (
         <div className="animate-in fade-in slide-in-from-bottom-4 duration-700 max-w-7xl mx-auto space-y-12">
@@ -159,10 +160,13 @@ export function StatisticsView() {
 
             <div className="bg-gradient-to-r from-primary/20 via-black to-secondary/20 border border-white/10 rounded-2xl p-8 text-center backdrop-blur-md shadow-2xl">
                 <h2 className="text-sm font-mono text-primary tracking-widest uppercase mb-2">
-                    {selectedLimit === 'All' ? 'Total Bets Played' : `Last ${selectedLimit} Bets`}
+                    {selectedLimit === 'All' ? 'Total Runs Played' : `Last ${selectedLimit} Runs`}
                 </h2>
                 <div className="text-6xl md:text-8xl font-black tracking-tighter text-white font-display drop-shadow-[0_0_15px_rgba(234,179,8,0.3)]">
-                    {formatCompactNumber(totalBets)}
+                    {formatCompactNumber(totalRuns)}
+                </div>
+                <div className="text-gray-400 mt-2 text-sm font-mono">
+                    Across {formatCompactNumber(totalBets)} bets
                 </div>
             </div>
 
@@ -191,11 +195,11 @@ export function StatisticsView() {
                         onChange={(e) => setSelectedLimit(e.target.value)}
                         className="bg-slate-900 text-white border border-white/10 rounded-lg px-6 py-2 appearance-none cursor-pointer focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors text-sm font-bold font-sans tracking-wide text-center"
                     >
-                        <option value="200">Last 200</option>
-                        <option value="500">Last 500</option>
-                        <option value="1000">Last 1,000</option>
-                        <option value="5000">Last 5,000</option>
-                        <option value="All">All Bets</option>
+                        <option value="200">Last 200 Runs</option>
+                        <option value="500">Last 500 Runs</option>
+                        <option value="1000">Last 1,000 Runs</option>
+                        <option value="5000">Last 5,000 Runs</option>
+                        <option value="All">All Runs</option>
                     </select>
                     {/* Minimal custom dropdown arrow */}
                     <div className="pointer-events-none absolute right-4 flex items-center text-gray-400">
@@ -207,7 +211,7 @@ export function StatisticsView() {
             <DualAxisHistogram
                 title={gameType === 'roulette' ? "1. Frequency by Number (0-36)" : "Frequency by Target Slot (0-16)"}
                 data={numbersData}
-                total={totalBets}
+                total={totalRuns}
             />
 
             {gameType === 'roulette' && (
@@ -215,27 +219,27 @@ export function StatisticsView() {
                     <DualAxisHistogram
                         title="2. Frequency by Row"
                         data={rowsData}
-                        total={totalBets}
+                        total={totalRuns}
                     />
                     <DualAxisHistogram
                         title="3. Frequency by Dozen"
                         data={dozensData}
-                        total={totalBets}
+                        total={totalRuns}
                     />
                     <DualAxisHistogram
                         title="4. Frequency by Half"
                         data={halvesData}
-                        total={totalBets}
+                        total={totalRuns}
                     />
                     <DualAxisHistogram
                         title="5. Frequency by Color"
                         data={colorsData}
-                        total={totalBets}
+                        total={totalRuns}
                     />
                     <DualAxisHistogram
                         title="6. Parity (Odd/Even)"
                         data={parityData}
-                        total={totalBets}
+                        total={totalRuns}
                     />
                 </div>
             )}
