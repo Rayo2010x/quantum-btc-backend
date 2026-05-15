@@ -30,7 +30,7 @@
         { "numbers": [0], "amount": 100 },
         { "numbers": [1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36], "amount": 500 }
       ],
-      "clientSeed": "user_provided_entropy"
+      "clientSeed": "user_provided_entropy" // 1 to 64 characters
     }
 
     // Example for Plinko (5 runs):

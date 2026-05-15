@@ -297,6 +297,7 @@ export function PlinkoGame({ sessionId, isMaintenance }: { sessionId: string | n
                                         type="text" 
                                         value={clientSeed} 
                                         onChange={(e) => setClientSeed(e.target.value)}
+                                        maxLength={64}
                                         placeholder="Auto-generated if empty"
                                         className="w-full bg-black/50 border border-white/20 rounded-md px-3 py-2 text-white font-mono text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
                                     />

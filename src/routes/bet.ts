@@ -50,7 +50,7 @@ export async function betRoutes(app: FastifyInstance) {
       sessionId: z.string().uuid(),
       gameType: z.enum(["roulette", "plinko"]).optional().default("roulette"),
       runsCount: z.union([z.literal(1), z.literal(2), z.literal(5), z.literal(10)]).optional().default(1),
-      clientSeed: z.string().min(10),
+      clientSeed: z.string().min(1).max(64),
       bets: z.array(z.any()).min(1)
     }).superRefine((data, ctx) => {
       if (data.gameType === "roulette") {
