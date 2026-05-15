@@ -185,8 +185,8 @@ export function StatisticsView() {
             </div>
 
             <div className="bg-gradient-to-r from-primary/20 via-black to-secondary/20 border border-white/10 rounded-2xl p-8 text-center backdrop-blur-md shadow-2xl">
-                <h2 className="text-sm font-mono text-primary tracking-widest uppercase mb-2">
-                    {selectedLimit === 'All' ? 'Total Runs Played' : `Last ${selectedLimit} Runs`}
+                <h2 className="text-lg font-mono text-primary tracking-widest uppercase mb-2 font-bold">
+                    TOTAL RUNS
                 </h2>
                 <div className="text-6xl md:text-8xl font-black tracking-tighter text-white font-display drop-shadow-[0_0_15px_rgba(234,179,8,0.3)]">
                     {formatCompactNumber(totalRuns)}
@@ -221,11 +221,11 @@ export function StatisticsView() {
                         onChange={(e) => setSelectedLimit(e.target.value)}
                         className="bg-slate-900 text-white border border-white/10 rounded-lg px-6 py-2 appearance-none cursor-pointer focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors text-sm font-bold font-sans tracking-wide text-center"
                     >
-                        <option value="200">Last 200 Runs</option>
-                        <option value="500">Last 500 Runs</option>
-                        <option value="1000">Last 1,000 Runs</option>
-                        <option value="5000">Last 5,000 Runs</option>
-                        <option value="All">All Runs</option>
+                        <option value="200">Last 200 Bets</option>
+                        <option value="500">Last 500 Bets</option>
+                        <option value="1000">Last 1,000 Bets</option>
+                        <option value="5000">Last 5,000 Bets</option>
+                        <option value="All">All Bets</option>
                     </select>
                     {/* Minimal custom dropdown arrow */}
                     <div className="pointer-events-none absolute right-4 flex items-center text-gray-400">
