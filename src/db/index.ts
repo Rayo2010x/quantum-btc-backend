@@ -12,6 +12,12 @@ export const pool = new Pool({
   idleTimeoutMillis: 10000 // 10s idle timeout
 });
 
+// Prevent unhandled connection errors on idle clients from crashing the process
+pool.on("error", (err) => {
+  console.error("Unexpected error on idle pg client:", err.message || err);
+});
+
+
 export async function withTx<T>(fn: (client: pg.PoolClient) => Promise<T>): Promise<T> {
   const client = await pool.connect();
   try {
